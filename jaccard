@@ -1,0 +1,38 @@
+import cudf
+import cugraph
+
+# Build undirected graph, preserve your original IDs
+G = cugraph.Graph(directed=False)
+G.from_cudf_edgelist(edges, source='src', destination='dst', renumber=False)
+
+# Optional but cheap: degrees (useful for sanity checks / tie-breaks if needed)
+deg = G.degree().rename(columns={'vertex': 'vid', 'degree': 'deg'})
+
+# 1) Generate all 2-hop pairs (u, v). This emits one row per middle neighbor w for each u-w-v.
+two_hop = cugraph.two_hop_neighbors(G)  # columns: ['first','second']
+
+# 2) Drop self-pairs and count how many distinct middle neighbors each pair shares.
+#    two_hop can contain multiple rows per (u,v) (one for each w); groupby().size() is the count.
+two_hop = two_hop[two_hop['first'] != two_hop['second']]
+cn_counts = two_hop.groupby(['first','second']).size().reset_index(name='common_neighbors')
+
+# 3) Keep only pairs with at least 2 common neighbors.
+cn_pairs = cn_counts[cn_counts['common_neighbors'] >= 2]
+
+# 4) Compute Jaccard only for those pairs.
+jac = cugraph.jaccard_coefficient(G, vertex_pairs=cn_pairs[['first','second']])
+
+# 5) Attach common-neighbor counts to the Jaccard results.
+sim = jac.merge(cn_pairs, on=['first','second'], how='left')
+
+# 6) Make it symmetric so each node can pick its own top-3.
+sim_lr = sim.rename(columns={'first': 'src', 'second': 'dst'})
+sim_rl = sim.rename(columns={'first': 'dst',  'second': 'src'})
+sim_all = cudf.concat([sim_lr, sim_rl], ignore_index=True)
+
+# 7) For each node (src), keep top-3 by Jaccard score (then by common_neighbors, then by dst as stable tie-breaker).
+sim_all = sim_all.sort_values(by=['src','jaccard_coeff','common_neighbors','dst'], ascending=[True, False, False, True])
+top3 = sim_all.groupby('src').head(3).reset_index(drop=True)
+
+# 'top3' columns: ['src','dst','jaccard_coeff','common_neighbors']
+# If you want, you can also attach degrees or anything else here, but not required.
