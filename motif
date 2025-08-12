@@ -1,0 +1,8 @@
+Identify customers whose transaction patterns match specific network motifs. Use flexible filters for transaction degree, amounts, and volumes to find relevant customers. View detailed metrics in a table and explore their transaction motifs visually in an interactive network graph.
+
+
+Lets the user filter customers based on network properties (degree, transaction amounts, volumes, and percentage difference in amounts) for both incoming and outgoing transactions.
+
+Displays a table of matching customers with key metrics like degree, transaction counts, and amounts.
+
+Shows an interactive network graph for the selected customer, visualizing connections to counterparties with edge thickness representing transaction amounts.
