@@ -1,0 +1,31 @@
+1. Expected vs. Actual Wire Transactions
+
+This section compares the customer’s expected transaction profile with their actual activity. It shows metrics such as domestic and international wire counts and amounts, along with cash transactions. Each metric is displayed with expected ranges, minimum and maximum thresholds, and the actual observed values. Significant variances are highlighted, making it easy to detect anomalies such as higher-than-expected transaction volumes. The panel also lists expected versus observed countries and highlights discrepancies, showing where activity occurred in unexpected geographies.
+
+2. Country Distribution and Risk Map
+
+This part visualizes transaction amounts and volumes by country. The top bar chart displays the largest transaction corridors, highlighting countries with the highest flow of funds. Below, a world map color-codes countries by risk rating (from very low to very high), helping analysts quickly spot concentration of activity in riskier jurisdictions. This combined view provides both geographic exposure and relative risk distribution at a glance.
+
+3. Risk Analysis by Country Classification
+
+Here, transactions are broken down by the risk rating of the involved countries. The chart compares total transaction amounts against volumes across categories such as High, Medium, Low, and Very High risk. This allows analysts to see whether most of the dollar value or most of the transaction activity is concentrated in riskier regions, which could indicate potential compliance red flags.
+
+4. Daily Transaction Trends
+
+The daily transaction view uses a bubble chart to track activity over time. Each bubble represents a day’s worth of transactions, sized by total value and colored by risk category. This allows users to see both fluctuations in daily volumes and the presence of high-risk activity patterns, such as sudden spikes or repeated exposures to very high-risk jurisdictions.
+
+5. Counterparty and Business Analysis
+
+This table presents the customer’s top counterparties and top business categories by aggregated transaction amount. On the left, counterparties are ranked with associated countries and total amounts, while on the right, business categories are ranked by their aggregate flows. This helps identify the most significant counterparties and industries, providing clarity on where most of the customer’s financial activity is concentrated.
+
+6. Monthly Aggregated Business Categories
+
+This chart tracks monthly transaction amounts across the top business categories. By grouping categories like professional services, legal services, and finance, the dashboard makes it easy to monitor recurring patterns and detect shifts in business relationships or industries over time.
+
+7. Payment Rail Distribution
+
+This section shows how transactions are split across different payment rails: Wire, ACH, Check, and RTP. Three separate pie charts illustrate distribution by total amount, transaction volume, and number of counterparties. For example, Wire transactions dominate in terms of dollar value, while ACH may have broader counterpart coverage. This gives a comprehensive view of how the customer leverages different rails.
+
+8. Customer Overview KPIs
+
+The final panel provides a high-level snapshot of overall activity for the selected customer. Key performance indicators (KPIs) include total incoming and outgoing transaction amounts and volumes, percentage breakdown of international activity, and exposure to high-risk countries. Green and red indicators show whether metrics have increased or decreased, giving quick insight into overall trends and emerging risks.
