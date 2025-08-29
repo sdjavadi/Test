@@ -2,19 +2,19 @@ import numpy as np
 import pandas as pd
 
 # ----------------------------
-# PARAMETERS
+# PARAMETERS (minimal change)
 # ----------------------------
-FREQ = "M"             # 'D' = daily, 'W' = weekly, 'M' = monthly
-WINDOW_PERIODS = 6     # last N periods (weeks, months, days depending on FREQ)
+FREQ = "M"              # 'D'=daily, 'W'=weekly, 'M'=monthly
+WINDOW_PERIODS = 6      # last N periods (days/weeks/months)
 MIN_POINTS = 4
 FILL_MISSING = True
 
 METRICS = ["total_amount", "total_number", "unique_counterparties"]
 
 # ----------------------------
-# AGGREGATION
+# AGGREGATION FUNCTION (adapted)
 # ----------------------------
-def aggregate_by_freq(df, freq=FREQ):
+def to_periodic(df, freq=FREQ):
     out = df.copy()
     out["period"] = df["date"].dt.to_period(freq).dt.to_timestamp()
     agg_dict = {m: "sum" for m in METRICS if m in out.columns}
@@ -22,7 +22,7 @@ def aggregate_by_freq(df, freq=FREQ):
     return gb.rename(columns={"period": "date"})
 
 # ----------------------------
-# REGRESSION HELPERS
+# Slope/R² computation (unchanged)
 # ----------------------------
 def ols_slope_r2(y: np.ndarray):
     y = np.asarray(y, dtype=float)
@@ -30,32 +30,38 @@ def ols_slope_r2(y: np.ndarray):
     if n < 2 or np.allclose(y, y[0]):
         return np.nan, np.nan, np.nan
     x = np.arange(n, dtype=float)
-    b, a = np.polyfit(x, y, deg=1)   # slope b, intercept a
+    b, a = np.polyfit(x, y, deg=1)
     yhat = a + b*x
-    ss_res = np.sum((y - yhat) ** 2)
-    ss_tot = np.sum((y - y.mean()) ** 2)
+    ss_res = np.sum((y - yhat)**2)
+    ss_tot = np.sum((y - y.mean())**2)
     r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else np.nan
     return b, a, r2
 
+# ----------------------------
+# Flexible period slicing
+# ----------------------------
 def last_n_periods_indexed(s, n, freq, fill_missing):
     s = s.sort_values()
     if s.empty:
         return s
     end = s.max().to_period(freq).to_timestamp()
-    start = (end.to_period(freq) - (n-1)).to_timestamp()
+    start = (end.to_period(freq) - (n - 1)).to_timestamp()
     if fill_missing:
         full_idx = pd.date_range(start, end, freq=freq)
         return full_idx
     else:
         return s[(s >= start) & (s <= end)]
 
+# ----------------------------
+# Main per-customer regression (1-line change)
+# ----------------------------
 def regress_per_customer(group: pd.DataFrame, freq=FREQ) -> pd.Series:
-    months_idx = last_n_periods_indexed(group["date"], WINDOW_PERIODS, freq, FILL_MISSING)
+    periods_idx = last_n_periods_indexed(group["date"], WINDOW_PERIODS, freq, FILL_MISSING)
     sub = group.set_index("date")
     if FILL_MISSING:
-        sub = sub.reindex(months_idx, fill_value=0.0)
+        sub = sub.reindex(periods_idx, fill_value=0.0)
     else:
-        sub = sub.loc[sub.index.isin(months_idx)]
+        sub = sub.loc[sub.index.isin(periods_idx)]
 
     out = {}
     for col in METRICS:
@@ -81,21 +87,14 @@ def regress_per_customer(group: pd.DataFrame, freq=FREQ) -> pd.Series:
     return pd.Series(out)
 
 # ----------------------------
-# PIPELINE
+# RUN PIPELINE (just 2 updated calls)
 # ----------------------------
-def run_trend_analysis(df, freq="M"):
-    df_agg = aggregate_by_freq(df, freq=freq)
+def run_trend_analysis(df, freq=FREQ):
+    dfm = to_periodic(df, freq=freq)
     summary = (
-        df_agg.sort_values(["customer_name", "date"])
-              .groupby("customer_name", group_keys=False)
-              .apply(lambda g: regress_per_customer(g, freq=freq))
-              .reset_index()
+        dfm.sort_values(["customer_name", "date"])
+            .groupby("customer_name", group_keys=False)
+            .apply(lambda g: regress_per_customer(g, freq=freq))
+            .reset_index()
     )
     return summary
-
-# ----------------------------
-# USAGE EXAMPLE
-# ----------------------------
-# summary = run_trend_analysis(df, freq="W")   # weekly trend
-# summary = run_trend_analysis(df, freq="D")   # daily trend
-# summary = run_trend_analysis(df, freq="M")   # monthly trend
