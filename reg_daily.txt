@@ -1,0 +1,101 @@
+import numpy as np
+import pandas as pd
+
+# ----------------------------
+# PARAMETERS
+# ----------------------------
+FREQ = "M"             # 'D' = daily, 'W' = weekly, 'M' = monthly
+WINDOW_PERIODS = 6     # last N periods (weeks, months, days depending on FREQ)
+MIN_POINTS = 4
+FILL_MISSING = True
+
+METRICS = ["total_amount", "total_number", "unique_counterparties"]
+
+# ----------------------------
+# AGGREGATION
+# ----------------------------
+def aggregate_by_freq(df, freq=FREQ):
+    out = df.copy()
+    out["period"] = df["date"].dt.to_period(freq).dt.to_timestamp()
+    agg_dict = {m: "sum" for m in METRICS if m in out.columns}
+    gb = out.groupby(["customer_name", "period"], as_index=False).agg(agg_dict)
+    return gb.rename(columns={"period": "date"})
+
+# ----------------------------
+# REGRESSION HELPERS
+# ----------------------------
+def ols_slope_r2(y: np.ndarray):
+    y = np.asarray(y, dtype=float)
+    n = len(y)
+    if n < 2 or np.allclose(y, y[0]):
+        return np.nan, np.nan, np.nan
+    x = np.arange(n, dtype=float)
+    b, a = np.polyfit(x, y, deg=1)   # slope b, intercept a
+    yhat = a + b*x
+    ss_res = np.sum((y - yhat) ** 2)
+    ss_tot = np.sum((y - y.mean()) ** 2)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else np.nan
+    return b, a, r2
+
+def last_n_periods_indexed(s, n, freq, fill_missing):
+    s = s.sort_values()
+    if s.empty:
+        return s
+    end = s.max().to_period(freq).to_timestamp()
+    start = (end.to_period(freq) - (n-1)).to_timestamp()
+    if fill_missing:
+        full_idx = pd.date_range(start, end, freq=freq)
+        return full_idx
+    else:
+        return s[(s >= start) & (s <= end)]
+
+def regress_per_customer(group: pd.DataFrame, freq=FREQ) -> pd.Series:
+    months_idx = last_n_periods_indexed(group["date"], WINDOW_PERIODS, freq, FILL_MISSING)
+    sub = group.set_index("date")
+    if FILL_MISSING:
+        sub = sub.reindex(months_idx, fill_value=0.0)
+    else:
+        sub = sub.loc[sub.index.isin(months_idx)]
+
+    out = {}
+    for col in METRICS:
+        if col not in sub.columns:
+            continue
+        y = sub[col].astype(float).values
+        if len(y) >= MIN_POINTS and not np.allclose(y, y[0]):
+            slope, intercept, r2 = ols_slope_r2(y)
+            delta = float(y[-1] - y[0])
+        else:
+            slope, intercept, r2, delta = (np.nan, np.nan, np.nan, np.nan)
+
+        out[f"slope_{col}"] = slope
+        out[f"r2_{col}"] = r2
+        out[f"delta_{col}"] = delta
+        out[f"last_{col}"] = float(y[-1]) if len(y) else np.nan
+
+    if "slope_total_amount" in out and "r2_total_amount" in out:
+        out["steady_growth_score_amount"] = (
+            np.nan_to_num(out["slope_total_amount"], nan=0.0) *
+            np.nan_to_num(out["r2_total_amount"], nan=0.0)
+        )
+    return pd.Series(out)
+
+# ----------------------------
+# PIPELINE
+# ----------------------------
+def run_trend_analysis(df, freq="M"):
+    df_agg = aggregate_by_freq(df, freq=freq)
+    summary = (
+        df_agg.sort_values(["customer_name", "date"])
+              .groupby("customer_name", group_keys=False)
+              .apply(lambda g: regress_per_customer(g, freq=freq))
+              .reset_index()
+    )
+    return summary
+
+# ----------------------------
+# USAGE EXAMPLE
+# ----------------------------
+# summary = run_trend_analysis(df, freq="W")   # weekly trend
+# summary = run_trend_analysis(df, freq="D")   # daily trend
+# summary = run_trend_analysis(df, freq="M")   # monthly trend
