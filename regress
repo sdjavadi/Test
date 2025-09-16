@@ -1,0 +1,52 @@
+1. 🔼 Slope (how fast the values are changing)
+
+To compute the slope:
+
+First, calculate the average (mean) of all x values (months) and all y values (transaction amounts).
+
+Then, for each month:
+
+Subtract the average from both x and y to get the "deviation" from the mean.
+
+Multiply these deviations together.
+
+Sum all those products from step 2.
+
+Divide that sum by the sum of the squared x deviations (how spread out the months are).
+
+👉 The result is the slope — how much the metric increases (or decreases) per month on average.
+
+2. 🚦 Intercept (starting point of the line)
+
+Once you have the slope:
+
+Multiply the slope by the average x value.
+
+Subtract that from the average y value.
+
+👉 The result is the intercept — the estimated value of the metric at the start (month index 0).
+
+So now you have the full equation:
+
+predicted value = slope × month_index + intercept
+
+3. 📏 R² Score (how well the line fits the data)
+
+R² tells you how closely the actual data points follow the trend line.
+
+For each month:
+
+Calculate the predicted y value using the trend line.
+
+Subtract that from the actual y value to get the error.
+
+Square the error (to keep it positive).
+
+Sum all those squared errors — this is the total prediction error.
+
+Separately, calculate how far each actual y value is from the average y (the variance of the data).
+
+R² = 1 minus the ratio of prediction error to variance.
+
+👉 The closer R² is to 1, the better the trend line explains the real data.
+👉 If R² is near 0 or negative, the line doesn't explain much.
