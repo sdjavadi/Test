@@ -1,0 +1,167 @@
+# app.py
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from umap import AlignedUMAP
+import plotly.graph_objects as go
+
+st.set_page_config(page_title="Customer Drift Dashboard", layout="wide")
+st.title("Customer Behavioral Drift Dashboard")
+
+# ------------------- 1. Load your data -------------------
+@st.cache_data
+def load_data():
+    df = pd.read_csv("your_file.csv")   # ← change to your actual path / name
+    df['tran_date'] = pd.to_datetime(df['tran_date'])
+    return df.sort_values(['cust_pvr_id', 'tran_date'])
+
+df_raw = load_data()
+
+# ------------------- 2. Parameters -------------------
+st.sidebar.header("UMAP & Window Settings")
+window_days = st.sidebar.slider("Sliding window (days)", 30, 365, 90, 30)
+step_days    = st.sidebar.slider("Step size (days)", 7, 60, 14, 7)
+min_dist     = st.sidebar.slider("UMAP min_dist", 0.0, 1.0, 0.1, 0.05)
+n_neighbors  = st.sidebar.slider("UMAP n_neighbors", 10, 200, 50, 10)
+top_n_drifters = st.sidebar.slider("Highlight top N drifters", 10, 500, 100, 10)
+
+# ------------------- 3. Build sliding windows -------------------
+@st.cache_data(show_spinner="Computing sliding windows...")
+def make_windows(df, window_days, step_days):
+    min_date = df['tran_date'].min()
+    max_date = df['tran_date'].max()
+    windows = []
+    dates   = []
+    current = min_date
+    while current + pd.Timedelta(days=window_days) <= max_date:
+        start = current
+        end   = current + pd.Timedelta(days=window_days)
+        window_df = df[(df['tran_date'] >= start) & (df['tran_date'] < end)].copy()
+        if len(window_df) > 0:
+            # Aggregate per customer inside the window (you can customize this)
+            agg = window_df.groupby('cust_pvr_id').agg({
+                'total_amount_incoming': 'sum',
+                'total_volume_incoming': 'sum',
+                'new_cps_incoming': 'sum',
+                'num_cps_incoming': 'sum',
+                'total_amount_outgoing': 'sum',
+                'total_volume_outgoing': 'sum',
+                'new_cps_outgoing': 'sum',
+                'num_cps_outgoing': 'sum',
+            }).reset_index()
+            agg['window_start'] = start
+            agg['window_end']   = end
+            windows.append(agg)
+            dates.append(start)
+        current += pd.Timedelta(days=step_days)
+    return windows, dates
+
+windows, window_dates = make_windows(df_raw, window_days, step_days)
+
+# ------------------- 4. Aligned UMAP -------------------
+@st.cache_resource(show_spinner="Running AlignedUMAP (this can take 1-2 min)...")
+def run_aligned_umap(windows):
+    # Prepare relations: map same cust_pvr_id between consecutive windows
+    relations = {}
+    for i in range(len(windows)-1):
+        left  = windows[i][['cust_pvr_id']]
+        right = windows[i+1][['cust_pvr_id']]
+        mapping = left.merge(right, how='inner', on='cust_pvr_id')
+        relations[i] = dict(zip(mapping.index, mapping.index))
+    
+    # Features (drop id column)
+    X = [w.drop(columns=['cust_pvr_id', 'window_start', 'window_end']).values for w in windows]
+    
+    aligner = AlignedUMAP(n_neighbors=n_neighbors, min_dist=min_dist, 
+                          n_components=2, metric='euclidean', random_state=42)
+    embeddings = aligner.fit_transform(X, relations=relations)
+    return embeddings
+
+embeddings = run_aligned_umap(windows)
+
+# ------------------- 5. Build master dataframe -------------------
+rows = []
+for i, (emb, win, date) in enumerate(zip(embeddings, windows, window_dates)):
+    df_win = win.copy()
+    df_win[['x', 'y']] = emb
+    df_win['time'] = date
+    rows.append(df_win)
+df = pd.concat(rows, ignore_index=True)
+
+# Compute total drift distance per customer (from first to last appearance)
+first = df.groupby('cust_pvr_id')[['x','y']].first()
+last  = df.groupby('cust_pvr_id')[['x','y']].last()
+drift = np.sqrt(((last - first)**2).sum(axis=1)).rename('drift_distance')
+df = df.merge(drift.reset_index(), on='cust_pvr_id')
+
+# ------------------- 6. Plot! -------------------
+st.subheader(f"Sliding window: {window_days} days | Step: {step_days} days | Windows: {len(window_dates)}")
+
+time_options = {i: d.strftime("%Y-%m-%d") for i, d in enumerate(window_dates)}
+selected_idx = st.select_slider("Select time window", options=list(time_options.keys()),
+                                format_func=lambda x: time_options[x], value=0)
+
+current_time = window_dates[selected_idx]
+df_current = df[df['time'] <= current_time]   # cumulative up to selected window
+
+# Highlight top drifters
+top_ids = drift.nlargest(top_n_drifters).index
+
+fig = go.Figure()
+
+# 1. Faint trajectories for ALL customers (cumulative)
+fig.add_trace(go.Scatter(
+    x=df_current['x'], y=df_current['y'],
+    mode='lines',
+    line=dict(color='lightgray', width=1),
+    hoverinfo='none',
+    showlegend=False
+))
+
+# 2. Top drifters – thick colored lines + markers sized by drift
+top_df = df_current[df_current['cust_pvr_id'].isin(top_ids)]
+fig.add_trace(go.Scatter(
+    x=top_df['x'], y=top_df['y'],
+    mode='lines+markers',
+    line=dict(width=2),
+    marker=dict(
+        size=top_df['drift_distance'] / top_df['drift_distance'].max() * 30 + 8,
+        color=top_df['drift_distance'],
+        colorscale='Reds',
+        colorbar=dict(title="Drift Distance"),
+        line=dict(width=1, color='black')
+    ),
+    text=top_df['cust_pvr_id'],
+    hovertemplate="<b>ID:</b> %{text}<br><b>Drift:</b> %{marker.color:.2f}<extra></extra>"
+))
+
+# 3. Current positions (all customers, smaller & semi-transparent)
+current_snapshot = df[df['time'] == current_time]
+fig.add_trace(go.Scatter(
+    x=current_snapshot['x'], y=current_snapshot['y'],
+    mode='markers',
+    marker=dict(size=6, color='steelblue', opacity=0.6),
+    text=current_snapshot['cust_pvr_id'],
+    hovertemplate="<b>ID:</b> %{text}<extra></extra>",
+    name="All customers"
+))
+
+fig.update_layout(
+    title=f"Customer Drift – Window ending {current_time.strftime('%Y-%m-%d')}",
+    xaxis_title="UMAP 1", yaxis_title="UMAP 2",
+    height=800,
+    hovermode='closest',
+    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ------------------- 7. Summary stats -------------------
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Total Customers", len(df['cust_pvr_id'].unique()))
+with col2:
+    st.metric("Average Drift", f"{drift.mean():.2f}")
+with col3:
+    st.metric("Top Drifter Distance", f"{drift.max():.2f}")
