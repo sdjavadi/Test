@@ -1,37 +1,66 @@
-# --- FINAL: TRUE SMOOTH ANIMATION (points actually move!) ---
-st.subheader("Customer Drift Animation")
+# Add this to sidebar
+top_n_drifters = st.sidebar.slider("Highlight top N drifters", 5, 50, 10)
 
-# Prepare data for animation: one row per customer per time step
-anim_df = df.sort_values(['cust_pvr_id', 'time']).copy()
+# Precompute segments for top movers per step (add this before plotting)
+times = sorted(df['time'].unique())
+segments = []
+for i in range(1, len(times)):
+    prev_time = times[i-1]
+    curr_time = times[i]
+    prev = df[df['time'] == prev_time].set_index('cust_pvr_id')
+    curr = df[df['time'] == curr_time].set_index('cust_pvr_id')
+    common = set(prev.index) & set(curr.index)
+    if common:
+        prev_pos = prev.loc[common][['x', 'y']]
+        curr_pos = curr.loc[common][['x', 'y']]
+        dists = np.sqrt(((curr_pos - prev_pos)**2).sum(axis=1))
+        top = dists.nlargest(top_n_drifters).index
+        for id in top:
+            segments.append({
+                'x': [prev_pos.loc[id]['x'], curr_pos.loc[id]['x']],
+                'y': [prev_pos.loc[id]['y'], curr_pos.loc[id]['y']],
+                'step': i
+            })
 
-# Compute drift-so-far at each frame
-first_pos = anim_df.groupby('cust_pvr_id')[['x','y']].first()
-drift_per_frame = anim_df.set_index('cust_pvr_id')[['x','y']].groupby('cust_pvr_id').apply(
-    lambda g: np.sqrt(((g - first_pos.loc[g.name])**2).sum(axis=1))
-).explode().astype(float).reset_index()
-anim_df['drift_so_far'] = drift_per_frame[0].values
+# Manual step control (replace the animation plotting section with this)
+if 'current_index' not in st.session_state:
+    st.session_state.current_index = 0
 
-# Create animated scatter with moving points
-fig = px.scatter(
-    anim_df,
-    x='x', y='y',
-    animation_frame='time',           # This makes points MOVE
-    animation_group='cust_pvr_id',    # Crucial: same customer = same trajectory
-    size='drift_so_far',
-    color='drift_so_far',
-    color_continuous_scale='Reds',
-    hover_name='cust_pvr_id',
-    size_max=30,
-    range_x=anim_df['x'].min()-5, anim_df['x'].max()+5,
-    range_y=anim_df['y'].min()-5, anim_df['y'].max()+5,
-    title="Customer Behavioral Drift — Smooth Animation",
-    height=800
-)
+col1, col2 = st.columns(2)
+if col1.button('Previous Step'):
+    st.session_state.current_index = (st.session_state.current_index - 1) % len(times)
+if col2.button('Next Step'):
+    st.session_state.current_index = (st.session_state.current_index + 1) % len(times)
 
-fig.update_traces(marker=dict(line=dict(width=1, color='black')))
+current_step = st.session_state.current_index + 1  # 1-based for steps
+current_time = times[st.session_state.current_index]
+current_df = df[df['time'] == current_time]
+
+fig = go.Figure()
+
+# Add cumulative transition lines up to current step (only for top drifters per past steps)
+for seg in segments:
+    if seg['step'] <= current_step:
+        fig.add_trace(go.Scatter(
+            x=seg['x'], y=seg['y'],
+            mode='lines',
+            line=dict(color='red', width=2),
+            showlegend=False
+        ))
+
+# Add all points at current time (same color, no distinction)
+fig.add_trace(go.Scatter(
+    x=current_df['x'], y=current_df['y'],
+    mode='markers',
+    marker=dict(color='blue', size=10),
+    text=current_df['cust_pvr_id'],
+    hovertemplate='<b>ID:</b> %{text}<extra></extra>'
+))
+
 fig.update_layout(
-    coloraxis_colorbar=dict(title="Drift Distance"),
-    transition={'duration': 800}  # smooth transition between frames
+    title=f"Customer Map at {current_time} (Step {current_step}/{len(times)})",
+    xaxis_title="UMAP 1", yaxis_title="UMAP 2",
+    height=800
 )
 
 st.plotly_chart(fig, use_container_width=True)
