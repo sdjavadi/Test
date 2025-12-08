@@ -165,3 +165,43 @@ with col2:
     st.metric("Average Drift", f"{drift.mean():.2f}")
 with col3:
     st.metric("Top Drifter Distance", f"{drift.max():.2f}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@st.cache_data(show_spinner="Computing sliding windows...")
+def make_windows(df, window_days, step_days):
+    df = df.sort_values('tran_date')
+    dates = df['tran_date'].dt.normalize().unique()
+    dates = sorted(dates)
+
+    windows = []
+    window_starts = []
+
+    for i in range(0, len(dates) - window_days + 1, step_days):
+        start_date = pd.Timestamp(dates[i])
+        end_date   = start_date + pd.Timedelta(days=window_days)
+
+        window_df = df[(df['tran_date'] >= start_date) & (df['tran_date'] < end_date)]
+        if len(window_df) == 0:
+            continue
+
+        agg = window_df.groupby('cust_pvr_id')[['total_amount_incoming',
+            'total_volume_incoming','new_cps_incoming','num_cps_incoming',
+            'total_amount_outgoing','total_volume_outgoing',
+            'new_cps_outgoing','num_cps_outgoing']].sum().reset_index()
+
+        windows.append(agg)
+        window_starts.append(start_date)
+
+    return windows, window_starts
