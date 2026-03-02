@@ -1,30 +1,34 @@
 # ── MATCH bodies ──────────────────────────────────────────────────────────────
+
 QUERY_NEIGHBORS = """
-MATCH (target:PncCustomer {mdm_id: $mdm_id})-[r:PAYS]-(neighbor:PncCustomer)
+MATCH (target:PncCustomer {mdmId: $mdmId})-[r:PAYS]-(neighbor:PncCustomer)
 """
+
 QUERY_EGO = """
-MATCH (target:PncCustomer {mdm_id: $mdm_id})
+MATCH (target:PncCustomer {mdmId: $mdmId})
 OPTIONAL MATCH (target)-[:PAYS]-(neighbor:PncCustomer)
 WITH target, COLLECT(DISTINCT neighbor) AS neighbors
 WITH [target] + neighbors AS egoNodes
 MATCH (a:PncCustomer)-[r:PAYS]->(b:PncCustomer)
 WHERE a IN egoNodes AND b IN egoNodes
 """
+
 # ── RETURN clauses ────────────────────────────────────────────────────────────
+
 RETURN_MULTIGRAPH = """
 RETURN
-    startNode(r).mdm_id   AS source,
-    endNode(r).mdm_id     AS target,
-    r.amount              AS amount,
-    r.year_month          AS year_month,
-    elementId(r)          AS rel_id
+    startNode(r).mdmId   AS source,
+    endNode(r).mdmId     AS target,
+    r.totalTransAmt      AS amount,
+    r.transFreq          AS volume
 """
+
 RETURN_DIGRAPH = """
 RETURN
-    startNode(r).mdm_id   AS source,
-    endNode(r).mdm_id     AS target,
-    SUM(r.amount)         AS total_amount,
-    COUNT(r)              AS num_transactions
+    startNode(r).mdmId       AS source,
+    endNode(r).mdmId         AS target,
+    SUM(r.totalTransAmt)     AS amount,
+    SUM(r.transFreq)         AS volume
 """
 
 
@@ -34,6 +38,9 @@ RETURN
 NETWORK_MODE = "neighbors"   # "neighbors" | "ego"
 GRAPH_MODE   = "multigraph"  # "multigraph" | "digraph"
 # ══════════════════════════════════════════
-QUERY_BODY     = QUERY_NEIGHBORS if NETWORK_MODE == "neighbors" else QUERY_EGO
-RETURN_CLAUSE  = RETURN_MULTIGRAPH if GRAPH_MODE == "multigraph" else RETURN_DIGRAPH
-QUERY          = QUERY_BODY + RETURN_CLAUSE
+
+QUERY_BODY    = QUERY_NEIGHBORS if NETWORK_MODE == "neighbors" else QUERY_EGO
+RETURN_CLAUSE = RETURN_MULTIGRAPH if GRAPH_MODE == "multigraph" else RETURN_DIGRAPH
+QUERY         = QUERY_BODY + RETURN_CLAUSE
+
+
