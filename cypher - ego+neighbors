@@ -13,16 +13,23 @@ MATCH (a:PncCustomer)-[r:PAYS]->(b:PncCustomer)
 WHERE a IN egoNodes AND b IN egoNodes
 """
 
-# ── Single RETURN clause for all versions ─────────────────────────────────────
+# ── RETURN clauses ────────────────────────────────────────────────────────────
 
-RETURN_CLAUSE = """
+RETURN_MULTIGRAPH = """
 RETURN
     startNode(r).mdmId   AS source,
     endNode(r).mdmId     AS target,
-    SUM(r.totalTransAmt) AS amount,
-    SUM(r.transFreq)     AS volume
+    r.totalTransAmt      AS amount,
+    r.transFreq          AS volume
 """
 
+RETURN_DIGRAPH = """
+RETURN
+    startNode(r).mdmId       AS source,
+    endNode(r).mdmId         AS target,
+    SUM(r.totalTransAmt)     AS amount,
+    SUM(r.transFreq)         AS volume
+"""
 
 
 # ══════════════════════════════════════════
@@ -30,5 +37,6 @@ NETWORK_MODE = "neighbors"   # "neighbors" | "ego"
 GRAPH_MODE   = "multigraph"  # "multigraph" | "digraph"
 # ══════════════════════════════════════════
 
-QUERY_BODY = QUERY_NEIGHBORS if NETWORK_MODE == "neighbors" else QUERY_EGO
-QUERY      = QUERY_BODY + RETURN_CLAUSE
+QUERY_BODY    = QUERY_NEIGHBORS if NETWORK_MODE == "neighbors" else QUERY_EGO
+RETURN_CLAUSE = RETURN_MULTIGRAPH if GRAPH_MODE == "multigraph" else RETURN_DIGRAPH
+QUERY         = QUERY_BODY + RETURN_CLAUSE
