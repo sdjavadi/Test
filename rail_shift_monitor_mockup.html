@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rail Shift Monitor — PKN</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    background: #f5f5f3;
+    color: #1a1a18;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a18; color: #e8e6e0; }
+    .app { background: #222220; border-color: #3a3a38; }
+    .sidebar { background: #1e1e1c; border-color: #3a3a38; }
+    table thead tr { background: #1e1e1c; }
+    .drill-panel { background: #1e1e1c; border-color: #3a3a38; }
+    .peer-card { background: #1e1e1c; border-color: #3a3a38; }
+    .metric { background: #1e1e1c; }
+    .badge.HIGH { background: #501313; color: #f09595; }
+    .badge.MED  { background: #412402; color: #FAC775; }
+    .badge.LOW  { background: #173404; color: #C0DD97; }
+    .export-note { color: #888780; }
+    .export-code { background: #1e1e1c; border-color: #3a3a38; color: #888780; }
+    select, input[type=text] { background: #2a2a28; color: #e8e6e0; border-color: #3a3a38; }
+    .run-btn { background: #185FA5; }
+    .run-btn:hover { background: #0C447C; }
+    .tab.active { color: #85B7EB; border-bottom-color: #85B7EB; }
+    .alert-row:hover td { background: #2a2a28; }
+    .alert-row.selected td { background: #042C53; }
+    .export-btn { background: #2a2a28; color: #e8e6e0; border-color: #3a3a38; }
+    .export-btn:hover { background: #333330; }
+    .close-btn { color: #888780; border-color: #3a3a38; }
+    .close-btn:hover { background: #2a2a28; }
+    .sidebar-title { color: #888780; border-color: #3a3a38; }
+    td, th { border-color: #3a3a38; }
+    .tabs { border-color: #3a3a38; }
+    .metrics-row { border-color: #3a3a38; }
+    .main { border-color: #3a3a38; }
+    .tab { color: #888780; }
+    .metric .lbl { color: #888780; }
+    .field label { color: #888780; }
+    .range-row { color: #888780; }
+    .peer-card-title { color: #888780; }
+    th { color: #888780; }
+  }
+
+  .page-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .page-header h1 {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .page-header span {
+    font-size: 12px;
+    color: #888780;
+  }
+
+  .app {
+    display: flex;
+    gap: 0;
+    min-height: 620px;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    border-right: 0.5px solid #d3d1c7;
+    padding: 16px;
+    background: #f5f5f3;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sidebar-title {
+    font-size: 10px;
+    font-weight: 500;
+    color: #888780;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    padding-bottom: 8px;
+    border-bottom: 0.5px solid #d3d1c7;
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; color: #5f5e5a; }
+  .field select, .field input[type=text] {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 0.5px solid #d3d1c7;
+    width: 100%;
+    background: #ffffff;
+  }
+  .field select:focus, .field input:focus { outline: none; border-color: #185FA5; }
+  .field input[type=range] { width: 100%; accent-color: #185FA5; }
+  .range-row { display: flex; justify-content: space-between; font-size: 10px; color: #888780; margin-top: 1px; }
+  .rail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .rail-check { display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; }
+  .rail-check input { accent-color: #185FA5; }
+  .run-btn {
+    background: #185FA5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 4px;
+    transition: background .15s;
+  }
+  .run-btn:hover { background: #0C447C; }
+
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    padding: 14px;
+    border-bottom: 0.5px solid #d3d1c7;
+  }
+  .metric {
+    background: #f5f5f3;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .metric .val { font-size: 20px; font-weight: 500; line-height: 1.2; }
+  .metric .lbl { font-size: 10px; color: #888780; margin-top: 3px; }
+  .metric .up { color: #0F6E56; }
+  .metric .dn { color: #A32D2D; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 0.5px solid #d3d1c7;
+    padding: 0 14px;
+  }
+  .tab {
+    font-size: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: #888780;
+    transition: color .15s;
+    user-select: none;
+  }
+  .tab:hover { color: #444441; }
+  .tab.active { border-bottom-color: #185FA5; color: #185FA5; font-weight: 500; }
+
+  .tab-body { flex: 1; overflow: auto; padding: 14px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 500;
+    color: #888780;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 6px 8px;
+    border-bottom: 0.5px solid #d3d1c7;
+    white-space: nowrap;
+  }
+  td {
+    padding: 8px 8px;
+    border-bottom: 0.5px solid #d3d1c7;
+    vertical-align: middle;
+  }
+  tr.alert-row { cursor: pointer; }
+  tr.alert-row:hover td { background: #f5f5f3; }
+  tr.alert-row.selected td { background: #E6F1FB; }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .badge.HIGH { background: #FCEBEB; color: #A32D2D; }
+  .badge.MED  { background: #FAEEDA; color: #854F0B; }
+  .badge.LOW  { background: #EAF3DE; color: #3B6D11; }
+
+  .dir-up { color: #0F6E56; font-weight: 500; }
+  .dir-dn { color: #A32D2D; font-weight: 500; }
+
+  .drill-panel {
+    background: #f5f5f3;
+    border-radius: 8px;
+    border: 0.5px solid #d3d1c7;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .drill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .drill-title { font-size: 13px; font-weight: 500; }
+  .close-btn {
+    font-size: 11px;
+    color: #888780;
+    cursor: pointer;
+    padding: 2px 8px;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 6px;
+    background: transparent;
+  }
+  .close-btn:hover { background: #ffffff; }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: #888780;
+  }
+  .leg-item { display: flex; align-items: center; gap: 4px; }
+  .leg-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .peer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .peer-card {
+    background: #f5f5f3;
+    border-radius: 8px;
+    border: 0.5px solid #d3d1c7;
+    padding: 12px;
+  }
+  .peer-card-title { font-size: 11px; color: #888780; margin-bottom: 10px; }
+
+  .export-note { font-size: 12px; color: #888780; margin-bottom: 12px; }
+  .export-btn {
+    display: inline-block;
+    font-size: 12px;
+    padding: 7px 16px;
+    border: 0.5px solid #b4b2a9;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #ffffff;
+    color: #1a1a18;
+    margin-right: 8px;
+    margin-bottom: 16px;
+    transition: background .15s;
+  }
+  .export-btn:hover { background: #f5f5f3; }
+  .export-code {
+    padding: 12px;
+    background: #f5f5f3;
+    border-radius: 8px;
+    border: 0.5px solid #d3d1c7;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 11px;
+    color: #888780;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Payment Rail Shift Monitor</h1>
+  <span>PKN · Treasury Management · prototype v0.1</span>
+</div>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-title">Configuration</div>
+
+    <div class="field">
+      <label>Mode</label>
+      <select><option>Single customer</option><option selected>Bulk scan</option></select>
+    </div>
+    <div class="field">
+      <label>Start month</label>
+      <select>
+        <option>Jan 2024</option><option>Apr 2024</option>
+        <option selected>Jul 2024</option><option>Oct 2024</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>End month</label>
+      <select><option>Jun 2025</option><option selected>Dec 2025</option></select>
+    </div>
+    <div class="field">
+      <label>Baseline window</label>
+      <select><option>3 months</option><option selected>6 months</option></select>
+    </div>
+    <div class="field">
+      <label>Rails to monitor</label>
+      <div class="rail-grid">
+        <label class="rail-check"><input type="checkbox" checked> ACH</label>
+        <label class="rail-check"><input type="checkbox" checked> Wire</label>
+        <label class="rail-check"><input type="checkbox" checked> R2P</label>
+        <label class="rail-check"><input type="checkbox" checked> Check</label>
+        <label class="rail-check"><input type="checkbox" checked> Debit</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Min monthly volume</label>
+      <input type="range" min="10000" max="500000" step="10000" value="50000" id="volSlider">
+      <div class="range-row"><span>$10K</span><span id="volOut">$50K</span><span>$500K</span></div>
+    </div>
+    <div class="field">
+      <label>Alert threshold %</label>
+      <input type="range" min="10" max="80" step="5" value="40" id="thrSlider">
+      <div class="range-row"><span>10%</span><span id="thrOut">40%</span><span>80%</span></div>
+    </div>
+    <div class="field">
+      <label>Hub exclusion</label>
+      <select>
+        <option selected>Exclude degree &gt; 10K</option>
+        <option>Exclude degree &gt; 50K</option>
+        <option>None</option>
+      </select>
+    </div>
+
+    <button class="run-btn" onclick="runScan()">Run scan →</button>
+  </div>
+
+  <div class="main">
+    <div class="metrics-row">
+      <div class="metric"><div class="val">48,230</div><div class="lbl">Customers scanned</div></div>
+      <div class="metric"><div class="val">2,341</div><div class="lbl">Alerts fired</div></div>
+      <div class="metric"><div class="val up">+847</div><div class="lbl">Wire shifts ↑</div></div>
+      <div class="metric"><div class="val dn">−612</div><div class="lbl">ACH shifts ↓</div></div>
+      <div class="metric"><div class="val">4.9%</div><div class="lbl">Alert rate</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('alerts', this)">Alert list</div>
+      <div class="tab" onclick="switchTab('trend', this)">Rail trend</div>
+      <div class="tab" onclick="switchTab('peer', this)">Peer comparison</div>
+      <div class="tab" onclick="switchTab('export', this)">Export</div>
+    </div>
+
+    <div class="tab-body">
+
+      <!-- ALERTS TAB -->
+      <div id="tab-alerts">
+        <table>
+          <thead><tr>
+            <th>Severity</th>
+            <th>Customer</th>
+            <th>Rail</th>
+            <th>Δ%</th>
+            <th>Dir</th>
+            <th>Month</th>
+            <th>NAICS</th>
+            <th>Peer avg Δ%</th>
+          </tr></thead>
+          <tbody id="alertBody"></tbody>
+        </table>
+        <div id="drillPanel" class="drill-panel hidden">
+          <div class="drill-header">
+            <span class="drill-title" id="drillTitle">Rail mix trend</span>
+            <button class="close-btn" onclick="closeDrill()">✕ close</button>
+          </div>
+          <div class="chart-legend" id="drillLegend"></div>
+          <div style="position:relative;width:100%;height:230px"><canvas id="drillChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- TREND TAB -->
+      <div id="tab-trend" class="hidden">
+        <div class="peer-card">
+          <div class="peer-card-title">Aggregate rail share — all alerted customers (Jul 2024 – Dec 2025)</div>
+          <div class="chart-legend">
+            <span class="leg-item"><span class="leg-sq" style="background:#378ADD"></span>ACH</span>
+            <span class="leg-item"><span class="leg-sq" style="background:#1D9E75"></span>Wire</span>
+            <span class="leg-item"><span class="leg-sq" style="background:#BA7517"></span>R2P</span>
+            <span class="leg-item"><span class="leg-sq" style="background:#888780"></span>Check</span>
+            <span class="leg-item"><span class="leg-sq" style="background:#D4537E"></span>Debit</span>
+          </div>
+          <div style="position:relative;width:100%;height:260px"><canvas id="trendChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- PEER TAB -->
+      <div id="tab-peer" class="hidden">
+        <div class="peer-row">
+          <div class="peer-card">
+            <div class="peer-card-title">Acme Industrial (NAICS 3321) vs peers — Wire share %</div>
+            <div class="chart-legend">
+              <span class="leg-item"><span class="leg-sq" style="background:#185FA5"></span>Customer</span>
+              <span class="leg-item"><span class="leg-sq" style="background:#B4B2A9"></span>NAICS avg</span>
+            </div>
+            <div style="position:relative;width:100%;height:210px"><canvas id="peerChart1"></canvas></div>
+          </div>
+          <div class="peer-card">
+            <div class="peer-card-title">City Logistics LLC (NAICS 4841) vs peers — ACH share %</div>
+            <div class="chart-legend">
+              <span class="leg-item"><span class="leg-sq" style="background:#185FA5"></span>Customer</span>
+              <span class="leg-item"><span class="leg-sq" style="background:#B4B2A9"></span>NAICS avg</span>
+            </div>
+            <div style="position:relative;width:100%;height:210px"><canvas id="peerChart2"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPORT TAB -->
+      <div id="tab-export" class="hidden">
+        <p class="export-note">Export the current alert list with all columns: customer_id, severity, rail, Δ%, direction, month, NAICS, peer_avg_delta, and volume.</p>
+        <button class="export-btn" onclick="downloadCSV()">Download CSV</button>
+        <button class="export-btn" onclick="copyCSV()">Copy to clipboard</button>
+        <div class="export-code" id="csvPreview"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const ALERTS = [
+  {sev:'HIGH',cust:'Acme Industrial LLC',rail:'Wire',delta:'+71.4%',dir:'up',month:'Nov 2025',naics:'3321 — Fabricated Metal',peer:'+8.2%',vol:'$2.84M',
+   history:{labels:['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'],
+   ach:[58,56,57,55,54,52,50,49,48,47,45,44,43,42,40,38,20,18],wire:[12,13,12,13,14,14,15,16,17,18,19,20,22,24,26,28,48,51],r2p:[5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,11,12],check:[18,19,18,19,18,18,18,17,17,17,17,17,16,15,14,14,13,12],debit:[7,7,7,7,8,9,10,11,10,10,11,10,10,10,10,10,8,7]}},
+  {sev:'HIGH',cust:'City Logistics LLC',rail:'ACH',delta:'−58.9%',dir:'down',month:'Oct 2025',naics:'4841 — Trucking',peer:'−4.1%',vol:'$1.12M',
+   history:{labels:['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'],
+   ach:[71,70,72,70,69,68,67,65,63,60,58,55,50,45,40,29,27,25],wire:[8,8,7,8,8,9,9,10,11,12,13,15,18,21,25,32,36,40],r2p:[2,2,2,2,3,3,3,4,4,5,5,6,7,8,9,10,11,12],check:[14,15,14,15,15,15,16,16,17,17,18,18,18,19,19,22,19,16],debit:[5,5,5,5,5,5,5,5,5,6,6,6,7,7,7,7,7,7]}},
+  {sev:'HIGH',cust:'Harvest Foods Co',rail:'R2P',delta:'+94.2%',dir:'up',month:'Dec 2025',naics:'3112 — Grain Milling',peer:'+12.6%',vol:'$890K',
+   history:{labels:['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'],
+   ach:[52,51,52,50,50,49,48,48,47,47,46,45,44,43,42,40,38,36],wire:[20,21,20,21,20,21,21,22,22,23,23,24,24,24,25,25,26,26],r2p:[1,1,1,2,2,2,3,3,4,4,5,6,7,9,11,14,18,23],check:[20,20,20,20,21,21,21,20,20,20,19,18,18,17,16,14,13,11],debit:[7,7,7,7,7,7,7,7,7,6,7,7,7,7,6,7,5,4]}},
+  {sev:'MED',cust:'Metro Realty Group',rail:'Wire',delta:'+48.3%',dir:'up',month:'Nov 2025',naics:'5312 — Real Estate',peer:'+6.1%',vol:'$3.20M',
+   history:{labels:['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'],
+   ach:[40,40,39,40,39,38,38,37,36,35,34,33,32,31,30,29,26,24],wire:[35,35,36,36,36,37,38,38,39,40,41,42,44,46,48,50,52,55],r2p:[3,3,4,4,4,5,5,5,6,6,7,7,8,8,9,9,10,10],check:[18,18,17,16,17,16,15,16,15,15,14,14,13,12,10,9,9,8],debit:[4,4,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3]}},
+  {sev:'MED',cust:'Tri-State Staffing',rail:'ACH',delta:'−44.1%',dir:'down',month:'Sep 2025',naics:'5613 — Staffing',peer:'+1.2%',vol:'$670K',
+   history:{labels:['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'],
+   ach:[75,74,74,73,72,71,70,68,66,63,60,57,53,49,42,40,39,38],wire:[5,5,6,6,7,7,8,9,10,12,14,16,18,21,26,28,30,31],r2p:[1,1,1,1,2,2,2,3,3,4,5,6,8,10,12,13,14,15],check:[14,15,14,15,14,15,15,15,16,16,16,16,16,15,15,14,12,11],debit:[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5]}},
+  {sev:'LOW',cust:'Cornerstone Hardware',rail:'Check',delta:'−41.8%',dir:'down',month:'Dec 2025',naics:'4441 — Hardware Stores',peer:'−18.3%',vol:'$210K',
+   history:{labels:['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'],
+   ach:[30,31,30,31,32,33,34,35,36,37,38,39,40,41,43,44,46,47],wire:[5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,7,7],r2p:[0,0,1,1,1,2,2,3,3,4,4,5,5,6,7,7,8,9],check:[55,54,54,53,52,50,49,47,46,44,43,40,39,37,34,33,29,27],debit:[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]}},
+];
+
+const CSV_ROWS = [
+  'customer_id,customer_name,rail,delta_pct,direction,month,severity,naics,peer_avg_delta,volume_usd',
+  'C001923,Acme Industrial LLC,Wire,+71.4,up,2025-11-01,HIGH,3321,+8.2,2840000',
+  'C004417,City Logistics LLC,ACH,-58.9,down,2025-10-01,HIGH,4841,-4.1,1120000',
+  'C007821,Harvest Foods Co,R2P,+94.2,up,2025-12-01,HIGH,3112,+12.6,890000',
+  'C002341,Metro Realty Group,Wire,+48.3,up,2025-11-01,MED,5312,+6.1,3200000',
+  'C009102,Tri-State Staffing,ACH,-44.1,down,2025-09-01,MED,5613,+1.2,670000',
+  'C003812,Cornerstone Hardware,Check,-41.8,down,2025-12-01,LOW,4441,-18.3,210000',
+  '...',
+];
+
+const COLORS = {ach:'#378ADD', wire:'#1D9E75', r2p:'#BA7517', check:'#888780', debit:'#D4537E'};
+const LABELS = {ach:'ACH', wire:'Wire', r2p:'R2P', check:'Check', debit:'Debit'};
+
+let drillChartInst = null, trendChartInst = null, peer1Inst = null, peer2Inst = null;
+let selectedRow = null;
+
+function buildAlertTable() {
+  const body = document.getElementById('alertBody');
+  body.innerHTML = '';
+  ALERTS.forEach((a, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'alert-row';
+    const sevLabel = a.sev === 'MED' ? 'MEDIUM' : a.sev;
+    const dirClass = a.dir === 'up' ? 'dir-up' : 'dir-dn';
+    const dirIcon = a.dir === 'up' ? '↑' : '↓';
+    tr.innerHTML = `
+      <td><span class="badge ${a.sev}">${sevLabel}</span></td>
+      <td>${a.cust}</td>
+      <td style="font-family:monospace">${a.rail}</td>
+      <td style="font-family:monospace;font-weight:500" class="${dirClass}">${a.delta}</td>
+      <td class="${dirClass}">${dirIcon}</td>
+      <td>${a.month}</td>
+      <td style="font-size:11px;color:#888780">${a.naics}</td>
+      <td style="font-family:monospace;font-size:11px;color:#888780">${a.peer}</td>
+    `;
+    tr.onclick = () => openDrill(i, tr);
+    body.appendChild(tr);
+  });
+}
+
+function openDrill(idx, tr) {
+  if (selectedRow === tr) { closeDrill(); return; }
+  if (selectedRow) selectedRow.classList.remove('selected');
+  selectedRow = tr;
+  tr.classList.add('selected');
+
+  const a = ALERTS[idx];
+  document.getElementById('drillTitle').textContent = `${a.cust} — rail mix over time`;
+  const panel = document.getElementById('drillPanel');
+  panel.classList.remove('hidden');
+
+  document.getElementById('drillLegend').innerHTML = Object.entries(COLORS)
+    .map(([k, c]) => `<span class="leg-item"><span class="leg-sq" style="background:${c}"></span>${LABELS[k]}</span>`)
+    .join('');
+
+  if (drillChartInst) drillChartInst.destroy();
+  const h = a.history;
+  drillChartInst = new Chart(document.getElementById('drillChart'), {
+    type: 'bar',
+    data: {
+      labels: h.labels,
+      datasets: [
+        {label:'ACH',   data:h.ach,   backgroundColor:COLORS.ach+'cc',  stack:'s'},
+        {label:'Wire',  data:h.wire,  backgroundColor:COLORS.wire+'cc', stack:'s'},
+        {label:'R2P',   data:h.r2p,   backgroundColor:COLORS.r2p+'cc',  stack:'s'},
+        {label:'Check', data:h.check, backgroundColor:COLORS.check+'cc',stack:'s'},
+        {label:'Debit', data:h.debit, backgroundColor:COLORS.debit+'cc',stack:'s'},
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` }}},
+      scales: {
+        x: { ticks: { font: {size:9}, autoSkip: false, maxRotation: 45 }},
+        y: { stacked: true, max: 100, ticks: { callback: v => v+'%', font:{size:9} }}
+      }
+    }
+  });
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function closeDrill() {
+  document.getElementById('drillPanel').classList.add('hidden');
+  if (selectedRow) { selectedRow.classList.remove('selected'); selectedRow = null; }
+  if (drillChartInst) { drillChartInst.destroy(); drillChartInst = null; }
+}
+
+function buildTrendChart() {
+  if (trendChartInst) return;
+  const months = ['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'];
+  trendChartInst = new Chart(document.getElementById('trendChart'), {
+    type: 'bar',
+    data: { labels: months, datasets: [
+      {label:'ACH',   data:[52,51,51,50,49,48,47,46,45,44,42,40,38,37,35,33,30,28], backgroundColor:COLORS.ach+'cc',  stack:'s'},
+      {label:'Wire',  data:[18,18,19,19,19,20,21,22,23,24,25,27,29,31,33,35,38,41], backgroundColor:COLORS.wire+'cc', stack:'s'},
+      {label:'R2P',   data:[2,2,3,3,3,4,4,5,5,6,7,8,9,11,13,14,16,18],             backgroundColor:COLORS.r2p+'cc',  stack:'s'},
+      {label:'Check', data:[21,22,21,21,22,21,21,20,20,19,19,18,17,15,13,12,11,9],  backgroundColor:COLORS.check+'cc',stack:'s'},
+      {label:'Debit', data:[7,7,6,7,7,7,7,7,7,7,7,7,7,6,6,6,5,4],                 backgroundColor:COLORS.debit+'cc',stack:'s'},
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }},
+      scales: {
+        x: { ticks: { font:{size:9}, autoSkip: false, maxRotation: 45 }},
+        y: { stacked: true, max: 100, ticks: { callback: v => v+'%', font:{size:9} }}
+      }
+    }
+  });
+}
+
+function buildPeerCharts() {
+  if (peer1Inst) return;
+  const months = ['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25'];
+  peer1Inst = new Chart(document.getElementById('peerChart1'), {
+    type: 'line',
+    data: { labels: months, datasets: [
+      {label:'Customer', data:[12,13,12,13,14,14,15,16,17,18,19,20,22,24,26,28,48,51], borderColor:'#185FA5', borderWidth:2, pointRadius:2, fill:false, tension:0.3},
+      {label:'NAICS avg',data:[14,14,14,15,15,15,16,16,16,17,17,17,18,19,20,21,22,23], borderColor:'#B4B2A9', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false, tension:0.3},
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { x:{ticks:{font:{size:9},autoSkip:true,maxTicksLimit:6}}, y:{ticks:{callback:v=>v+'%',font:{size:9}}} }}
+  });
+  peer2Inst = new Chart(document.getElementById('peerChart2'), {
+    type: 'line',
+    data: { labels: months, datasets: [
+      {label:'Customer', data:[71,70,72,70,69,68,67,65,63,60,58,55,50,45,40,29,27,25], borderColor:'#185FA5', borderWidth:2, pointRadius:2, fill:false, tension:0.3},
+      {label:'NAICS avg',data:[68,68,68,67,67,67,66,66,65,65,64,64,63,62,62,61,60,59], borderColor:'#B4B2A9', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false, tension:0.3},
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { x:{ticks:{font:{size:9},autoSkip:true,maxTicksLimit:6}}, y:{ticks:{callback:v=>v+'%',font:{size:9}}} }}
+  });
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['alerts','trend','peer','export'].forEach(t => document.getElementById('tab-'+t).classList.add('hidden'));
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  if (name === 'trend') buildTrendChart();
+  if (name === 'peer')  buildPeerCharts();
+  if (name === 'export') buildExportPreview();
+}
+
+function buildExportPreview() {
+  document.getElementById('csvPreview').innerHTML = CSV_ROWS.join('<br>');
+}
+
+function downloadCSV() {
+  const blob = new Blob([CSV_ROWS.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rail_shift_alerts.csv';
+  a.click();
+}
+
+function copyCSV() {
+  navigator.clipboard.writeText(CSV_ROWS.join('\n'))
+    .then(() => { const b = document.querySelectorAll('.export-btn')[1]; b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy to clipboard',1500); })
+    .catch(() => alert('Copy failed — try downloading instead.'));
+}
+
+function runScan() {
+  const btn = document.querySelector('.run-btn');
+  btn.textContent = 'Scanning…';
+  setTimeout(() => { btn.textContent = 'Run scan →'; }, 1400);
+}
+
+document.getElementById('volSlider').oninput = function() {
+  document.getElementById('volOut').textContent = '$' + Math.round(parseInt(this.value)/1000) + 'K';
+};
+document.getElementById('thrSlider').oninput = function() {
+  document.getElementById('thrOut').textContent = this.value + '%';
+};
+
+buildAlertTable();
+</script>
+</body>
+</html>
