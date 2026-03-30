@@ -1,0 +1,307 @@
+# Self-Payment Detection — EDA
+# Run cell by cell in JupyterHub (PySpark kernel)
+# Table: xxx.yyy
+
+from pyspark.sql import functions as F
+from pyspark.sql.functions import col, lower, trim, regexp_replace, when, length
+import re
+
+TABLE = "xxx.yyy"
+
+# ─────────────────────────────────────────────
+# SECTION 1 — Basic shape and schema
+# ─────────────────────────────────────────────
+
+df = spark.table(TABLE)
+
+print("=== Schema ===")
+df.printSchema()
+
+print("\n=== Row count (total) ===")
+total = df.count()
+print(f"{total:,}")
+
+print("\n=== Sample rows ===")
+df.show(10, truncate=False)
+
+
+# ─────────────────────────────────────────────
+# SECTION 2 — Monthly volume
+# Understand scale per month and date coverage
+# ─────────────────────────────────────────────
+
+print("=== Monthly row count ===")
+df.groupBy(F.substring("trans_dt", 1, 7).alias("month")) \
+  .agg(
+      F.count("*").alias("row_count"),
+      F.countDistinct("trans_id").alias("unique_txns"),
+      F.sum("trans_amt").alias("total_amt")
+  ) \
+  .orderBy("month") \
+  .show(50, truncate=False)
+
+print("=== Payment rail distribution ===")
+df.groupBy("payment_rail") \
+  .agg(
+      F.count("*").alias("row_count"),
+      F.sum("trans_amt").alias("total_amt")
+  ) \
+  .orderBy(F.desc("row_count")) \
+  .show(20, truncate=False)
+
+
+# ─────────────────────────────────────────────
+# SECTION 3 — Null / blank coverage on name fields
+# The most important thing to know before any similarity work
+# ─────────────────────────────────────────────
+
+name_cols = ["customer_name_pays", "customer_name_receives", "cpty_name", "cpty_fin_entity_name"]
+
+print("=== Null and blank coverage per name field ===")
+
+null_stats = df.agg(*[
+    F.count(when(col(c).isNull(), c)).alias(f"{c}__null")
+    for c in name_cols
+] + [
+    F.count(when(trim(col(c)) == "", c)).alias(f"{c}__blank")
+    for c in name_cols
+] + [
+    F.count(when(col(c).isNotNull() & (trim(col(c)) != ""), c)).alias(f"{c}__populated")
+    for c in name_cols
+])
+
+null_stats.show(truncate=False)
+
+# As percentages
+print("=== Coverage rate (%) ===")
+null_pct = df.agg(*[
+    (F.count(when(col(c).isNotNull() & (trim(col(c)) != ""), c)) / F.count("*") * 100)
+    .alias(f"{c}__pct_populated")
+    for c in name_cols
+])
+null_pct.show(truncate=False)
+
+# Which of the two customer name columns is populated on each row
+print("=== customer_name_pays vs customer_name_receives population pattern ===")
+df.groupBy(
+    col("customer_name_pays").isNotNull().alias("pays_populated"),
+    col("customer_name_receives").isNotNull().alias("receives_populated")
+).count().show()
+
+
+# ─────────────────────────────────────────────
+# SECTION 4 — Name quality: casing, digits, special chars
+# ─────────────────────────────────────────────
+
+# Work with a sample for speed during EDA
+sample = df.sample(fraction=0.05, seed=42).cache()
+sample_count = sample.count()
+print(f"\n=== Working on sample: {sample_count:,} rows ===")
+
+# Helper: derive the "active" customer name (whichever side is the sender)
+# customer_name_pays = the one sending; if null, they might be on receives side
+# Based on your description: one of them is always populated
+sample = sample.withColumn(
+    "customer_name",
+    when(col("customer_name_pays").isNotNull(), col("customer_name_pays"))
+    .otherwise(col("customer_name_receives"))
+)
+
+print("=== ALL CAPS rate in customer_name ===")
+sample.agg(
+    (F.count(when(col("customer_name") == F.upper(col("customer_name")), True))
+     / F.count("customer_name") * 100).alias("pct_all_caps_customer"),
+    (F.count(when(col("cpty_name") == F.upper(col("cpty_name")), True))
+     / F.count("cpty_name") * 100).alias("pct_all_caps_cpty")
+).show(truncate=False)
+
+print("=== Names containing digits ===")
+sample.agg(
+    (F.count(when(col("customer_name").rlike(r"\d"), True))
+     / F.count("customer_name") * 100).alias("pct_has_digit_customer"),
+    (F.count(when(col("cpty_name").rlike(r"\d"), True))
+     / F.count("cpty_name") * 100).alias("pct_has_digit_cpty")
+).show(truncate=False)
+
+print("=== Names containing special chars (., ,, /, &, -) ===")
+sample.agg(
+    (F.count(when(col("customer_name").rlike(r"[.,/&\-]"), True))
+     / F.count("customer_name") * 100).alias("pct_special_char_customer"),
+    (F.count(when(col("cpty_name").rlike(r"[.,/&\-]"), True))
+     / F.count("cpty_name") * 100).alias("pct_special_char_cpty")
+).show(truncate=False)
+
+print("=== Name length distribution (customer_name) ===")
+sample.select(length("customer_name").alias("name_len")) \
+  .summary("min", "25%", "50%", "75%", "max", "mean") \
+  .show()
+
+print("=== Name length distribution (cpty_name) ===")
+sample.select(length("cpty_name").alias("name_len")) \
+  .summary("min", "25%", "50%", "75%", "max", "mean") \
+  .show()
+
+# Top 20 most frequent customer names — sanity check
+print("=== Top 20 customer_name values ===")
+sample.groupBy("customer_name").count().orderBy(F.desc("count")).show(20, truncate=False)
+
+# Top 20 cpty_name values
+print("=== Top 20 cpty_name values ===")
+sample.groupBy("cpty_name").count().orderBy(F.desc("count")).show(20, truncate=False)
+
+
+# ─────────────────────────────────────────────
+# SECTION 5 — Normalization and exact match rate
+# Strip noise, then see how many pairs already match exactly
+# Do this before touching any similarity function
+# ─────────────────────────────────────────────
+
+# Legal suffix list — extend as you discover more in your data
+SUFFIXES = [
+    r"\bINC\.?", r"\bLLC\.?", r"\bLTD\.?", r"\bCORP\.?", r"\bCO\.?",
+    r"\bLP\.?", r"\bLLP\.?", r"\bPLC\.?", r"\bGMBH\.?", r"\bNA\.?",
+    r"\bN\.A\.?", r"\bDBA\.?", r"\bPC\.?", r"\bPINC\.?", r"\bSA\.?"
+]
+suffix_pattern = "|".join(SUFFIXES)
+
+def normalize(c):
+    """
+    Normalize a name column:
+    1. Lowercase
+    2. Strip punctuation (. , / & - )
+    3. Collapse whitespace
+    4. Strip legal suffixes
+    5. Trim
+    """
+    return (
+        trim(
+            regexp_replace(
+                regexp_replace(
+                    regexp_replace(
+                        lower(trim(c)),
+                        r"[.,/&\-]", " "      # replace special chars with space
+                    ),
+                    r"\s+", " "               # collapse multiple spaces
+                ),
+                r"(?i)(" + suffix_pattern + r")\s*$", ""  # strip trailing suffix
+            )
+        )
+    )
+
+sample = sample \
+    .withColumn("customer_name_norm", normalize(col("customer_name"))) \
+    .withColumn("cpty_name_norm",     normalize(col("cpty_name")))
+
+print("=== Sample of normalized names (before vs after) ===")
+sample.select(
+    "customer_name", "customer_name_norm",
+    "cpty_name",     "cpty_name_norm"
+).show(20, truncate=False)
+
+# Exact match after normalization
+print("=== Exact match rate after normalization ===")
+exact = sample.filter(
+    col("customer_name_norm").isNotNull() &
+    col("cpty_name_norm").isNotNull() &
+    (col("customer_name_norm") == col("cpty_name_norm")) &
+    (length(col("customer_name_norm")) > 2)     # exclude trivial matches like ""
+)
+exact_count = exact.count()
+denominator = sample.filter(
+    col("customer_name_norm").isNotNull() & col("cpty_name_norm").isNotNull()
+).count()
+print(f"Exact matches (post-norm): {exact_count:,} of {denominator:,} "
+      f"({exact_count / denominator * 100:.2f}%)")
+
+print("=== Sample of exact matches ===")
+exact.select(
+    "customer_name", "cpty_name",
+    "customer_name_norm", "cpty_name_norm",
+    "trans_amt", "payment_rail", "trans_dt"
+).show(20, truncate=False)
+
+# ─────────────────────────────────────────────
+# SECTION 6 — Suffix-only difference rate
+# Same core name, different legal suffix
+# These are the most interesting ambiguous cases
+# ─────────────────────────────────────────────
+
+# Extract suffix separately BEFORE stripping it
+def extract_suffix(c):
+    """Return the matched legal suffix, or empty string."""
+    return F.regexp_extract(lower(trim(c)), r"(?i)\b(inc\.?|llc\.?|ltd\.?|corp\.?|co\.?|lp\.?|llp\.?)[\s.]*$", 1)
+
+sample = sample \
+    .withColumn("customer_suffix", extract_suffix(col("customer_name"))) \
+    .withColumn("cpty_suffix",     extract_suffix(col("cpty_name")))
+
+# Core name = normalized name WITH suffix stripped (already done above)
+# Flag: same core name, different suffix
+same_core_diff_suffix = sample.filter(
+    col("customer_name_norm").isNotNull() &
+    col("cpty_name_norm").isNotNull() &
+    (col("customer_name_norm") == col("cpty_name_norm")) &   # same core
+    (col("customer_suffix") != col("cpty_suffix")) &          # different suffix
+    (length(col("customer_name_norm")) > 2)
+)
+
+scd_count = same_core_diff_suffix.count()
+print(f"\n=== Same core name, different legal suffix: {scd_count:,} rows ===")
+
+same_core_diff_suffix.select(
+    "customer_name", "cpty_name",
+    "customer_suffix", "cpty_suffix",
+    "trans_amt", "payment_rail", "trans_dt"
+).orderBy(F.desc("trans_amt")).show(20, truncate=False)
+
+# ─────────────────────────────────────────────
+# SECTION 7 — First-token overlap
+# How many more candidates does first-token blocking catch
+# that exact match missed? This sizes the fuzzy matching problem.
+# ─────────────────────────────────────────────
+
+sample = sample \
+    .withColumn("customer_first_token",
+                F.split(col("customer_name_norm"), r"\s+").getItem(0)) \
+    .withColumn("cpty_first_token",
+                F.split(col("cpty_name_norm"), r"\s+").getItem(0))
+
+first_token_match = sample.filter(
+    col("customer_first_token").isNotNull() &
+    col("cpty_first_token").isNotNull() &
+    (col("customer_first_token") == col("cpty_first_token")) &
+    (length(col("customer_first_token")) > 2) &
+    (col("customer_name_norm") != col("cpty_name_norm"))  # exclude exact matches already found
+)
+
+ft_count = first_token_match.count()
+print(f"\n=== First-token matches (excluding exact): {ft_count:,} rows ===")
+print("These are candidates for fuzzy similarity scoring.\n")
+
+first_token_match.select(
+    "customer_name", "cpty_name",
+    "customer_name_norm", "cpty_name_norm",
+    "trans_amt", "payment_rail", "trans_dt"
+).orderBy(F.desc("trans_amt")).show(20, truncate=False)
+
+# ─────────────────────────────────────────────
+# SECTION 8 — Summary for decision making
+# ─────────────────────────────────────────────
+
+print("=" * 60)
+print("SUMMARY")
+print("=" * 60)
+print(f"Total rows in table          : {total:,}")
+print(f"Sample size (5%)             : {sample_count:,}")
+print(f"Rows with both names present : {denominator:,}")
+print(f"Exact match after normalize  : {exact_count:,}  ({exact_count/denominator*100:.2f}%)")
+print(f"Same core, diff suffix       : {scd_count:,}  ({scd_count/denominator*100:.2f}%)")
+print(f"First-token match (residual) : {ft_count:,}  ({ft_count/denominator*100:.2f}%)")
+print("=" * 60)
+print("""
+Decision tree for next step:
+  - If exact_count is large  → these are your highest-confidence cases, flag immediately
+  - If scd_count is large    → review manually: could be legit holding/operating structure
+  - If ft_count is large     → this is the candidate set for Jaro-Winkler / fuzzy scoring
+  - If ft_count is small     → fuzzy matching may not be worth the compute cost
+""")
