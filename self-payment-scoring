@@ -1,0 +1,506 @@
+# Self-Payment Detection — Full Scoring Pipeline (Step 3)
+# Runs on full dataset (not sample). Expected runtime: 1–2 hours.
+# Prerequisite: run Steps 1 and 2 first for context.
+
+from pyspark.sql import functions as F
+from pyspark.sql.functions import col, lower, trim, regexp_replace, when, length
+import pandas as pd
+
+TABLE   = "xxx.yyy"
+OUT_DB  = "xxx"                        # change to your output database
+OUT_TBL = "self_payment_candidates"   # output table name
+
+# ─────────────────────────────────────────────
+# SECTION 1 — Configuration
+# Tune these before running
+# ─────────────────────────────────────────────
+
+# Minimum Jaro-Winkler score to flag as candidate
+# 0.92 = very tight (catches formatting variants of same name)
+# 0.85 = looser (catches abbreviations, word drops)
+JW_THRESHOLD = 0.88
+
+# Minimum transaction amounts
+# Wire: keep low — self-payment via wire is suspicious at any amount
+# ACH: raise significantly to eliminate consumer bill-pay noise
+MIN_AMT_WIRE = 1_000        # $1K minimum for wire
+MIN_AMT_ACH  = 50_000       # $50K minimum for ACH (cuts consumer noise)
+
+# ── Exclusion lists (extended from Step 2 findings) ──────────────────
+
+# Hub customer names — payroll processors, card networks, PNC entities, retailers
+# Extended with new findings from Section 6 (Image 8)
+CUSTOMER_HUB_NAMES = {
+    "TELECHECK SERVICES INC",
+    "PNC BANK NA",
+    "PNC BANK NA BIN SPONSORSHIP FISERV",
+    "PNC BANK NA ACQUIRING BIN GLOBAL",
+    "PNCBANK NA",
+    "PNC BANK MERCHANT SERVICES CO",
+    "ADP CLIENT TRUST",
+    "PAYLOCITY CORP",
+    "GUSTO INC",
+    "PAYCOM CLIENT TRUST",
+    "DP HOLDING LLC",
+    "PROLIANT INC",
+    "PAYCOR INC",
+    "ELECTRONIC PAYMENT CLEARINGHOUSE TRUST",
+    "PXC INC",
+    "STRIPE PAYMENTS CO",
+    "UNIVERSAL SERVICES OF AMERICA LP",   # new — 28M rows, payroll/benefit processor
+    "ACCLARIS INC",                        # new — 20M rows
+    "PAYSAFE PAYMENT PROCESSING SOLUTIONS LLC",  # new — 14M rows
+    "DAYFORCE EMPLOYER FUNDS TRUST",       # new — internal fund settlement
+    "CBIZ PAYROLL TRUST",
+    "KEYSTONE PAYROLL LLC",
+    "BILL COM LLC",
+    "COMMONWEALTH OF PENNSYLVANIA",        # new — government mass payments
+    "STATE OF INDIANA",
+    "STATE OF ALABAMA OFFICE OF STATE TREASURER",
+    "AUDITOR OF STATE",
+    "TEXAS ROADHOUSE MANAGEMENT CORP",     # new — retail chain, many small ACH
+    "SPEEDWAY LLC",
+    "FISERV TRANSACTION SERVICES LLC",
+    "SELECT EMPLOYMENT SERVICES INC",
+    "AYA HEALTHCARE SERVICES INC",
+    "ASPLUNDH TREE EXPERT LLC",
+    "CURB MOBILITY LLC",
+    "NATIONAL ELECTRICAL BENEFIT FUND",
+    "HUMANA INSURANCE CO",
+    "HUMANA INC",
+    "TRIWEST HEALTHCARE ALLIANCE CORP",
+    "OXFORD HEALTH INSURANCE INC",
+    "INDIANA UNIVERSITY HEALTH INC",
+}
+
+# Hub counterparty names — financial institutions, consumer services, retail
+# Extended with top cpty_name findings (Image 9)
+CPTY_HUB_NAMES = {
+    # Consumer payment platforms
+    "PAYPAL", "VENMO", "APPLE.COM/BILL", "APPLE CASH SENT MONEY",
+    "AFTERPAY", "AFFIRM INC", "EARNIN", "ACORNS INVEST",
+    # Banks / credit cards
+    "CAPITAL ONE", "CHASE CREDIT CRD", "JPMORGAN CHASE", "CHASE",
+    "WELLS FARGO", "DISCOVER", "AMEX EPAYMENT",
+    "CITI CARD ONLINE", "APPLECARD GSBANK", "CREDIT ONE BANK",
+    "SYNCHRONY BANK", "BARCLAYCARD US", "FID BKG SVC LLC",
+    "BANK OF AMERICA", "CAPITAL ONE AUTO", "CITI AUTOPAY",
+    "ROBINHOOD",
+    # Government
+    "SSA TREAS 310", "DEPT EDUCATION",
+    # Telecom / utilities
+    "VERIZON WIRELESS", "VERIZON", "T-MOBILE", "SPECTRUM",
+    "COMCAST-XFINITY",
+    # Retail / consumer
+    "TARGET DEBIT CRD", "HOME DEPOT", "BEST BUY", "LOWES", "MACYS",
+    "PLANET FIT",
+    # Insurance (consumer-facing)
+    "STATE FARM RO 27", "ALLSTATE INS CO",
+    # Streaming / other consumer
+    "NETFLIX.COM", "PRIME VIDEO CHANNELS", "FANDUELSBKPRIMARY",
+    "365 MARKET 888 432-3299",
+}
+
+# ─────────────────────────────────────────────
+# SECTION 2 — Normalization (fixed from Step 2)
+# Key fix: removed "trust" and "fund" from suffix list
+# These are part of many entity names, not legal wrappers
+# ─────────────────────────────────────────────
+
+# Conservative suffix list — only unambiguous legal entity suffixes
+SUFFIX_PATTERN = (
+    r"\b(incorporated|corporation|"
+    r"inc|llc|ltd|corp|lp|llp|plc|gmbh|dba|pc|"
+    r"co|na|n\.a)\s*\.?\s*$"
+)
+
+def normalize(c):
+    return trim(
+        regexp_replace(
+            regexp_replace(
+                regexp_replace(
+                    regexp_replace(
+                        regexp_replace(
+                            lower(trim(c)),
+                            r"\.$", ""           # strip trailing period first
+                        ),
+                        r"[.,/&\-]", " "         # special chars → space
+                    ),
+                    r"\s+", " "                  # collapse whitespace
+                ),
+                r"(?i)" + SUFFIX_PATTERN, ""     # strip legal suffix
+            ),
+            r"\s+$", ""
+        )
+    )
+
+def extract_suffix(c):
+    return trim(
+        regexp_replace(
+            F.regexp_extract(
+                lower(trim(c)),
+                r"(?i)\b(inc\.?|llc\.?|ltd\.?|corp\.?|lp\.?|llp\.?|co\.?|na\.?)\s*\.?\s*$",
+                1
+            ),
+            r"\.$", ""
+        )
+    )
+
+# ─────────────────────────────────────────────
+# SECTION 3 — Build the filtered + normalized dataset
+# Outgoing only (customer_name_pays IS NOT NULL)
+# Rail-specific amount thresholds
+# ─────────────────────────────────────────────
+
+print("Building filtered dataset...")
+
+df = spark.table(TABLE)
+
+df_out = (
+    df
+    # Outgoing transactions only
+    .filter(col("customer_name_pays").isNotNull())
+    .filter(trim(col("customer_name_pays")) != "")
+    # B2B rails
+    .filter(col("payment_rail").isin(["WIRE", "ACH"]))
+    # Rail-specific amount thresholds
+    .filter(
+        ((col("payment_rail") == "WIRE") & (col("trans_amt") >= MIN_AMT_WIRE)) |
+        ((col("payment_rail") == "ACH")  & (col("trans_amt") >= MIN_AMT_ACH))
+    )
+    # Hub exclusions
+    .filter(~col("customer_name_pays").isin(CUSTOMER_HUB_NAMES))
+    # cpty_name must be present and non-trivial
+    .filter(col("cpty_name").isNotNull())
+    .filter(trim(col("cpty_name")) != "")
+    .filter(length(trim(col("cpty_name"))) > 3)
+    .filter(~col("cpty_name").isin(CPTY_HUB_NAMES))
+    # Normalize
+    .withColumn("customer_name_norm", normalize(col("customer_name_pays")))
+    .withColumn("cpty_name_norm",     normalize(col("cpty_name")))
+    .withColumn("customer_suffix",    extract_suffix(col("customer_name_pays")))
+    .withColumn("cpty_suffix",        extract_suffix(col("cpty_name")))
+    # Drop rows where normalization wiped out the name entirely
+    .filter(length(col("customer_name_norm")) > 2)
+    .filter(length(col("cpty_name_norm")) > 2)
+)
+
+df_out.cache()
+base_count = df_out.count()
+print(f"Filtered outgoing dataset: {base_count:,} rows")
+
+# Rail split
+rail_counts = df_out.groupBy("payment_rail").agg(
+    F.count("*").alias("rows"),
+    F.sum("trans_amt").alias("total_amt")
+)
+rail_counts.show()
+
+# ─────────────────────────────────────────────
+# SECTION 4 — Tier 1: Exact matches (post-normalization)
+# High confidence — flag immediately
+# ─────────────────────────────────────────────
+
+tier1 = df_out.filter(
+    col("customer_name_norm") == col("cpty_name_norm")
+).withColumn("match_tier",    F.lit("TIER1_EXACT")) \
+ .withColumn("jw_score",      F.lit(1.0)) \
+ .withColumn("match_detail",  F.lit("exact_after_normalization"))
+
+tier1_count = tier1.count()
+print(f"\nTier 1 exact matches: {tier1_count:,}")
+
+# ─────────────────────────────────────────────
+# SECTION 5 — Tier 1b: Same core, different raw names
+# (same normalized name but raw strings differ — suffix variation)
+# Separate flag so investigators know to check entity structure
+# ─────────────────────────────────────────────
+
+tier1b = df_out.filter(
+    (col("customer_name_norm") == col("cpty_name_norm")) &
+    (lower(trim(col("customer_name_pays"))) != lower(trim(col("cpty_name"))))
+).withColumn("match_tier",    F.lit("TIER1B_SUFFIX_VARIANT")) \
+ .withColumn("jw_score",      F.lit(0.99)) \
+ .withColumn("match_detail",
+     F.concat_ws(" vs ",
+         col("customer_suffix"),
+         col("cpty_suffix")
+     ))
+
+tier1b_count = tier1b.count()
+print(f"Tier 1b suffix variants: {tier1b_count:,}")
+
+# ─────────────────────────────────────────────
+# SECTION 6 — Tier 2: Jaro-Winkler fuzzy scoring
+# Step 6a: Extract distinct first-token candidates
+# Step 6b: Collect to Pandas, score, filter by threshold
+# Step 6c: Broadcast scored pairs back to Spark
+# ─────────────────────────────────────────────
+
+print("\nExtracting first-token candidate pairs...")
+
+df_tokens = df_out \
+    .withColumn("cust_tok1", F.split(col("customer_name_norm"), r"\s+").getItem(0)) \
+    .withColumn("cpty_tok1", F.split(col("cpty_name_norm"),     r"\s+").getItem(0))
+
+# Candidate pairs: first token matches, not already exact
+candidate_pairs = (
+    df_tokens
+    .filter(
+        (col("cust_tok1") == col("cpty_tok1")) &
+        (length(col("cust_tok1")) > 2) &
+        (col("customer_name_norm") != col("cpty_name_norm"))  # exclude tier1
+    )
+    .select("customer_name_norm", "cpty_name_norm")
+    .distinct()
+)
+
+pair_count = candidate_pairs.count()
+print(f"Distinct candidate pairs for fuzzy scoring: {pair_count:,}")
+
+# Collect to driver — only works because pair_count < 500K
+print("Collecting pairs to driver for Jaro-Winkler scoring...")
+pairs_pd = candidate_pairs.toPandas()
+print(f"Collected {len(pairs_pd):,} pairs to Pandas")
+
+# ── Jaro-Winkler scoring ─────────────────────
+# Try jellyfish first (no pip install needed if available)
+# Fall back to rapidfuzz
+
+print("Running Jaro-Winkler similarity scoring...")
+
+try:
+    import jellyfish
+    def jw_score(a, b):
+        return jellyfish.jaro_winkler_similarity(a, b)
+    print("Using: jellyfish")
+except ImportError:
+    try:
+        from rapidfuzz.distance import JaroWinkler
+        def jw_score(a, b):
+            return JaroWinkler.normalized_similarity(a, b)
+        print("Using: rapidfuzz")
+    except ImportError:
+        # Last resort: install rapidfuzz inline
+        import subprocess, sys
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "rapidfuzz", "-q"])
+        from rapidfuzz.distance import JaroWinkler
+        def jw_score(a, b):
+            return JaroWinkler.normalized_similarity(a, b)
+        print("Using: rapidfuzz (installed)")
+
+# Score all pairs — vectorized for speed
+pairs_pd["jw_score"] = pairs_pd.apply(
+    lambda r: jw_score(r["customer_name_norm"], r["cpty_name_norm"]),
+    axis=1
+)
+
+# Filter to threshold
+scored_pd = pairs_pd[pairs_pd["jw_score"] >= JW_THRESHOLD].copy()
+print(f"Pairs above threshold ({JW_THRESHOLD}): {len(scored_pd):,} of {len(pairs_pd):,}")
+
+# Score distribution — helps calibrate threshold
+print("\nJaro-Winkler score distribution (all candidates):")
+bins = [0, 0.70, 0.80, 0.85, 0.88, 0.90, 0.92, 0.95, 1.01]
+labels = ["<0.70","0.70-0.80","0.80-0.85","0.85-0.88","0.88-0.90","0.90-0.92","0.92-0.95","0.95-1.00"]
+pairs_pd["score_bin"] = pd.cut(pairs_pd["jw_score"], bins=bins, labels=labels, right=False)
+print(pairs_pd["score_bin"].value_counts().sort_index().to_string())
+
+# Show sample of scored pairs
+print(f"\nSample pairs above threshold (JW >= {JW_THRESHOLD}):")
+print(scored_pd.sort_values("jw_score", ascending=False).head(30).to_string(index=False))
+
+print(f"\nSample pairs just BELOW threshold (for calibration):")
+below = pairs_pd[(pairs_pd["jw_score"] >= 0.80) & (pairs_pd["jw_score"] < JW_THRESHOLD)]
+print(below.sort_values("jw_score", ascending=False).head(20).to_string(index=False))
+
+# ─────────────────────────────────────────────
+# SECTION 7 — Join Jaro-Winkler scores back to transactions
+# Broadcast scored pairs (small) to all Spark partitions
+# ─────────────────────────────────────────────
+
+if len(scored_pd) > 0:
+    # Broadcast the scored pairs dataframe back to Spark
+    scored_spark = spark.createDataFrame(scored_pd[["customer_name_norm", "cpty_name_norm", "jw_score"]])
+    scored_spark = F.broadcast(scored_spark)
+
+    tier2 = (
+        df_tokens
+        .filter(
+            (col("cust_tok1") == col("cpty_tok1")) &
+            (col("customer_name_norm") != col("cpty_name_norm"))
+        )
+        .join(
+            scored_spark,
+            on=["customer_name_norm", "cpty_name_norm"],
+            how="inner"
+        )
+        .withColumn("match_tier", F.lit("TIER2_FUZZY"))
+        .withColumn("match_detail",
+            F.concat(F.lit("jw="), F.round(col("jw_score"), 4).cast("string"))
+        )
+    )
+
+    tier2_count = tier2.count()
+    print(f"\nTier 2 fuzzy matches: {tier2_count:,}")
+else:
+    tier2 = None
+    tier2_count = 0
+    print("No Tier 2 matches above threshold")
+
+# ─────────────────────────────────────────────
+# SECTION 8 — Business rule: capped settlement detection
+# Flag transactions at or near $999,999,999 — these are
+# system-capped splits of a large transfer, not true self-payments
+# ─────────────────────────────────────────────
+
+CAP_THRESHOLD = 999_000_000  # flag if trans_amt >= this
+
+def add_flags(df):
+    return df.withColumn(
+        "is_cap_pattern",
+        col("trans_amt") >= CAP_THRESHOLD
+    ).withColumn(
+        "alert_priority",
+        when(col("is_cap_pattern"), F.lit("REVIEW_CAP_PATTERN"))
+        .when(col("match_tier") == "TIER1_EXACT",          F.lit("HIGH"))
+        .when(col("match_tier") == "TIER1B_SUFFIX_VARIANT", F.lit("HIGH"))
+        .when(col("jw_score") >= 0.95,                     F.lit("HIGH"))
+        .when(col("jw_score") >= JW_THRESHOLD,             F.lit("MEDIUM"))
+        .otherwise(F.lit("LOW"))
+    )
+
+# ─────────────────────────────────────────────
+# SECTION 9 — Combine all tiers and write output
+# ─────────────────────────────────────────────
+
+OUTPUT_COLS = [
+    "trans_id",
+    "customer_name_pays",
+    "cpty_name",
+    "customer_name_norm",
+    "cpty_name_norm",
+    "customer_suffix",
+    "cpty_suffix",
+    "trans_amt",
+    "payment_rail",
+    "trans_dt",
+    "match_tier",
+    "jw_score",
+    "match_detail",
+    "is_cap_pattern",
+    "alert_priority",
+]
+
+# Add missing columns so all tiers have same schema
+def align_schema(df):
+    for c in OUTPUT_COLS:
+        if c not in df.columns:
+            df = df.withColumn(c, F.lit(None).cast("string"))
+    return df.select(OUTPUT_COLS)
+
+tiers = [add_flags(align_schema(tier1))]
+if tier1b_count > 0:
+    tiers.append(add_flags(align_schema(tier1b)))
+if tier2 is not None and tier2_count > 0:
+    tiers.append(add_flags(align_schema(tier2)))
+
+from functools import reduce
+from pyspark.sql import DataFrame
+
+results = reduce(DataFrame.unionByName, tiers)
+
+# Deduplicate: same trans_id can appear in multiple tiers
+# Keep the highest-confidence match (lowest tier number)
+tier_rank = F.when(col("match_tier") == "TIER1_EXACT", 1) \
+             .when(col("match_tier") == "TIER1B_SUFFIX_VARIANT", 2) \
+             .when(col("match_tier") == "TIER2_FUZZY", 3) \
+             .otherwise(4)
+
+from pyspark.sql.window import Window
+w = Window.partitionBy("trans_id").orderBy(tier_rank)
+results_dedup = results \
+    .withColumn("_rank", F.row_number().over(w)) \
+    .filter(col("_rank") == 1) \
+    .drop("_rank")
+
+final_count = results_dedup.count()
+print(f"\nFinal deduplicated candidates: {final_count:,}")
+
+# Summary by tier and rail
+print("\n=== Results by tier and rail ===")
+results_dedup.groupBy("match_tier", "payment_rail", "alert_priority") \
+    .agg(
+        F.count("*").alias("row_count"),
+        F.sum("trans_amt").alias("total_amt"),
+        F.avg("trans_amt").alias("avg_amt")
+    ) \
+    .orderBy("match_tier", "payment_rail") \
+    .show(30, truncate=False)
+
+# Sample HIGH priority results
+print("\n=== Sample HIGH priority candidates ===")
+results_dedup.filter(col("alert_priority") == "HIGH") \
+    .orderBy(F.desc("trans_amt")) \
+    .select(
+        "customer_name_pays", "cpty_name",
+        "trans_amt", "payment_rail", "trans_dt",
+        "match_tier", "jw_score", "match_detail"
+    ).show(20, truncate=50)
+
+# Sample MEDIUM
+print("\n=== Sample MEDIUM priority candidates ===")
+results_dedup.filter(col("alert_priority") == "MEDIUM") \
+    .orderBy(F.desc("jw_score"), F.desc("trans_amt")) \
+    .select(
+        "customer_name_pays", "cpty_name",
+        "customer_name_norm", "cpty_name_norm",
+        "trans_amt", "payment_rail", "trans_dt",
+        "jw_score"
+    ).show(20, truncate=50)
+
+# ─────────────────────────────────────────────
+# SECTION 10 — Write to Hive table
+# ─────────────────────────────────────────────
+
+output_table = f"{OUT_DB}.{OUT_TBL}"
+print(f"\nWriting results to {output_table}...")
+
+results_dedup \
+    .repartition(20) \
+    .write \
+    .mode("overwrite") \
+    .option("compression", "snappy") \
+    .saveAsTable(output_table)
+
+print(f"Done. {final_count:,} candidates written to {output_table}")
+
+# ─────────────────────────────────────────────
+# SECTION 11 — Final summary
+# ─────────────────────────────────────────────
+
+print("\n" + "=" * 65)
+print("SCORING PIPELINE SUMMARY")
+print("=" * 65)
+print(f"Base filtered rows (outgoing Wire+ACH): {base_count:,}")
+print(f"Tier 1  exact matches                : {tier1_count:,}")
+print(f"Tier 1b suffix variant matches       : {tier1b_count:,}")
+print(f"Tier 2  fuzzy matches (JW>={JW_THRESHOLD}): {tier2_count:,}")
+print(f"Distinct pairs scored (Jaro-Winkler) : {len(pairs_pd):,}")
+print(f"Pairs above threshold                : {len(scored_pd):,}")
+print(f"Final deduplicated candidates        : {final_count:,}")
+print(f"Output table                         : {output_table}")
+print("=" * 65)
+print("""
+Next steps after reviewing output:
+  1. Adjust JW_THRESHOLD if MEDIUM results look too noisy (raise to 0.90+)
+     or too sparse (lower to 0.85)
+  2. Review REVIEW_CAP_PATTERN rows — these are likely legitimate settlement
+     flows, not suspicious. Consider excluding from final alerts.
+  3. Join output to CLP/KYC table on customer ID to enrich with
+     account type, business category, relationship tier
+  4. Aggregate by (customer_name_pays, cpty_name) to see repeat patterns —
+     a customer paying itself weekly is more suspicious than a one-off
+  5. Add to exclusion lists any customer/cpty names that appear frequently
+     in HIGH/MEDIUM tier but are clearly legitimate (insurers, states, etc.)
+""")
