@@ -1,0 +1,353 @@
+# Self-Payment Detection — Filtered EDA (Step 2)
+# Applies pre-filters to shrink working dataset before any fuzzy matching
+# Run after self_payment_eda.py (Step 1)
+
+from pyspark.sql import functions as F
+from pyspark.sql.functions import col, lower, trim, regexp_replace, when, length
+import pyspark.sql.functions as F
+
+TABLE = "xxx.yyy"
+
+df = spark.table(TABLE)
+
+# ─────────────────────────────────────────────
+# SECTION 1 — Define exclusion lists
+# Built from EDA findings in Step 1
+# Extend these as you discover more in your data
+# ─────────────────────────────────────────────
+
+# Hub customer names — payroll processors, card networks, PNC internal entities
+# These appear as customer_name but are not real corporate payment originators
+CUSTOMER_HUB_NAMES = [
+    "TELECHECK SERVICES INC",
+    "PNC BANK NA",
+    "PNC BANK NA BIN SPONSORSHIP FISERV",
+    "PNC BANK NA ACQUIRING BIN GLOBAL",
+    "ADP CLIENT TRUST",
+    "PAYLOCITY CORP",
+    "GUSTO INC",
+    "PAYCOM CLIENT TRUST",
+    "DP HOLDING LLC",
+    "PROLIANT INC",
+    "PAYCOR INC",
+    "ELECTRONIC PAYMENT CLEARINGHOUSE TRUST",
+    "PXC INC",
+    "STRIPE PAYMENTS CO",
+]
+
+# Hub counterparty names — financial intermediaries, consumer payment platforms
+# These are never going to be self-payments
+CPTY_HUB_NAMES = [
+    "PAYPAL",
+    "VENMO",
+    "APPLE.COM/BILL",
+    "APPLE CASH SENT MONEY",
+    "CAPITAL ONE",
+    "SSA TREAS 310",
+    "INTL PURCH & ADV FEE",
+    "CHASE CREDIT CRD",
+    "JPMORGAN CHASE",
+    "WELLS FARGO",
+    "CHASE",
+    "DISCOVER",
+    "AMEX EPAYMENT",
+    "FANDUELSBKPRIMARY",
+    "AFTERPAY",
+    "PRIME VIDEO CHANNELS",
+    "TARGET DEBIT CRD",
+    "NETFLIX.COM",
+    "365 MARKET 888 432-3299",
+]
+
+# Rails to keep — Wire and ACH are the corporate B2B rails
+# Debit/Check/R2P carry most of the consumer noise
+B2B_RAILS = ["WIRE", "ACH"]
+
+# ─────────────────────────────────────────────
+# SECTION 2 — Apply pre-filters
+# Each filter logged separately so you can see the impact
+# ─────────────────────────────────────────────
+
+print("=== Pre-filter impact analysis ===\n")
+total = df.count()
+print(f"Starting rows: {total:,}")
+
+# Filter 1: B2B rails only
+f1 = df.filter(col("payment_rail").isin(B2B_RAILS))
+c1 = f1.count()
+print(f"After rail filter (WIRE + ACH):          {c1:,}  ({c1/total*100:.1f}%)")
+
+# Filter 2: Remove known hub customer names
+f2 = f1.filter(~col("customer_name").isin(CUSTOMER_HUB_NAMES))
+c2 = f2.count()
+print(f"After customer hub exclusion:            {c2:,}  ({c2/total*100:.1f}%)")
+
+# Filter 3: cpty_name must be non-null and non-trivial
+f3 = f2.filter(
+    col("cpty_name").isNotNull() &
+    (trim(col("cpty_name")) != "") &
+    (length(trim(col("cpty_name"))) > 3)
+)
+c3 = f3.count()
+print(f"After cpty_name null/trivial filter:     {c3:,}  ({c3/total*100:.1f}%)")
+
+# Filter 4: Remove known hub counterparty names
+f4 = f3.filter(~col("cpty_name").isin(CPTY_HUB_NAMES))
+c4 = f4.count()
+print(f"After counterparty hub exclusion:        {c4:,}  ({c4/total*100:.1f}%)")
+
+# Filter 5: customer_name must be non-null
+f5 = f4.filter(
+    col("customer_name").isNotNull() &
+    (trim(col("customer_name")) != "") &
+    (length(trim(col("customer_name"))) > 3)
+)
+c5 = f5.count()
+print(f"After customer_name null filter:         {c5:,}  ({c5/total*100:.1f}%)")
+
+# Filter 6: Minimum transaction amount
+# Adjust MIN_AMT based on what makes sense for your use case
+# Starting at $1 to keep everything for now — raise if still too noisy
+MIN_AMT = 1.0
+f6 = f5.filter(col("trans_amt") >= MIN_AMT)
+c6 = f6.count()
+print(f"After min amount filter (>= ${MIN_AMT}): {c6:,}  ({c6/total*100:.1f}%)")
+
+print(f"\nWorking dataset: {c6:,} rows ({c6/total*100:.2f}% of original)")
+
+# Cache the filtered dataset — we'll use it for everything below
+df_filtered = f6.cache()
+df_filtered.count()  # trigger cache
+
+
+# ─────────────────────────────────────────────
+# SECTION 3 — Revised normalization
+# Fixed from Step 1: strip trailing periods BEFORE suffix extraction
+# Also handles CORPORATION → CORP collapse
+# ─────────────────────────────────────────────
+
+# Extended suffix list based on what we saw in the data
+SUFFIX_PATTERN = (
+    r"\b(incorporated|corporation|company|limited|associates|"
+    r"group|holdings|services|solutions|partners|enterprises|"
+    r"international|national|global|"  # common standalone words that act like suffixes
+    r"inc|llc|ltd|corp|co|lp|llp|plc|gmbh|na|dba|pc|"
+    r"trust|fund|foundation)\.?"       # common institutional suffixes
+    r"\s*$"
+)
+
+def normalize(c):
+    """
+    Revised normalization pipeline:
+    1. Lowercase + trim
+    2. Strip trailing periods (fix for INC. vs INC mismatch)
+    3. Replace special chars with space
+    4. Collapse whitespace
+    5. Strip legal suffixes (now catches INC. because period already removed)
+    6. Trim again
+    """
+    return trim(
+        regexp_replace(
+            regexp_replace(
+                regexp_replace(
+                    regexp_replace(
+                        regexp_replace(
+                            lower(trim(c)),
+                            r"\.$", ""              # strip trailing period first
+                        ),
+                        r"[.,/&\-]", " "            # special chars → space
+                    ),
+                    r"\s+", " "                     # collapse whitespace
+                ),
+                r"(?i)" + SUFFIX_PATTERN, ""        # strip legal suffix
+            ),
+            r"\s+$", ""                             # final trim (regex)
+        )
+    )
+
+def extract_suffix(c):
+    """Extract the legal suffix for comparison (after lowercasing, before stripping)."""
+    return trim(
+        regexp_replace(
+            F.regexp_extract(
+                lower(trim(c)),
+                r"(?i)\b(inc\.?|llc\.?|ltd\.?|corp\.?|co\.?|lp\.?|llp\.?|"
+                r"trust\.?|foundation\.?|na\.?)\s*\.?\s*$",
+                1
+            ),
+            r"\.$", ""   # strip trailing period from extracted suffix too
+        )
+    )
+
+# Apply normalization to filtered dataset
+df_norm = df_filtered \
+    .withColumn("customer_name_norm", normalize(col("customer_name"))) \
+    .withColumn("cpty_name_norm",     normalize(col("cpty_name"))) \
+    .withColumn("customer_suffix",    extract_suffix(col("customer_name"))) \
+    .withColumn("cpty_suffix",        extract_suffix(col("cpty_name")))
+
+# Quick sanity check on normalization
+print("\n=== Normalization sanity check (20 random rows) ===")
+df_norm.select(
+    "customer_name", "customer_name_norm",
+    "cpty_name", "cpty_name_norm"
+).sample(fraction=0.0001, seed=99).show(20, truncate=60)
+
+
+# ─────────────────────────────────────────────
+# SECTION 4 — Re-run match statistics on filtered + renormalized data
+# Compare to Step 1 to see how much the filtering changed things
+# ─────────────────────────────────────────────
+
+# Base: rows where both normalized names are non-trivial
+df_base = df_norm.filter(
+    (length(col("customer_name_norm")) > 2) &
+    (length(col("cpty_name_norm")) > 2)
+)
+base_count = df_base.count()
+print(f"\n=== Base (both names non-trivial after normalization): {base_count:,} ===")
+
+# --- Tier 1: Exact match after normalization ---
+exact = df_base.filter(
+    col("customer_name_norm") == col("cpty_name_norm")
+)
+exact_count = exact.count()
+print(f"\nTier 1 — Exact match (post-norm): {exact_count:,}  ({exact_count/base_count*100:.3f}%)")
+
+print("Sample exact matches (highest amounts):")
+exact.select(
+    "customer_name", "cpty_name",
+    "customer_name_norm", "cpty_name_norm",
+    "trans_amt", "payment_rail", "trans_dt"
+).orderBy(F.desc("trans_amt")).show(15, truncate=50)
+
+# --- Tier 2: Same core, different suffix ---
+same_core_diff_suffix = df_base.filter(
+    (col("customer_name_norm") == col("cpty_name_norm")) &  # same after suffix strip
+    (col("customer_suffix") != col("cpty_suffix"))
+)
+
+# Wait — if suffix is already stripped in norm, same norm = same core by definition
+# Let's reframe: same core (norm), but raw names differ (meaning suffix differed)
+same_core_diff_raw = df_base.filter(
+    (col("customer_name_norm") == col("cpty_name_norm")) &
+    (lower(trim(col("customer_name"))) != lower(trim(col("cpty_name"))))
+)
+scd_count = same_core_diff_raw.count()
+print(f"\nTier 1b — Same core, raw names differ: {scd_count:,}  ({scd_count/base_count*100:.3f}%)")
+
+print("Sample (highest amounts):")
+same_core_diff_raw.select(
+    "customer_name", "cpty_name",
+    "customer_suffix", "cpty_suffix",
+    "trans_amt", "payment_rail", "trans_dt"
+).orderBy(F.desc("trans_amt")).show(15, truncate=60)
+
+# --- Tier 3: First-token match (residual, excluding exact) ---
+df_tokens = df_base \
+    .withColumn("cust_tok1", F.split(col("customer_name_norm"), r"\s+").getItem(0)) \
+    .withColumn("cpty_tok1", F.split(col("cpty_name_norm"),     r"\s+").getItem(0))
+
+first_token = df_tokens.filter(
+    (col("cust_tok1") == col("cpty_tok1")) &
+    (length(col("cust_tok1")) > 2) &
+    (col("customer_name_norm") != col("cpty_name_norm"))   # exclude exact matches
+)
+ft_count = first_token.count()
+print(f"\nTier 2 — First-token match (excl. exact): {ft_count:,}  ({ft_count/base_count*100:.3f}%)")
+
+print("Sample (highest amounts):")
+first_token.select(
+    "customer_name", "cpty_name",
+    "customer_name_norm", "cpty_name_norm",
+    "trans_amt", "payment_rail", "trans_dt"
+).orderBy(F.desc("trans_amt")).show(15, truncate=60)
+
+
+# ─────────────────────────────────────────────
+# SECTION 5 — Dig into first-token false positives
+# The key question: how many of the 1.5M first-token matches
+# are same-entity vs genuinely different entities sharing a word?
+# ─────────────────────────────────────────────
+
+# Distinct (customer_name_norm, cpty_name_norm) pairs in first-token candidates
+# Much smaller than row count — tells you how many unique NAME PAIRS to adjudicate
+print("\n=== Distinct name pairs in first-token candidates ===")
+ft_pairs = first_token.select(
+    "customer_name_norm", "cpty_name_norm",
+    "customer_name", "cpty_name"
+).distinct()
+ft_pair_count = ft_pairs.count()
+print(f"Distinct name pairs: {ft_pair_count:,}  (vs {ft_count:,} rows)")
+print("This is the actual size of the fuzzy matching problem.")
+
+print("\nTop pairs by frequency (most transactions):")
+first_token.groupBy("customer_name_norm", "cpty_name_norm", "customer_name", "cpty_name") \
+    .agg(
+        F.count("*").alias("txn_count"),
+        F.sum("trans_amt").alias("total_amt")
+    ) \
+    .orderBy(F.desc("txn_count")) \
+    .show(20, truncate=50)
+
+# How many of these pairs have BOTH names longer than 10 chars (after norm)?
+# Short names like "IBM" matching "IBM HOLDINGS" are very different from
+# "PROGRESSIVE CASUALTY INSURANCE" matching "PROGRESSIVE CASUALTY INS CO"
+ft_quality = first_token.filter(
+    (length(col("customer_name_norm")) > 10) &
+    (length(col("cpty_name_norm")) > 10)
+)
+ft_quality_count = ft_quality.count()
+print(f"\nFirst-token matches where BOTH names > 10 chars (lower FP risk): {ft_quality_count:,}")
+
+
+# ─────────────────────────────────────────────
+# SECTION 6 — Top customer names still noisy after filtering?
+# Check what's still in the data that shouldn't be
+# ─────────────────────────────────────────────
+
+print("\n=== Top 30 customer_name in filtered dataset ===")
+df_filtered.groupBy("customer_name") \
+    .count() \
+    .orderBy(F.desc("count")) \
+    .show(30, truncate=60)
+
+print("\n=== Top 30 cpty_name in filtered dataset ===")
+df_filtered.groupBy("cpty_name") \
+    .count() \
+    .orderBy(F.desc("count")) \
+    .show(30, truncate=60)
+
+print("\n=== Payment rail distribution in filtered dataset ===")
+df_filtered.groupBy("payment_rail") \
+    .agg(
+        F.count("*").alias("row_count"),
+        F.sum("trans_amt").alias("total_amt")
+    ) \
+    .orderBy(F.desc("row_count")) \
+    .show(truncate=False)
+
+
+# ─────────────────────────────────────────────
+# SECTION 7 — Summary
+# ─────────────────────────────────────────────
+
+print("\n" + "=" * 65)
+print("FILTERED EDA SUMMARY")
+print("=" * 65)
+print(f"Original table rows          : {total:,}")
+print(f"After all pre-filters        : {c6:,}  ({c6/total*100:.2f}%)")
+print(f"Base (both names valid)      : {base_count:,}")
+print(f"Tier 1 exact matches         : {exact_count:,}  ({exact_count/base_count*100:.3f}%)")
+print(f"Tier 1b same core diff raw   : {scd_count:,}  ({scd_count/base_count*100:.3f}%)")
+print(f"Tier 2 first-token (residual): {ft_count:,}  ({ft_count/base_count*100:.3f}%)")
+print(f"Distinct name pairs (Tier 2) : {ft_pair_count:,}")
+print("=" * 65)
+print("""
+Next decision:
+  - Review Tier 1 exact matches: are these real self-payments or legitimate?
+  - Review Tier 1b: suffix differences — same company or related entities?
+  - If ft_pair_count < ~500K: Jaro-Winkler via Pandas UDF is tractable
+  - If ft_pair_count > ~500K: use MinHash LSH (Spark MLlib) for blocking first
+  - If top customer/cpty names in Section 6 still look noisy: extend exclusion lists
+""")
