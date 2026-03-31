@@ -1,0 +1,95 @@
+Hi team,
+
+I wanted to share early findings from an analysis I've been running to identify potential self-payment transactions — cases where a PNC customer appears to be sending money to themselves or a closely related entity, based on name similarity between the sender and the counterparty.
+
+Please see the attached outputs and let me know your thoughts.
+
+
+─────────────────────────────
+WHAT WE'RE LOOKING FOR
+─────────────────────────────
+
+A self-payment occurs when the name of the originating customer closely matches the name of the counterparty receiving the funds. This can indicate:
+
+  • Internal cash movement between related legal entities
+  • Potential structuring or layering behavior
+  • Legitimate but noteworthy treasury operations (e.g. holding company → operating company)
+
+We focused exclusively on outgoing Wire and ACH transactions, since those are the primary B2B rails where this pattern is meaningful.
+
+
+─────────────────────────────
+DATA SCOPE
+─────────────────────────────
+
+  • Source: Staging payment table (all rails, all directions)
+  • Starting volume: ~8 billion rows
+  • After filters: ~1.5 billion rows (outgoing Wire + ACH, B2B only)
+    - Wire: ~9.4M rows | $951B total value
+    - ACH: ~1.52B rows | $5.1T total value (ACH filtered to $50K+ per transaction to remove consumer bill-pay noise)
+
+
+─────────────────────────────
+METHODOLOGY
+─────────────────────────────
+
+Step 1 — Pre-filtering
+  Removed known payment processors, payroll hubs, card networks, and consumer-facing counterparties (PayPal, Venmo, credit card companies, utilities, retail, etc.) that would never represent self-payments. Also removed PNC's own internal entities.
+
+Step 2 — Name normalization
+  Standardized both customer name and counterparty name:
+    • Lowercase
+    • Strip punctuation (periods, commas, slashes)
+    • Remove legal suffixes (INC, LLC, CORP, LP, etc.)
+    • Collapse whitespace
+  This allows "CASH MANAGEMENT SERVICES INC" and "Cash Management Services Inc." to be treated as the same entity.
+
+Step 3 — Three-tier matching
+
+  TIER 1 — Exact match after normalization: 1,304,593 transactions
+    Highest confidence. Customer name and counterparty name are identical once normalized.
+    Example: "CASH MANAGEMENT SERVICES INC" → "Cash Management Services Inc."
+
+  TIER 1B — Same core name, different legal suffix: 547,256 transactions
+    Same entity name but different legal wrapper (INC vs CO, INC vs blank, etc.).
+    These may represent legitimate holding/operating company structures and warrant review.
+    Example: "PROGRESSIVE CASUALTY INSURANCE CO" → "PROGRESSIVE CASUALTY INSURANCE"
+
+  TIER 2 — Fuzzy match (Jaro-Winkler similarity ≥ 0.88): [see attached]
+    Catches name abbreviations, word drops, and minor variations.
+    201,367 distinct name pairs were scored. Pairs above the threshold are flagged.
+    Example: "HIGHMARK WESTERN AND NORTHEASTERN NEW YORK INC" → "HIGHMARK"
+
+Step 4 — Special pattern flag
+  Transactions at or near $999,999,999 were separately flagged as likely system-capped settlement flows (a known pattern where a fund administrator hits a per-transaction system limit and splits a large transfer into max-amount chunks). These are likely legitimate but worth confirming.
+
+
+─────────────────────────────
+EARLY OBSERVATIONS
+─────────────────────────────
+
+  • The highest-value exact matches are large Wire transactions — Penn Mutual Life Insurance ($2.4B), Cash Management Services ($1.8B+), Transdigm ($1.1B). These appear to be internal treasury transfers between related legal entities rather than suspicious activity, but should be confirmed.
+
+  • Dayforce Employer Funds Trust paying itself exactly $999,999,999 repeatedly is a clear settlement cap pattern — not suspicious, but notable.
+
+  • The Tier 1B (suffix variant) set contains many large insurers and financial institutions — Progressive Casualty, Highmark, Salesforce, United States Life Insurance. These likely reflect legitimate multi-entity corporate structures.
+
+
+─────────────────────────────
+QUESTIONS FOR THE TEAM
+─────────────────────────────
+
+  1. For Tier 1 and Tier 1B high-value matches — do we have a way to confirm whether these are known internal treasury accounts? A join to the account structure / CLP data would help separate legitimate from suspicious quickly.
+
+  2. What dollar threshold should we apply for escalation? Should all Wire self-payments be reviewed regardless of amount, or is there a minimum?
+
+  3. Should the $999,999,999 cap-pattern transactions be excluded from alerts entirely, or kept in with a separate flag?
+
+  4. For Tier 2 fuzzy matches — what Jaro-Winkler similarity score feels right as a threshold? We currently use 0.88. Happy to rerun at 0.90 (tighter, fewer results) or 0.85 (looser, more results) based on your preference.
+
+  5. Is there a known list of legitimate inter-entity payment pairs (e.g. approved intracompany transfers) that we could use as a suppression list?
+
+Happy to walk through the outputs in detail or adjust the methodology based on your feedback.
+
+Best,
+[Your name]
