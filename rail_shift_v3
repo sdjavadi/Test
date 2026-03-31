@@ -1,0 +1,655 @@
+"""
+Payment Rail Shift Monitor
+PNC Treasury Management · Payment Knowledge Network
+"""
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+from neo4j import GraphDatabase
+
+# ─── Page config ──────────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title="Payment Rail Shift Monitor",
+    page_icon="💸",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+# ─── Minimal custom CSS ───────────────────────────────────────────────────────
+st.markdown("""
+<style>
+    .section-header {
+        background: linear-gradient(90deg, #003087 0%, #0057b8 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        margin: 16px 0 12px 0;
+        font-size: 15px;
+    }
+    div[data-testid="stMetric"] {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+    div[data-testid="stMetric"] label {
+        font-size: 12px !important;
+        color: #64748b !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ─── Constants ────────────────────────────────────────────────────────────────
+NEO4J_URI      = "bolt://localhost:7687"
+NEO4J_USER     = "neo4j"
+NEO4J_PASSWORD = "neo4j"
+NEO4J_DATABASE = "payments2"
+
+RAILS = ["ACH", "Wire", "RTP", "Check", "Debit"]
+RAIL_COLORS = {
+    "ACH":   "#003087",
+    "Wire":  "#0057b8",
+    "RTP":   "#2196f3",
+    "Check": "#64b5f6",
+    "Debit": "#b0bec5",
+}
+MONTHS = [f"{y}-{m:02d}" for y in [2024, 2025] for m in range(1, 13)]
+
+# Empty-frame column lists
+C_COLS  = ["focal_id", "other_id", "other_naics", "from_id", "to_id",
+           "ACH", "Wire", "RTP", "Check", "Debit", "total_amt", "freq", "time_key", "direction"]
+CP_COLS = ["customer_id", "cpty_label", "cpty_id", "direction",
+           "ACH", "Wire", "RTP", "Check", "Debit", "total_amt", "freq", "time_key"]
+
+# ─── Neo4j helpers ────────────────────────────────────────────────────────────
+
+@st.cache_resource
+def get_driver():
+    return GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
+
+def run_query(cypher: str, params: dict = None) -> list:
+    driver = get_driver()
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return [dict(r) for r in session.run(cypher, params or {})]
+
+
+@st.cache_data(show_spinner="Loading NAICS codes from database…")
+def load_naics() -> list:
+    rows = run_query("""
+        MATCH (n:PncCustomer)
+        WHERE n.naics IS NOT NULL AND n.naics <> ''
+        RETURN DISTINCT n.naics AS naics
+        ORDER BY naics
+    """)
+    return [r["naics"] for r in rows]
+
+
+# ─── Cypher ───────────────────────────────────────────────────────────────────
+
+CUSTOMER_Q = """
+MATCH (c:PncCustomer {naics: $naics})-[r:PAYS]-(other:PncCustomer)
+WHERE r.time_key >= date($start_date) AND r.time_key <= date($end_date)
+RETURN
+  c.mdmId                              AS focal_id,
+  other.mdmId                          AS other_id,
+  coalesce(other.naics, 'Unknown')     AS other_naics,
+  startNode(r).mdmId                   AS from_id,
+  endNode(r).mdmId                     AS to_id,
+  coalesce(r.totalTransAmtACH,   0.0)  AS ACH,
+  coalesce(r.totalTransAmtWire,  0.0)  AS Wire,
+  coalesce(r.totalTransAmtR2P,   0.0)  AS RTP,
+  coalesce(r.totalTransAmtCheck, 0.0)  AS Check,
+  coalesce(r.totalTransAmtDebit, 0.0)  AS Debit,
+  coalesce(r.totalTransAmt,      0.0)  AS total_amt,
+  coalesce(r.transFreq,          0)    AS freq,
+  toString(r.time_key)                 AS time_key
+"""
+
+CPTY_Q = """
+MATCH (c:PncCustomer {naics: $naics})-[r:PAYS_CPTY]->(cpty:Counterparty)
+WHERE r.time_key >= date($start_date) AND r.time_key <= date($end_date)
+RETURN
+  c.mdmId                                                AS customer_id,
+  coalesce(cpty.cptyNamePrmry, toString(cpty.unqCptyId)) AS cpty_label,
+  toString(cpty.unqCptyId)                               AS cpty_id,
+  'outgoing'                                             AS direction,
+  coalesce(r.totalTransAmtACH,   0.0)                   AS ACH,
+  coalesce(r.totalTransAmtWire,  0.0)                   AS Wire,
+  coalesce(r.totalTransAmtR2P,   0.0)                   AS RTP,
+  coalesce(r.totalTransAmtCheck, 0.0)                   AS Check,
+  coalesce(r.totalTransAmtDebit, 0.0)                   AS Debit,
+  coalesce(r.totalTransAmt,      0.0)                   AS total_amt,
+  coalesce(r.transFreq,          0)                     AS freq,
+  toString(r.time_key)                                   AS time_key
+UNION ALL
+MATCH (c:PncCustomer {naics: $naics})<-[r:CPTY_PAYS]-(cpty:Counterparty)
+WHERE r.time_key >= date($start_date) AND r.time_key <= date($end_date)
+RETURN
+  c.mdmId                                                AS customer_id,
+  coalesce(cpty.cptyNamePrmry, toString(cpty.unqCptyId)) AS cpty_label,
+  toString(cpty.unqCptyId)                               AS cpty_id,
+  'incoming'                                             AS direction,
+  coalesce(r.totalTransAmtACH,   0.0)                   AS ACH,
+  coalesce(r.totalTransAmtWire,  0.0)                   AS Wire,
+  coalesce(r.totalTransAmtR2P,   0.0)                   AS RTP,
+  coalesce(r.totalTransAmtCheck, 0.0)                   AS Check,
+  coalesce(r.totalTransAmtDebit, 0.0)                   AS Debit,
+  coalesce(r.totalTransAmt,      0.0)                   AS total_amt,
+  coalesce(r.transFreq,          0)                     AS freq,
+  toString(r.time_key)                                   AS time_key
+"""
+
+
+# ─── Utilities ────────────────────────────────────────────────────────────────
+
+def fmt_usd(v: float) -> str:
+    av = abs(v)
+    if av >= 1e9:  return f"${v/1e9:,.2f}B"
+    if av >= 1e6:  return f"${v/1e6:,.2f}M"
+    if av >= 1e3:  return f"${v/1e3:,.1f}K"
+    return f"${v:,.0f}"
+
+
+def rail_pct(df: pd.DataFrame) -> dict:
+    totals = {r: float(df[r].sum()) for r in RAILS}
+    grand = sum(totals.values()) or 1.0
+    return {r: round(v / grand * 100, 1) for r, v in totals.items()}
+
+
+def donut_chart(pct_dict: dict, title: str):
+    non_zero = {k: v for k, v in pct_dict.items() if v > 0}
+    if not non_zero:
+        fig = go.Figure()
+        fig.update_layout(title=title, height=220,
+                          annotations=[{"text": "No data", "showarrow": False}])
+        return fig
+    fig = go.Figure(go.Pie(
+        labels=list(non_zero.keys()),
+        values=list(non_zero.values()),
+        hole=0.5,
+        marker_colors=[RAIL_COLORS[r] for r in non_zero],
+        textinfo="label+percent",
+        textfont_size=11,
+    ))
+    fig.update_layout(
+        title=dict(text=title, font_size=13),
+        showlegend=False,
+        height=230,
+        margin=dict(t=36, b=4, l=4, r=4),
+    )
+    return fig
+
+
+def stacked_bar(df: pd.DataFrame, title: str):
+    if df.empty:
+        fig = go.Figure()
+        fig.update_layout(title=title, height=300,
+                          annotations=[{"text": "No data", "showarrow": False}])
+        return fig
+    grp = df.groupby("time_key")[RAILS].sum().reset_index().sort_values("time_key")
+    fig = go.Figure()
+    for rail in RAILS:
+        if grp[rail].sum() == 0:
+            continue
+        fig.add_trace(go.Bar(
+            name=rail, x=grp["time_key"], y=grp[rail],
+            marker_color=RAIL_COLORS[rail],
+        ))
+    fig.update_layout(
+        barmode="stack",
+        title=dict(text=title, font_size=13),
+        xaxis_title="Month", yaxis_title="Amount ($)",
+        xaxis_tickangle=-45, legend_title_text="Rail",
+        height=310, margin=dict(t=40, b=40, l=40, r=10),
+    )
+    return fig
+
+
+def top5(df: pd.DataFrame, group_col: str, src_label: str, val_label: str) -> pd.DataFrame:
+    if df.empty:
+        return pd.DataFrame(columns=[src_label, val_label])
+    grp = (df.groupby(group_col)["total_amt"]
+             .sum().sort_values(ascending=False).head(5).reset_index())
+    grp.columns = [src_label, val_label]
+    grp[val_label] = grp[val_label].apply(fmt_usd)
+    return grp
+
+
+def compute_hhi(rail_sums: dict) -> float:
+    total = sum(rail_sums.values())
+    if total == 0:
+        return float("nan")
+    return round(sum((v / total) ** 2 for v in rail_sums.values()), 4)
+
+
+def cosine_dist(a, b) -> float:
+    a, b = np.array(a, dtype=float), np.array(b, dtype=float)
+    denom = np.linalg.norm(a) * np.linalg.norm(b)
+    return round(float(1 - np.dot(a, b) / denom), 4) if denom > 0 else 0.0
+
+
+def section_hdr(text: str):
+    st.markdown(f'<div class="section-header">📌 {text}</div>', unsafe_allow_html=True)
+
+
+# ─── App header ───────────────────────────────────────────────────────────────
+st.markdown("## 💸 Payment Rail Shift Monitor")
+st.caption("PNC Treasury Management · Payment Knowledge Network · Data Science")
+st.markdown("---")
+
+# ─── Load NAICS ───────────────────────────────────────────────────────────────
+try:
+    naics_list = load_naics()
+except Exception as e:
+    st.error(f"Could not connect to Neo4j: {e}")
+    st.stop()
+
+if not naics_list:
+    st.warning("No NAICS codes found in database.")
+    st.stop()
+
+# ─── Filters ─────────────────────────────────────────────────────────────────
+col_n, col_t = st.columns([1, 2])
+
+with col_n:
+    selected_naics = st.selectbox("NAICS Industry", options=naics_list)
+
+with col_t:
+    time_range = st.select_slider(
+        "Time Range",
+        options=MONTHS,
+        value=(MONTHS[0], MONTHS[-1]),
+    )
+
+start_date = f"{time_range[0]}-01"
+end_date   = f"{time_range[1]}-01"
+
+_, btn_col, _ = st.columns([3, 1, 3])
+with btn_col:
+    run_analysis = st.button("🔍  Analyze", type="primary", use_container_width=True)
+
+# ─── Fetch data ───────────────────────────────────────────────────────────────
+if run_analysis:
+    params = {"naics": selected_naics, "start_date": start_date, "end_date": end_date}
+    with st.spinner("Querying payment graph…"):
+        try:
+            cust_rows = run_query(CUSTOMER_Q, params)
+            cpty_rows = run_query(CPTY_Q, params)
+        except Exception as e:
+            st.error(f"Query error: {e}")
+            st.stop()
+
+    df_c  = pd.DataFrame(cust_rows)  if cust_rows  else pd.DataFrame(columns=C_COLS)
+    df_cp = pd.DataFrame(cpty_rows)  if cpty_rows  else pd.DataFrame(columns=CP_COLS)
+
+    # Derive direction for customer edges from startNode/endNode
+    if not df_c.empty:
+        df_c["direction"] = np.where(
+            df_c["from_id"] == df_c["focal_id"], "outgoing", "incoming"
+        )
+
+    st.session_state.update({
+        "df_c":        df_c,
+        "df_cp":       df_cp,
+        "naics_label": selected_naics,
+        "time_label":  f"{time_range[0]} → {time_range[1]}",
+    })
+
+if "df_c" not in st.session_state:
+    st.info("⬆️  Select a NAICS industry and time range, then click **Analyze**.")
+    st.stop()
+
+# Pull from session
+df_c        = st.session_state["df_c"]
+df_cp       = st.session_state["df_cp"]
+naics_label = st.session_state["naics_label"]
+time_label  = st.session_state["time_label"]
+
+# Quick slices
+c_in  = df_c[df_c["direction"] == "incoming"] if not df_c.empty else pd.DataFrame(columns=C_COLS)
+c_out = df_c[df_c["direction"] == "outgoing"] if not df_c.empty else pd.DataFrame(columns=C_COLS)
+cp_in  = df_cp[df_cp["direction"] == "incoming"] if not df_cp.empty else pd.DataFrame(columns=CP_COLS)
+cp_out = df_cp[df_cp["direction"] == "outgoing"] if not df_cp.empty else pd.DataFrame(columns=CP_COLS)
+
+st.markdown(f"**Industry:** `{naics_label}` &nbsp;|&nbsp; **Period:** `{time_label}`")
+st.markdown("---")
+
+# ─── Tabs ─────────────────────────────────────────────────────────────────────
+tab1, tab2 = st.tabs(["📊  Population Payment Trends", "🔬  Customer Behavioral Analysis"])
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 1
+# ══════════════════════════════════════════════════════════════════════════════
+with tab1:
+
+    n_customers = df_c["focal_id"].nunique() if not df_c.empty else 0
+    st.metric("Customers in Selected Industry", f"{n_customers:,}")
+    st.markdown("---")
+
+    # ══════════════════════════════════════
+    # Section 1 — Customer ↔ Customer
+    # ══════════════════════════════════════
+    section_hdr("Customer-to-Customer Interactions  (PAYS)")
+
+    if df_c.empty:
+        st.info("No customer-to-customer data found for this selection.")
+    else:
+        in_flow  = float(c_in["total_amt"].sum())
+        out_flow = float(c_out["total_amt"].sum())
+        net_flow = in_flow - out_flow
+        avg_in_deg  = c_in.groupby("focal_id")["other_id"].nunique().mean()  if not c_in.empty  else 0.0
+        avg_out_deg = c_out.groupby("focal_id")["other_id"].nunique().mean() if not c_out.empty else 0.0
+
+        m1, m2, m3, m4, m5 = st.columns(5)
+        m1.metric("Total Inflow",         fmt_usd(in_flow),
+                  help="Sum of all payments received from other PNC customers")
+        m2.metric("Total Outflow",        fmt_usd(out_flow),
+                  help="Sum of all payments sent to other PNC customers")
+        m3.metric("Net Flow",             fmt_usd(net_flow))
+        m4.metric("Avg Inbound Degree",   f"{avg_in_deg:.1f}",
+                  help="Average number of unique customer payers per focal customer")
+        m5.metric("Avg Outbound Degree",  f"{avg_out_deg:.1f}",
+                  help="Average number of unique customer payees per focal customer")
+
+        col_l, col_r = st.columns(2)
+        with col_l:
+            st.markdown("**Top Industries Sending Payments In**")
+            st.caption("Industries sending the most volume into this NAICS")
+            st.dataframe(top5(c_in, "other_naics", "Source Industry", "Inbound Volume"),
+                         use_container_width=True, hide_index=True)
+        with col_r:
+            st.markdown("**Top Industries Receiving Payments**")
+            st.caption("Industries receiving the most volume from this NAICS")
+            st.dataframe(top5(c_out, "other_naics", "Destination Industry", "Outbound Volume"),
+                         use_container_width=True, hide_index=True)
+
+        col_d1, col_d2 = st.columns(2)
+        with col_d1:
+            st.plotly_chart(donut_chart(rail_pct(c_in),  "Inbound Rail Mix"),  use_container_width=True)
+        with col_d2:
+            st.plotly_chart(donut_chart(rail_pct(c_out), "Outbound Rail Mix"), use_container_width=True)
+
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            st.plotly_chart(stacked_bar(c_in,  "Inbound Rail Mix — Over Time"),  use_container_width=True)
+        with col_b2:
+            st.plotly_chart(stacked_bar(c_out, "Outbound Rail Mix — Over Time"), use_container_width=True)
+
+    st.markdown("---")
+
+    # ══════════════════════════════════════
+    # Section 2 — Customer ↔ Counterparty
+    # ══════════════════════════════════════
+    section_hdr("Customer-to-Counterparty Interactions  (PAYS_CPTY / CPTY_PAYS)")
+
+    if df_cp.empty:
+        st.info("No customer-to-counterparty data found for this selection.")
+    else:
+        cp_in_flow  = float(cp_in["total_amt"].sum())
+        cp_out_flow = float(cp_out["total_amt"].sum())
+        cp_net_flow = cp_in_flow - cp_out_flow
+        avg_cpi_deg  = cp_in.groupby("customer_id")["cpty_id"].nunique().mean()  if not cp_in.empty  else 0.0
+        avg_cpo_deg  = cp_out.groupby("customer_id")["cpty_id"].nunique().mean() if not cp_out.empty else 0.0
+
+        m1, m2, m3, m4, m5 = st.columns(5)
+        m1.metric("Total Inflow",         fmt_usd(cp_in_flow),
+                  help="Sum of all payments received from counterparties")
+        m2.metric("Total Outflow",        fmt_usd(cp_out_flow),
+                  help="Sum of all payments sent to counterparties")
+        m3.metric("Net Flow",             fmt_usd(cp_net_flow))
+        m4.metric("Avg Inbound Degree",   f"{avg_cpi_deg:.1f}",
+                  help="Average number of unique counterparties paying each customer")
+        m5.metric("Avg Outbound Degree",  f"{avg_cpo_deg:.1f}",
+                  help="Average number of unique counterparties each customer pays")
+
+        col_l, col_r = st.columns(2)
+        with col_l:
+            st.markdown("**Top Counterparties Sending Payments In**")
+            st.caption("Counterparties with highest inbound volume to this NAICS")
+            st.dataframe(top5(cp_in, "cpty_label", "Counterparty", "Inbound Volume"),
+                         use_container_width=True, hide_index=True)
+        with col_r:
+            st.markdown("**Top Counterparties Receiving Payments**")
+            st.caption("Counterparties with highest outbound volume from this NAICS")
+            st.dataframe(top5(cp_out, "cpty_label", "Counterparty", "Outbound Volume"),
+                         use_container_width=True, hide_index=True)
+
+        col_d1, col_d2 = st.columns(2)
+        with col_d1:
+            st.plotly_chart(donut_chart(rail_pct(cp_in),  "Inbound Rail Mix"),  use_container_width=True)
+        with col_d2:
+            st.plotly_chart(donut_chart(rail_pct(cp_out), "Outbound Rail Mix"), use_container_width=True)
+
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            st.plotly_chart(stacked_bar(cp_in,  "Inbound Counterparty Rail Mix — Over Time"),  use_container_width=True)
+        with col_b2:
+            st.plotly_chart(stacked_bar(cp_out, "Outbound Counterparty Rail Mix — Over Time"), use_container_width=True)
+
+    st.markdown("---")
+
+    # ══════════════════════════════════════
+    # NAICS Flow Table
+    # ══════════════════════════════════════
+    section_hdr("NAICS-Level Payment Flow Summary")
+    st.caption(
+        "Aggregated rail amounts between the selected NAICS and peer industries "
+        "(customer-to-customer flows). Source → Target reflects actual payment direction."
+    )
+
+    if df_c.empty:
+        st.info("No flow data available.")
+    else:
+        parts = []
+        if not c_in.empty:
+            grp = c_in.groupby("other_naics")[RAILS].sum().reset_index()
+            grp.rename(columns={"other_naics": "Source"}, inplace=True)
+            grp["Target"] = naics_label
+            parts.append(grp)
+        if not c_out.empty:
+            grp = c_out.groupby("other_naics")[RAILS].sum().reset_index()
+            grp.rename(columns={"other_naics": "Target"}, inplace=True)
+            grp["Source"] = naics_label
+            parts.append(grp)
+
+        if parts:
+            flow_df = pd.concat(parts, ignore_index=True)[["Source", "Target"] + RAILS]
+            for r in RAILS:
+                flow_df[r] = flow_df[r].apply(lambda x: f"${x:,.0f}")
+            st.dataframe(flow_df, use_container_width=True, hide_index=True)
+        else:
+            st.info("No flow data to display.")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 2
+# ══════════════════════════════════════════════════════════════════════════════
+with tab2:
+
+    st.markdown("Per-customer breakdown for the selected NAICS segment.")
+
+    fc1, fc2 = st.columns(2)
+    with fc1:
+        direction_sel = st.selectbox("Transaction Direction",
+                                     ["all", "incoming", "outgoing"])
+    with fc2:
+        node_type_sel = st.selectbox("Counterpart Type",
+                                     ["all", "customer", "counterparty"])
+
+    # ── Collect all focal IDs ─────────────────────────────────────────────────
+    all_focal = set()
+    if not df_c.empty:
+        all_focal.update(df_c["focal_id"].tolist())
+    if not df_cp.empty:
+        all_focal.update(df_cp["customer_id"].tolist())
+
+    if not all_focal:
+        st.info("No customer data available.")
+        st.stop()
+
+    # ── Population rail vector (for pop-shift metric) ─────────────────────────
+    pop_vecs = []
+    if node_type_sel in ("all", "customer") and not df_c.empty:
+        pop_vecs.append(df_c[RAILS].sum().values)
+    if node_type_sel in ("all", "counterparty") and not df_cp.empty:
+        pop_vecs.append(df_cp[RAILS].sum().values)
+    pop_rail_vec = (np.sum(pop_vecs, axis=0)
+                    if pop_vecs else np.zeros(len(RAILS)))
+
+    # ── Build per-customer records ────────────────────────────────────────────
+    records = []
+
+    for focal in sorted(all_focal):
+
+        # Slice data
+        cs = pd.DataFrame()   # customer slice
+        if node_type_sel in ("all", "customer") and not df_c.empty:
+            cs = df_c[df_c["focal_id"] == focal].copy()
+
+        cps = pd.DataFrame()  # counterparty slice
+        if node_type_sel in ("all", "counterparty") and not df_cp.empty:
+            cps = df_cp[df_cp["customer_id"] == focal].copy()
+
+        # Direction filter
+        if direction_sel != "all":
+            cs  = cs[cs["direction"]  == direction_sel] if not cs.empty  else cs
+            cps = cps[cps["direction"] == direction_sel] if not cps.empty else cps
+
+        if cs.empty and cps.empty:
+            continue
+
+        # Flows
+        def flow(df, d):
+            return float(df[df["direction"] == d]["total_amt"].sum()) if not df.empty else 0.0
+
+        in_flow  = flow(cs, "incoming")  + flow(cps, "incoming")
+        out_flow = flow(cs, "outgoing")  + flow(cps, "outgoing")
+        net_flow = in_flow - out_flow
+        total    = (float(cs["total_amt"].sum())  if not cs.empty  else 0.0) + \
+                   (float(cps["total_amt"].sum()) if not cps.empty else 0.0)
+
+        # Degree
+        in_deg  = (cs[cs["direction"] == "incoming"]["other_id"].nunique()  if not cs.empty  else 0) + \
+                  (cps[cps["direction"] == "incoming"]["cpty_id"].nunique() if not cps.empty else 0)
+        out_deg = (cs[cs["direction"] == "outgoing"]["other_id"].nunique()  if not cs.empty  else 0) + \
+                  (cps[cps["direction"] == "outgoing"]["cpty_id"].nunique() if not cps.empty else 0)
+
+        # Rail sums
+        rail_sums = {}
+        for r in RAILS:
+            rail_sums[r] = (float(cs[r].sum())  if not cs.empty  else 0.0) + \
+                           (float(cps[r].sum()) if not cps.empty else 0.0)
+
+        # Active months
+        months_seen = set()
+        if not cs.empty:
+            months_seen.update(cs["time_key"].dropna().unique())
+        if not cps.empty:
+            months_seen.update(cps["time_key"].dropna().unique())
+        active_months = len(months_seen)
+
+        # HHI
+        hhi_val = compute_hhi(rail_sums)
+
+        # Own rail shift — first vs last month cosine distance
+        own_shift = 0.0
+        parts_for_shift = [s for s in [cs, cps] if not s.empty]
+        if parts_for_shift:
+            combined = pd.concat(parts_for_shift, ignore_index=True)
+            sorted_months = sorted(combined["time_key"].dropna().unique())
+            if len(sorted_months) >= 2:
+                first_v = [combined[combined["time_key"] == sorted_months[0]][r].sum() for r in RAILS]
+                last_v  = [combined[combined["time_key"] == sorted_months[-1]][r].sum() for r in RAILS]
+                own_shift = cosine_dist(first_v, last_v)
+
+        # Population rail shift
+        pop_shift = cosine_dist([rail_sums[r] for r in RAILS], pop_rail_vec.tolist())
+
+        # Reciprocity (customer-customer only)
+        recip = 0.0
+        if not cs.empty:
+            senders   = set(cs[cs["direction"] == "incoming"]["other_id"])
+            receivers = set(cs[cs["direction"] == "outgoing"]["other_id"])
+            universe  = senders | receivers
+            if universe:
+                recip = round(len(senders & receivers) / len(universe), 3)
+
+        records.append({
+            "mdmId":                   focal,
+            "In-Flow":                 in_flow,
+            "Out-Flow":                out_flow,
+            "Net-Flow":                net_flow,
+            "In-Degree":               in_deg,
+            "Out-Degree":              out_deg,
+            "Total Amount":            total,
+            "ACH Amount":              rail_sums["ACH"],
+            "Wire Amount":             rail_sums["Wire"],
+            "Check Amount":            rail_sums["Check"],
+            "RTP Amount":              rail_sums["RTP"],
+            "Debit Amount":            rail_sums["Debit"],
+            "Own Rail Shift":          own_shift,
+            "Population Rail Shift":   pop_shift,
+            "HHI":                     hhi_val,
+            "Reciprocity Score":       recip,
+            "Active Months":           active_months,
+        })
+
+    if not records:
+        st.info("No customers match the selected filters.")
+        st.stop()
+
+    result_df = pd.DataFrame(records).sort_values("Total Amount", ascending=False)
+
+    # Format display copy
+    disp = result_df.copy()
+    for col in ["In-Flow", "Out-Flow", "Net-Flow", "Total Amount",
+                "ACH Amount", "Wire Amount", "Check Amount", "RTP Amount", "Debit Amount"]:
+        disp[col] = disp[col].apply(fmt_usd)
+
+    disp.rename(columns={
+        "In-Flow":               "In-Flow ($)",
+        "Out-Flow":              "Out-Flow ($)",
+        "Net-Flow":              "Net-Flow ($)",
+        "Total Amount":          "Total ($)",
+        "ACH Amount":            "ACH ($)",
+        "Wire Amount":           "Wire ($)",
+        "Check Amount":          "Check ($)",
+        "RTP Amount":            "RTP ($)",
+        "Debit Amount":          "Debit ($)",
+        "Own Rail Shift":        "Own Rail Shift ↕",
+        "Population Rail Shift": "Pop. Rail Shift ↕",
+    }, inplace=True)
+
+    st.markdown(
+        f"**{len(disp):,} customers** · Direction: `{direction_sel}` · "
+        f"Node type: `{node_type_sel}`"
+    )
+    st.caption(
+        "**Own Rail Shift ↕** — Cosine distance between first and last month's rail mix "
+        "(how much channel preferences changed over time).  "
+        "**Pop. Rail Shift ↕** — Cosine distance from the NAICS population average "
+        "(how different this customer is from peers).  "
+        "**HHI** — Herfindahl-Hirschman Index of rail concentration (1.0 = single rail, lower = diversified).  "
+        "**Reciprocity Score** — Share of C2C counterparts that both send and receive payments with this customer."
+    )
+
+    st.dataframe(
+        disp,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Own Rail Shift ↕":  st.column_config.NumberColumn(format="%.4f"),
+            "Pop. Rail Shift ↕": st.column_config.NumberColumn(format="%.4f"),
+            "HHI":               st.column_config.NumberColumn(format="%.4f"),
+            "Reciprocity Score": st.column_config.NumberColumn(format="%.3f"),
+            "Active Months":     st.column_config.NumberColumn(format="%d"),
+            "In-Degree":         st.column_config.NumberColumn(format="%d"),
+            "Out-Degree":        st.column_config.NumberColumn(format="%d"),
+        },
+    )
