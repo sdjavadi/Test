@@ -1,0 +1,609 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+
+st.set_page_config(
+    page_title="Self-Payment Monitor",
+    page_icon=None,
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.stApp {
+    background: #0f0f0f;
+    color: #e8e4da;
+}
+
+section[data-testid="stMain"] > div {
+    padding-top: 1.5rem;
+}
+
+h1, h2, h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: -0.02em;
+}
+
+.block-container {
+    padding: 1.5rem 2rem 3rem;
+    max-width: 1400px;
+}
+
+/* Header strip */
+.header-strip {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    border-bottom: 1px solid #2a2a2a;
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+}
+.header-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: #e8e4da;
+    letter-spacing: -0.02em;
+}
+.header-sub {
+    font-size: 12px;
+    color: #555;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Control bar */
+.ctrl-bar {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+}
+
+/* Metric cards */
+.metric-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.metric-card {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 14px 16px;
+}
+.metric-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: #e8e4da;
+    line-height: 1;
+}
+.metric-lbl {
+    font-size: 10px;
+    color: #555;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Section headers */
+.section-hdr {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    margin-top: 28px;
+}
+
+/* Chart containers */
+.chart-wrap {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 16px;
+}
+
+/* Streamlit widget overrides */
+div[data-testid="stSelectbox"] label,
+div[data-testid="stMultiSelect"] label,
+div[data-testid="stSlider"] label {
+    font-size: 11px !important;
+    color: #888 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+div[data-testid="stSelectbox"] > div > div,
+div[data-testid="stMultiSelect"] > div > div {
+    background: #1e1e1e !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 4px !important;
+    color: #e8e4da !important;
+}
+
+/* Table styling */
+div[data-testid="stDataFrame"] {
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Divider */
+hr {
+    border: none;
+    border-top: 1px solid #2a2a2a;
+    margin: 24px 0;
+}
+
+/* Tags */
+.tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 4px;
+}
+.tag-out { background: #1a2a1a; color: #4a9a4a; border: 1px solid #2a4a2a; }
+.tag-in  { background: #1a1a2a; color: #4a4a9a; border: 1px solid #2a2a4a; }
+</style>
+""", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────
+# DATA LOADING
+# Replace this block with: df = spark.table("xxx.yyy").toPandas()
+# or: df = pd.read_sql("SELECT * FROM xxx.yyy", connection)
+# ─────────────────────────────────────────────
+
+@st.cache_data
+def load_data():
+    """
+    PRODUCTION: replace body with
+        df = spark.table("xxx.yyy").toPandas()
+    or  df = pd.read_sql("SELECT * FROM xxx.yyy", con)
+
+    Expected columns:
+        trans_id, customer_mdm_id, cpty_mdm_id,
+        customer_name_pays, cpty_name,
+        customer_name_norm, cpty_name_norm,
+        customer_suffix, cpty_suffix,
+        cpty_fin_entity_name, trans_amt, payment_rail,
+        trans_dt, jw_score, direction
+    """
+    np.random.seed(42)
+    n = 8000
+
+    institutions = [
+        "JPMorgan Chase", "Wells Fargo", "Bank of America",
+        "KeyBank", "Huntington N.A.", "Fifth Third Bank",
+        "PNC Bank N.A.", "WesBanco", "Truist Bank",
+        "Regions Bank", "Citizens Bank", "First National Bank",
+        "Dollar Bank", "Northwest Bank", "S&T Bank",
+        "Comerica", "BBVA", "Synovus Bank",
+        "Glacier Bank", "First Horizon", "Pinnacle Bank",
+        "Heartland Bank", "Signature Bank", "Flagstar Bank",
+        "Wintrust Bank", "Berkshire Bank", "Pacific Premier",
+        "Banner Bank", "Columbia Bank", "Home BancCorp",
+    ]
+    inst_weights = np.array([0.22, 0.16, 0.13, 0.08, 0.07,
+                              0.05, 0.04, 0.03, 0.03, 0.02,
+                              0.02, 0.02, 0.01, 0.01, 0.01,
+                              0.01, 0.01, 0.01, 0.01, 0.01,
+                              0.01, 0.01, 0.01, 0.01, 0.01,
+                              0.005,0.005,0.005,0.005,0.005])
+    inst_weights = inst_weights / inst_weights.sum()
+
+    customers = [f"COMPANY {chr(65+i)} {'INC' if i%3==0 else 'LLC' if i%3==1 else 'CORP'}"
+                 for i in range(60)]
+    mdm_map = {c: f"MDM-{10000+i*137}" for i,c in enumerate(customers)}
+
+    dates = pd.date_range("2024-01-01", "2025-12-31", freq="D")
+    trans_dates = np.random.choice(dates, n)
+
+    cust_names = np.random.choice(customers, n, p=None)
+    fi = np.random.choice(institutions, n, p=inst_weights)
+
+    df = pd.DataFrame({
+        "trans_id":           [f"TXN-{100000+i}" for i in range(n)],
+        "customer_mdm_id":    [mdm_map[c] for c in cust_names],
+        "customer_name_pays": cust_names,
+        "cpty_fin_entity_name": fi,
+        "trans_amt":          np.random.lognormal(mean=13, sigma=2, size=n).round(2),
+        "trans_dt":           trans_dates,
+        "direction":          np.random.choice(["Outgoing","Incoming"], n, p=[0.6,0.4]),
+        "jw_score":           np.random.uniform(0.88, 1.0, n).round(4),
+        "payment_rail":       np.random.choice(["WIRE","ACH"], n, p=[0.45,0.55]),
+    })
+    df["trans_dt"] = pd.to_datetime(df["trans_dt"])
+    df["year_month"] = df["trans_dt"].dt.to_period("M").dt.to_timestamp()
+    return df
+
+
+df_all = load_data()
+
+# ─────────────────────────────────────────────
+# HEADER
+# ─────────────────────────────────────────────
+
+st.markdown("""
+<div class="header-strip">
+  <span class="header-title">Self-Payment Monitor</span>
+  <span class="header-sub">xxx.self_payment_candidates · Wire + ACH · JW ≥ 0.88</span>
+</div>
+""", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────
+# CONTROLS — top bar, no sidebar
+# ─────────────────────────────────────────────
+
+col1, col2, col3, col4 = st.columns([1, 1, 1, 3])
+
+with col1:
+    direction = st.selectbox("Direction", ["Outgoing", "Incoming"])
+
+with col2:
+    metric = st.selectbox("Metric", ["Total amount ($)", "Transaction count (#)"])
+
+with col3:
+    top_n = st.slider("Top N institutions", min_value=3, max_value=15, value=6)
+
+with col4:
+    # Top 30 FI by total amount — fixed, not reactive to filters
+    top30_fi = (
+        df_all.groupby("cpty_fin_entity_name")["trans_amt"]
+        .sum()
+        .sort_values(ascending=False)
+        .head(30)
+        .index.tolist()
+    )
+    exclude_banks = st.multiselect(
+        "Exclude institutions (top 30 by total volume)",
+        options=top30_fi,
+        default=[],
+        placeholder="Select institutions to exclude...",
+    )
+
+st.markdown("---")
+
+
+# ─────────────────────────────────────────────
+# FILTERED DATA
+# ─────────────────────────────────────────────
+
+df = df_all[
+    (df_all["direction"] == direction) &
+    (~df_all["cpty_fin_entity_name"].isin(exclude_banks))
+].copy()
+
+is_amt = "amount" in metric.lower()
+metric_col  = "trans_amt" if is_amt else "trans_id"
+metric_agg  = "sum"       if is_amt else "count"
+metric_label = "Total Amount ($)" if is_amt else "Transaction Count"
+metric_fmt   = lambda v: f"${v/1e9:.1f}B" if is_amt and v >= 1e9 else \
+                          f"${v/1e6:.1f}M" if is_amt else f"{int(v):,}"
+
+
+# ─────────────────────────────────────────────
+# SUMMARY METRICS
+# ─────────────────────────────────────────────
+
+total_val   = df["trans_amt"].sum()     if is_amt else len(df)
+unique_pairs = df["customer_name_pays"].nunique()
+fi_count    = df["cpty_fin_entity_name"].nunique()
+
+fi_rank = df.groupby("cpty_fin_entity_name")["trans_amt"].sum().sort_values(ascending=False)
+top_fi_names = fi_rank.head(top_n).index.tolist()
+others_val   = fi_rank.iloc[top_n:].sum() if len(fi_rank) > top_n else 0
+others_pct   = others_val / fi_rank.sum() * 100 if fi_rank.sum() > 0 else 0
+
+st.markdown(f"""
+<div class="metric-row">
+  <div class="metric-card">
+    <div class="metric-val">{metric_fmt(total_val)}</div>
+    <div class="metric-lbl">{direction} · {metric_label}</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">{unique_pairs:,}</div>
+    <div class="metric-lbl">Unique customers</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">{fi_count:,}</div>
+    <div class="metric-lbl">Institutions (filtered)</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">{others_pct:.1f}%</div>
+    <div class="metric-lbl">Grouped as "Others"</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────
+# STACKED BAR CHART — amount/count over time by FI
+# ─────────────────────────────────────────────
+
+st.markdown('<div class="section-hdr">Payment flow over time by institution</div>',
+            unsafe_allow_html=True)
+
+df["fi_grouped"] = df["cpty_fin_entity_name"].apply(
+    lambda x: x if x in top_fi_names else "Others"
+)
+
+if is_amt:
+    pivot = df.groupby(["year_month", "fi_grouped"])["trans_amt"].sum().reset_index()
+    pivot.columns = ["year_month", "fi", "value"]
+else:
+    pivot = df.groupby(["year_month", "fi_grouped"])["trans_id"].count().reset_index()
+    pivot.columns = ["year_month", "fi", "value"]
+
+months_sorted = sorted(pivot["year_month"].unique())
+
+# Color palette for institutions
+PALETTE = [
+    "#4a9eff", "#3ecf8e", "#f5a623", "#b06aff",
+    "#f06a6a", "#4acfcf", "#ffcf4a", "#cf4acf",
+    "#8aff6a", "#ff6acf", "#6a8aff", "#cfff4a",
+    "#ff8a4a", "#4affcf", "#cf8aff",
+]
+fi_order = top_fi_names + (["Others"] if others_pct > 0 else [])
+color_map = {fi: PALETTE[i % len(PALETTE)] for i, fi in enumerate(top_fi_names)}
+color_map["Others"] = "#444"
+
+fig_bar = go.Figure()
+
+for fi in fi_order:
+    fd = pivot[pivot["fi"] == fi]
+    fd_indexed = fd.set_index("year_month")["value"].reindex(months_sorted, fill_value=0)
+    fig_bar.add_trace(go.Bar(
+        name=fi,
+        x=months_sorted,
+        y=fd_indexed.values,
+        marker_color=color_map.get(fi, "#666"),
+        marker_line_width=0,
+        hovertemplate=f"<b>{fi}</b><br>%{{x|%b %Y}}<br>" +
+                      ("$%{y:,.0f}" if is_amt else "%{y:,} txns") +
+                      "<extra></extra>",
+    ))
+
+fig_bar.update_layout(
+    barmode="stack",
+    plot_bgcolor="#161616",
+    paper_bgcolor="#161616",
+    font=dict(family="IBM Plex Mono", size=11, color="#888"),
+    legend=dict(
+        orientation="h", yanchor="bottom", y=1.02,
+        xanchor="left", x=0,
+        font=dict(size=10, color="#888"),
+        bgcolor="rgba(0,0,0,0)",
+    ),
+    margin=dict(l=60, r=20, t=40, b=40),
+    height=340,
+    xaxis=dict(
+        showgrid=False,
+        tickformat="%b %y",
+        tickfont=dict(size=10),
+        linecolor="#2a2a2a",
+    ),
+    yaxis=dict(
+        showgrid=True,
+        gridcolor="#1e1e1e",
+        tickformat=("$,.0f" if is_amt else ",.0f"),
+        tickfont=dict(size=10),
+        linecolor="#2a2a2a",
+    ),
+    hoverlabel=dict(
+        bgcolor="#1e1e1e",
+        bordercolor="#2a2a2a",
+        font=dict(family="IBM Plex Mono", size=11, color="#e8e4da"),
+    ),
+)
+
+st.plotly_chart(fig_bar, use_container_width=True)
+
+
+# ─────────────────────────────────────────────
+# CUSTOMER TABLE
+# ─────────────────────────────────────────────
+
+st.markdown("---")
+st.markdown('<div class="section-hdr">Customers — sorted by total amount</div>',
+            unsafe_allow_html=True)
+
+cust_summary = (
+    df.groupby(["customer_name_pays", "customer_mdm_id", "cpty_fin_entity_name"])
+    .agg(
+        total_amount  = ("trans_amt",  "sum"),
+        txn_count     = ("trans_id",   "count"),
+    )
+    .reset_index()
+    .sort_values("total_amount", ascending=False)
+    .rename(columns={
+        "customer_name_pays":    "Customer name",
+        "customer_mdm_id":       "MDM ID",
+        "cpty_fin_entity_name":  "Financial institution",
+        "total_amount":          "Total amount ($)",
+        "txn_count":             "Transactions",
+    })
+)
+cust_summary["Total amount ($)"] = cust_summary["Total amount ($)"].round(2)
+
+st.markdown(
+    f'<div style="font-size:11px;color:#555;margin-bottom:8px;font-family:IBM Plex Mono">'
+    f'{len(cust_summary):,} customer × institution pairs · {direction} · '
+    f'excluding {len(exclude_banks)} institution(s)'
+    f'</div>',
+    unsafe_allow_html=True
+)
+
+selected_rows = st.dataframe(
+    cust_summary.reset_index(drop=True),
+    use_container_width=True,
+    height=340,
+    hide_index=True,
+    on_select="rerun",
+    selection_mode="single-row",
+    column_config={
+        "Total amount ($)": st.column_config.NumberColumn(format="$%.2f"),
+        "Transactions":     st.column_config.NumberColumn(format="%d"),
+    },
+)
+
+
+# ─────────────────────────────────────────────
+# CUSTOMER DETAIL — bar + line chart on row select
+# ─────────────────────────────────────────────
+
+if selected_rows and selected_rows.selection and selected_rows.selection["rows"]:
+    row_idx      = selected_rows.selection["rows"][0]
+    selected_row = cust_summary.iloc[row_idx]
+    sel_customer = selected_row["Customer name"]
+    sel_mdm      = selected_row["MDM ID"]
+    sel_fi       = selected_row["Financial institution"]
+
+    st.markdown("---")
+
+    tag_cls  = "tag-out" if direction == "Outgoing" else "tag-in"
+    st.markdown(
+        f'<div class="section-hdr" style="margin-top:0;">'
+        f'Movement detail &mdash; '
+        f'<span style="color:#e8e4da;">{sel_customer}</span> '
+        f'<span style="color:#555;font-size:10px;">{sel_mdm}</span> &nbsp;'
+        f'<span class="tag {tag_cls}">{direction}</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    df_cust = df[
+        (df["customer_name_pays"] == sel_customer) &
+        (df["cpty_fin_entity_name"] == sel_fi)
+    ].copy()
+
+    cust_monthly = (
+        df_cust.groupby("year_month")
+        .agg(
+            total_amount = ("trans_amt", "sum"),
+            txn_count    = ("trans_id",  "count"),
+        )
+        .reset_index()
+        .sort_values("year_month")
+    )
+
+    all_months = pd.DataFrame({"year_month": months_sorted})
+    cust_monthly = all_months.merge(cust_monthly, on="year_month", how="left").fillna(0)
+
+    # Dual axis: bar for amount, line for count
+    fig_cust = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig_cust.add_trace(
+        go.Bar(
+            name="Amount ($)",
+            x=cust_monthly["year_month"],
+            y=cust_monthly["total_amount"],
+            marker_color="#4a9eff44",
+            marker_line_color="#4a9eff",
+            marker_line_width=1,
+            hovertemplate="<b>Amount</b>: $%{y:,.0f}<extra></extra>",
+        ),
+        secondary_y=False,
+    )
+
+    fig_cust.add_trace(
+        go.Scatter(
+            name="Transactions",
+            x=cust_monthly["year_month"],
+            y=cust_monthly["txn_count"],
+            mode="lines+markers",
+            line=dict(color="#f5a623", width=2),
+            marker=dict(size=5, color="#f5a623", symbol="circle"),
+            hovertemplate="<b>Count</b>: %{y}<extra></extra>",
+        ),
+        secondary_y=True,
+    )
+
+    fig_cust.update_layout(
+        plot_bgcolor="#161616",
+        paper_bgcolor="#161616",
+        font=dict(family="IBM Plex Mono", size=11, color="#888"),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.02,
+            xanchor="left", x=0,
+            font=dict(size=10, color="#888"),
+            bgcolor="rgba(0,0,0,0)",
+        ),
+        margin=dict(l=60, r=60, t=40, b=40),
+        height=300,
+        hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="#1e1e1e",
+            bordercolor="#2a2a2a",
+            font=dict(family="IBM Plex Mono", size=11, color="#e8e4da"),
+        ),
+    )
+    fig_cust.update_xaxes(
+        showgrid=False,
+        tickformat="%b %y",
+        tickfont=dict(size=10),
+        linecolor="#2a2a2a",
+    )
+    fig_cust.update_yaxes(
+        title_text="Amount ($)",
+        showgrid=True,
+        gridcolor="#1e1e1e",
+        tickformat="$,.0f",
+        tickfont=dict(size=10),
+        linecolor="#2a2a2a",
+        secondary_y=False,
+    )
+    fig_cust.update_yaxes(
+        title_text="Transaction count",
+        showgrid=False,
+        tickfont=dict(size=10),
+        linecolor="#2a2a2a",
+        secondary_y=True,
+    )
+
+    # Summary row above chart
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.metric("Total amount",
+                  f"${cust_monthly['total_amount'].sum():,.0f}")
+    with c2:
+        st.metric("Total transactions",
+                  f"{int(cust_monthly['txn_count'].sum()):,}")
+    with c3:
+        st.metric("Active months",
+                  f"{(cust_monthly['txn_count'] > 0).sum()} / {len(cust_monthly)}")
+    with c4:
+        avg = cust_monthly[cust_monthly["total_amount"] > 0]["total_amount"].mean()
+        st.metric("Avg monthly amount",
+                  f"${avg:,.0f}" if not np.isnan(avg) else "—")
+
+    st.plotly_chart(fig_cust, use_container_width=True)
+
+else:
+    st.markdown(
+        '<div style="text-align:center;padding:32px;color:#333;'
+        'font-family:IBM Plex Mono;font-size:12px;border:1px dashed #2a2a2a;'
+        'border-radius:6px;margin-top:16px;">'
+        'Select a row above to see movement detail'
+        '</div>',
+        unsafe_allow_html=True,
+    )
