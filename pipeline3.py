@@ -53,7 +53,7 @@ except ImportError:  # pragma: no cover
 
 def _cu_graph(edges: pd.DataFrame, log_weight: bool):
     gdf = cudf.from_pandas(edges[["source", "dest", "amount"]])
-    gdf["w"] = (gdf["amount"] + 1.0).log() if log_weight else gdf["amount"]
+    gdf["w"] = np.log1p(gdf["amount"]) if log_weight else gdf["amount"]
     G = cugraph.Graph(directed=True)
     G.from_cudf_edgelist(gdf, source="source", destination="dest",
                          edge_attr="w", renumber=True)
@@ -73,7 +73,7 @@ def gpu_pagerank(edges: pd.DataFrame) -> pd.DataFrame:
 def gpu_louvain(edges: pd.DataFrame) -> pd.DataFrame:
     if HAS_GPU:
         gdf = cudf.from_pandas(edges[["source", "dest", "amount"]])
-        gdf["w"] = (gdf["amount"] + 1.0).log()
+        gdf["w"] = np.log1p(gdf["amount"])
         G = cugraph.Graph(directed=False)
         G.from_cudf_edgelist(gdf, source="source", destination="dest",
                              edge_attr="w", renumber=True)
@@ -140,9 +140,11 @@ def node_flow_metrics(edges: pd.DataFrame) -> pd.DataFrame:
         tot_s = sh.groupby(level=0).sum()
         p = sh / tot_s
         nf[f"hhi_{direction}"] = (p ** 2).groupby(level=0).sum()
-        top = p.groupby(level=0).nlargest(3).droplevel(0)
         nf[f"top1_{direction}_share"] = p.groupby(level=0).max()
-        nf[f"top3_{direction}_share"] = top.groupby(level=0).sum()
+        d = p.rename("p").reset_index().sort_values("p", ascending=False,
+                                                    kind="stable")
+        top3 = d.groupby(grp, sort=False).head(3).groupby(grp)["p"].sum()
+        nf[f"top3_{direction}_share"] = top3
     return nf.reset_index()
 
 
