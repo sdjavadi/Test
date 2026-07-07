@@ -1,0 +1,552 @@
+"""
+pkg_pipeline.py
+===============
+Monthly orchestrator for the PKG metric framework (v3 — streaming output).
+
+Changes vs v2
+-------------
+- NO aggregated-graph section (OOM at production scale).
+- Output is written PER MONTH, immediately after that month is computed,
+  then freed. Nothing accumulates in memory. Files:
+
+      ../metrics/node/node_{YYYY-MM}_{version}.parquet
+      ../metrics/graph/graph_{YYYY-MM}.csv          (one row per version)
+      ../metrics/ladder_thresholds.csv
+      ../metrics/ladder_exclusions.csv
+
+  Combine at the end with e.g.
+      pd.concat(map(pd.read_parquet, glob('../metrics/node/*.parquet')))
+
+- RESUMABLE: a (month, version) whose node file already exists is skipped.
+  (After a resume, nmi_vs_prev / turnover metrics restart NaN on the first
+  processed month, since cross-month state isn't persisted.)
+
+- NEW node metrics (churn/deposit-model feature pool):
+    counterparty turnover  : payer/payee new/lost/retained counts, Jaccard,
+                             lost_payer_amount_share, new_payer_amount_share
+    top-payer stability    : top_payer_same, top_payer_share_delta
+    tenure & recency       : months_since_first_seen, months_active,
+                             activity_gap
+    neighborhood contagion : nbr_strength_trend (inflow-weighted log MoM
+                             ratio of payers' strength),
+                             inflow_from_shrinking_share
+    hub exposure           : hub_in_share, hub_out_share (share of raw
+                             in/out amount exchanged with ladder-registry
+                             nodes; computed on RAW edges, attached to all
+                             versions)
+
+Graph versions: V0 raw | V1 de-hubbed (deg OR strength > P99.9)
+              | V2 mega-only (deg OR strength > P99.99)
+Weight policy: amount only; log1p for spectral, raw for flow. SCC excluded.
+"""
+
+from __future__ import annotations
+
+import gc
+import glob
+import logging
+import os
+import re
+
+import numpy as np
+import pandas as pd
+
+import pkg_custom_metrics as cm
+
+log = logging.getLogger("pkg_pipeline")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(name)s %(levelname)s %(message)s")
+
+DATA_DIR = "../data"
+OUT_DIR = "../metrics"
+# versions are derived from the ladder tiers at runtime
+BETWEENNESS_K = 128           # sampled sources; 0 disables
+SHRINKING_RATIO = 0.8         # payer counts as 'shrinking' below this MoM
+
+try:
+    import cudf
+    import cugraph
+    HAS_GPU = True
+except ImportError:  # pragma: no cover
+    HAS_GPU = False
+    log.warning("cuGraph unavailable — CPU fallbacks in use (dev mode only)")
+
+
+# ---------------------------------------------------------------------------
+# GPU wrappers  (np.log1p ufunc dispatches on both cuDF and pandas)
+# ---------------------------------------------------------------------------
+
+def _cu_graph(edges: pd.DataFrame, log_weight: bool):
+    gdf = cudf.from_pandas(edges[["source", "dest", "amount"]])
+    gdf["w"] = np.log1p(gdf["amount"]) if log_weight else gdf["amount"]
+    G = cugraph.Graph(directed=True)
+    G.from_cudf_edgelist(gdf, source="source", destination="dest",
+                         edge_attr="w", renumber=True)
+    return G
+
+
+def gpu_pagerank(edges: pd.DataFrame, log_weight: bool) -> pd.DataFrame:
+    col = "pagerank_logw" if log_weight else "pagerank_raw"
+    if HAS_GPU:
+        pr = cugraph.pagerank(_cu_graph(edges, log_weight), alpha=0.85)
+        return pr.to_pandas().rename(columns={"vertex": "node",
+                                              "pagerank": col})
+    s = edges.groupby("dest")["amount"].sum()
+    s = np.log1p(s) if log_weight else s
+    return (s / s.sum()).rename(col).rename_axis("node").reset_index()
+
+
+def gpu_louvain(edges: pd.DataFrame) -> pd.DataFrame:
+    if HAS_GPU:
+        gdf = cudf.from_pandas(edges[["source", "dest", "amount"]])
+        gdf["w"] = np.log1p(gdf["amount"])
+        G = cugraph.Graph(directed=False)
+        G.from_cudf_edgelist(gdf, source="source", destination="dest",
+                             edge_attr="w", renumber=True)
+        parts, mod = cugraph.louvain(G)
+        out = parts.to_pandas().rename(columns={"vertex": "node",
+                                                "partition": "community_id"})
+        out.attrs["modularity"] = float(mod)
+        return out
+    nodes = pd.unique(pd.concat([edges["source"], edges["dest"]]))
+    out = pd.DataFrame({"node": nodes,
+                        "community_id": pd.factorize(nodes)[0] % 50})
+    out.attrs["modularity"] = np.nan
+    return out
+
+
+def gpu_core_number(edges: pd.DataFrame) -> pd.DataFrame:
+    if HAS_GPU:
+        gdf = cudf.from_pandas(edges[["source", "dest"]]).drop_duplicates()
+        G = cugraph.Graph(directed=False)
+        G.from_cudf_edgelist(gdf, source="source", destination="dest",
+                             renumber=True)
+        return cugraph.core_number(G).to_pandas().rename(
+            columns={"vertex": "node"})
+    return pd.DataFrame(columns=["node", "core_number"])
+
+
+def gpu_betweenness(edges: pd.DataFrame, k: int = BETWEENNESS_K
+                    ) -> pd.DataFrame:
+    if HAS_GPU and k > 0:
+        bc = cugraph.betweenness_centrality(_cu_graph(edges, True), k=k)
+        return bc.to_pandas().rename(
+            columns={"vertex": "node",
+                     "betweenness_centrality": "betweenness_approx"})
+    return pd.DataFrame(columns=["node", "betweenness_approx"])
+
+
+# ---------------------------------------------------------------------------
+# node-level flow metrics (raw amount)
+# ---------------------------------------------------------------------------
+
+def node_flow_metrics(edges: pd.DataFrame) -> pd.DataFrame:
+    g_out = edges.groupby("source").agg(
+        out_degree=("dest", "nunique"), out_strength=("amount", "sum"),
+        out_volume=("volume", "sum"))
+    g_in = edges.groupby("dest").agg(
+        in_degree=("source", "nunique"), in_strength=("amount", "sum"),
+        in_volume=("volume", "sum"))
+    nf = g_out.join(g_in, how="outer").fillna(0.0).rename_axis("node")
+    nf["degree"] = nf["in_degree"] + nf["out_degree"]
+    nf["strength"] = nf["in_strength"] + nf["out_strength"]
+    nf["net_flow"] = nf["in_strength"] - nf["out_strength"]
+    nf["flow_ratio"] = np.where(nf["strength"] > 0,
+                                nf["net_flow"] / nf["strength"], 0.0)
+    nf["throughflow"] = np.minimum(nf["in_strength"], nf["out_strength"])
+    nf["log_strength"] = np.log1p(nf["strength"])
+    nf["avg_in_ticket"] = np.where(nf["in_volume"] > 0,
+                                   nf["in_strength"] / nf["in_volume"], np.nan)
+    nf["avg_out_ticket"] = np.where(nf["out_volume"] > 0,
+                                    nf["out_strength"] / nf["out_volume"],
+                                    np.nan)
+    for direction, grp in (("out", "source"), ("in", "dest")):
+        other = "dest" if grp == "source" else "source"
+        sh = edges.groupby([grp, other])["amount"].sum()
+        p = sh / sh.groupby(level=0).sum()
+        nf[f"hhi_{direction}"] = (p ** 2).groupby(level=0).sum()
+        nf[f"top1_{direction}_share"] = p.groupby(level=0).max()
+        d = p.rename("p").reset_index().sort_values("p", ascending=False,
+                                                    kind="stable")
+        nf[f"top3_{direction}_share"] = (
+            d.groupby(grp, sort=False).head(3).groupby(grp)["p"].sum())
+    return nf.reset_index()
+
+
+# ---------------------------------------------------------------------------
+# node-level community metrics: intra-community flow fractions
+# ---------------------------------------------------------------------------
+
+def node_intra_community_fractions(edges: pd.DataFrame,
+                                   partition: pd.DataFrame) -> pd.DataFrame:
+    pmap = partition.set_index("node")["community_id"]
+    gs = pmap.reindex(edges["source"]).to_numpy()
+    gd = pmap.reindex(edges["dest"]).to_numpy()
+    intra = (gs == gd) & pd.notna(gs) & pd.notna(gd)
+    amt = edges["amount"].to_numpy(float)
+    st = pd.DataFrame({
+        "node": pd.concat([edges["source"], edges["dest"]],
+                          ignore_index=True),
+        "amount": np.concatenate([amt, amt]),
+        "intra": np.concatenate([intra, intra]),
+    })
+    g = st.groupby("node").agg(tot_w=("amount", "sum"),
+                               tot_uw=("intra", "size"))
+    gi = st[st["intra"]].groupby("node").agg(int_w=("amount", "sum"),
+                                             int_uw=("intra", "size"))
+    g = g.join(gi, how="left").fillna(0.0)
+    return pd.DataFrame({
+        "node": g.index,
+        "frac_intra_edges_uw": g["int_uw"] / g["tot_uw"],
+        "frac_intra_edges_w": np.where(g["tot_w"] > 0,
+                                       g["int_w"] / g["tot_w"], np.nan),
+    }).reset_index(drop=True)
+
+
+def _naics_partition(edges: pd.DataFrame) -> pd.DataFrame:
+    nodes = pd.concat([
+        edges[["source", "source_naics"]].rename(
+            columns={"source": "node", "source_naics": "community_id"}),
+        edges[["dest", "dest_naics"]].rename(
+            columns={"dest": "node", "dest_naics": "community_id"}),
+    ]).drop_duplicates("node")
+    nodes["community_id"] = nodes["community_id"].astype(str)
+    return nodes.reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
+# hub exposure (computed on RAW edges, attached to every version)
+# ---------------------------------------------------------------------------
+
+def hub_exposure(raw_edges: pd.DataFrame, hub_set: set) -> pd.DataFrame:
+    """Share of a node's raw in/out amount exchanged with ladder-registry
+    (V1) nodes. High hub_in_share = revenue fed by one mega-hub =
+    structurally fragile deposit relationship."""
+    e = raw_edges
+    in_tot = e.groupby("dest")["amount"].sum()
+    out_tot = e.groupby("source")["amount"].sum()
+    in_hub = e[e["source"].isin(hub_set)].groupby("dest")["amount"].sum()
+    out_hub = e[e["dest"].isin(hub_set)].groupby("source")["amount"].sum()
+    out = pd.DataFrame({
+        "hub_in_share": (in_hub / in_tot),
+        "hub_out_share": (out_hub / out_tot),
+    })
+    out.index.name = "node"
+    return out.fillna(0.0).reset_index()
+
+
+# ---------------------------------------------------------------------------
+# cross-month temporal tracker (one instance per version)
+# ---------------------------------------------------------------------------
+
+class TemporalTracker:
+    """Holds ONLY the previous month's aggregated pair list, previous node
+    strengths, and a running tenure table — small, bounded memory."""
+
+    def __init__(self):
+        self.prev_pairs: pd.DataFrame | None = None     # source,dest,amount
+        self.prev_strength: pd.Series | None = None     # node -> strength
+        self.tenure: pd.DataFrame | None = None         # node state
+        self.t: int = -1
+
+    # -- turnover, top-payer stability ------------------------------------
+    def _turnover_one_side(self, curr, prev, key, other, prefix):
+        m = curr.merge(prev, on=[key, other], how="outer",
+                       suffixes=("", "_prev"), indicator=True)
+        cnt = (m.groupby([key, "_merge"], observed=True).size()
+               .unstack(fill_value=0))
+        stat = pd.DataFrame(index=cnt.index)
+        stat[f"n_{prefix}_new"] = cnt.get("left_only", 0)
+        stat[f"n_{prefix}_lost"] = cnt.get("right_only", 0)
+        stat[f"n_{prefix}_retained"] = cnt.get("both", 0)
+        stat[f"{prefix}_jaccard"] = stat[f"n_{prefix}_retained"] / (
+            stat[f"n_{prefix}_new"] + stat[f"n_{prefix}_lost"]
+            + stat[f"n_{prefix}_retained"])
+        # amount shares
+        lost_amt = (m.loc[m["_merge"] == "right_only"]
+                    .groupby(key)["amount_prev"].sum())
+        prev_tot = prev.groupby(key)["amount"].sum().rename("amount_prev_tot")
+        new_amt = (m.loc[m["_merge"] == "left_only"]
+                   .groupby(key)["amount"].sum())
+        curr_tot = curr.groupby(key)["amount"].sum()
+        stat[f"lost_{prefix}_amount_share"] = (
+            lost_amt / prev_tot).reindex(stat.index)
+        stat[f"new_{prefix}_amount_share"] = (
+            new_amt / curr_tot).reindex(stat.index)
+        stat.index.name = "node"
+        return stat.reset_index()
+
+    def _top_payer(self, pairs):
+        d = pairs.sort_values("amount", ascending=False, kind="stable")
+        top = d.drop_duplicates("dest")[["dest", "source", "amount"]]
+        tot = pairs.groupby("dest")["amount"].sum()
+        top = top.set_index("dest")
+        top["share"] = top["amount"] / tot
+        return top  # index dest: source, amount, share
+
+    def update(self, edges: pd.DataFrame) -> pd.DataFrame:
+        """Advance one month; return per-node temporal metrics frame."""
+        self.t += 1
+        pairs = edges.groupby(["source", "dest"], as_index=False)[
+            "amount"].sum()
+        strength = (edges.groupby("source")["amount"].sum()
+                    .add(edges.groupby("dest")["amount"].sum(),
+                         fill_value=0.0))
+        nodes = strength.index
+
+        # -- tenure / recency ---------------------------------------------
+        gap = pd.Series(np.nan, index=nodes)  # months since last active
+        if self.tenure is None:
+            self.tenure = pd.DataFrame(
+                {"first_t": self.t, "last_t": self.t, "n_active": 1},
+                index=nodes)
+        else:
+            known = self.tenure.index.intersection(nodes)
+            newbies = nodes.difference(self.tenure.index)
+            gap.loc[known] = self.t - self.tenure.loc[known, "last_t"]
+            self.tenure.loc[known, "n_active"] += 1
+            self.tenure.loc[known, "last_t"] = self.t
+            if len(newbies):
+                self.tenure = pd.concat([self.tenure, pd.DataFrame(
+                    {"first_t": self.t, "last_t": self.t, "n_active": 1},
+                    index=newbies)])
+        ten = self.tenure.loc[nodes]
+        out = pd.DataFrame({
+            "node": nodes,
+            "months_since_first_seen": self.t - ten["first_t"].to_numpy(),
+            "months_active": ten["n_active"].to_numpy(),
+            "activity_gap": gap.to_numpy(),
+        })
+
+        if self.prev_pairs is None:
+            self.prev_pairs, self.prev_strength = pairs, strength
+            for c in ("n_payer_new", "n_payer_lost", "n_payer_retained",
+                      "payer_jaccard", "lost_payer_amount_share",
+                      "new_payer_amount_share",
+                      "n_payee_new", "n_payee_lost", "n_payee_retained",
+                      "payee_jaccard", "lost_payee_amount_share",
+                      "new_payee_amount_share",
+                      "top_payer_same", "top_payer_share_delta",
+                      "nbr_strength_trend", "inflow_from_shrinking_share"):
+                out[c] = np.nan
+            return out
+
+        # -- counterparty turnover -----------------------------------------
+        payer = self._turnover_one_side(
+            pairs.rename(columns={"dest": "node"}),
+            self.prev_pairs.rename(columns={"dest": "node"}),
+            "node", "source", "payer")
+        payee = self._turnover_one_side(
+            pairs.rename(columns={"source": "node"}),
+            self.prev_pairs.rename(columns={"source": "node"}),
+            "node", "dest", "payee")
+        out = out.merge(payer, on="node", how="left").merge(
+            payee, on="node", how="left")
+
+        # -- top-payer stability --------------------------------------------
+        tp_c, tp_p = self._top_payer(pairs), self._top_payer(self.prev_pairs)
+        both = tp_c.join(tp_p, how="inner", lsuffix="_c", rsuffix="_p")
+        tps = pd.DataFrame({
+            "node": both.index,
+            "top_payer_same": (both["source_c"] == both["source_p"]
+                               ).astype(float),
+            "top_payer_share_delta": (both["share_c"] - both["share_p"]),
+        })
+        out = out.merge(tps, on="node", how="left")
+
+        # -- neighborhood contagion ------------------------------------------
+        ratio = np.log((strength.reindex(self.prev_strength.index)
+                        .fillna(0.0) + 1.0)
+                       / (self.prev_strength + 1.0))
+        r_src = ratio.reindex(pairs["source"]).to_numpy()
+        amt = pairs["amount"].to_numpy(float)
+        ok = ~np.isnan(r_src)
+        contag = pd.DataFrame({"dest": pairs["dest"][ok],
+                               "w": amt[ok], "wr": amt[ok] * r_src[ok],
+                               "shrinking": (np.exp(r_src[ok])
+                                             < SHRINKING_RATIO)})
+        g = contag.groupby("dest")
+        nbr = pd.DataFrame({
+            "node": g.size().index,
+            "nbr_strength_trend": g["wr"].sum() / g["w"].sum(),
+            "inflow_from_shrinking_share":
+                contag[contag["shrinking"]].groupby("dest")["w"].sum()
+                .reindex(g.size().index).fillna(0.0) / g["w"].sum(),
+        })
+        out = out.merge(nbr, on="node", how="left")
+
+        self.prev_pairs, self.prev_strength = pairs, strength
+        return out
+
+
+# ---------------------------------------------------------------------------
+# node metric assembly
+# ---------------------------------------------------------------------------
+
+def node_metrics(edges: pd.DataFrame
+                 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    nf = node_flow_metrics(edges)
+    log.info("node flow metrics done (%d nodes)", len(nf))
+    part = gpu_louvain(edges)
+    naics_part = _naics_partition(edges)
+    blocks = [
+        gpu_pagerank(edges, log_weight=False),
+        gpu_pagerank(edges, log_weight=True),
+        cm.weighted_hits(edges),
+        gpu_core_number(edges),
+        gpu_betweenness(edges),
+        cm.trophic_levels(edges),
+        cm.node_reciprocity(edges),
+        part,
+        cm.participation_and_roles(edges, part),
+        node_intra_community_fractions(edges, part),
+        cm.participation_and_roles(edges, naics_part)[
+            ["node", "participation_coef"]].rename(
+            columns={"participation_coef": "naics_participation"}),
+    ]
+    for extra in blocks:
+        if "node" in extra.columns and len(extra):
+            nf = nf.merge(extra, on="node", how="left")
+    return nf, part
+
+
+# ---------------------------------------------------------------------------
+# graph-level metrics
+# ---------------------------------------------------------------------------
+
+def graph_metrics(edges: pd.DataFrame, partition: pd.DataFrame,
+                  node_flow: pd.DataFrame,
+                  trophic_lv: pd.DataFrame) -> pd.DataFrame:
+    n_nodes = len(node_flow)
+    row = {
+        "n_nodes": n_nodes,
+        "n_edges": len(edges),
+        "total_amount": edges["amount"].sum(),
+        "total_volume": edges["volume"].sum(),
+        "avg_ticket": edges["amount"].sum() / max(edges["volume"].sum(), 1),
+        "density": len(edges) / (n_nodes * (n_nodes - 1)),
+        "n_communities": partition["community_id"].nunique(),
+        "modularity_Q": partition.attrs.get("modularity", np.nan),
+    }
+    row.update(cm.graph_reciprocity(edges).iloc[0].to_dict())
+    row.update(cm.directed_assortativity(edges).iloc[0].to_dict())
+    if len(trophic_lv):
+        row["trophic_incoherence_F0"] = \
+            cm.trophic_incoherence(edges, trophic_lv).iloc[0, 0]
+    ts = cm.tail_stats(node_flow["strength"])
+    row.update({"gini_strength": ts["gini"].iloc[0],
+                "hill_alpha_strength": ts["hill_alpha"].iloc[0],
+                "top_0.1pct_amount_share": ts["top_share"].iloc[0]})
+    row["gini_degree"] = cm.tail_stats(node_flow["degree"])["gini"].iloc[0]
+    for _, r in cm.weighted_rich_club(edges).iterrows():
+        row[f"rich_club_w_{r['rank_frac']}"] = r["rich_club_w"]
+    csz = partition.groupby("community_id").size()
+    row["community_size_gini"] = cm.tail_stats(csz)["gini"].iloc[0]
+    return pd.DataFrame([row])
+
+
+# ---------------------------------------------------------------------------
+# main loop — streams one month at a time, writes, frees
+# ---------------------------------------------------------------------------
+
+def _downcast(df):
+    for c in df.columns:
+        if df[c].dtype == np.float64:
+            df[c] = df[c].astype(np.float32)
+        elif df[c].dtype == np.int64:
+            df[c] = df[c].astype(np.int32)
+    return df
+
+
+def run(data_dir: str = DATA_DIR, out_dir: str = OUT_DIR):
+    node_dir = os.path.join(out_dir, "node")
+    graph_dir = os.path.join(out_dir, "graph")
+    os.makedirs(node_dir, exist_ok=True)
+    os.makedirs(graph_dir, exist_ok=True)
+
+    paths = sorted(glob.glob(os.path.join(data_dir, "cust_*.csv")))
+    if not paths:
+        raise FileNotFoundError(f"no cust_*.csv under {data_dir}")
+    log.info("building ablation ladder from %d snapshots", len(paths))
+    ladder = cm.build_ladder(paths)          # default tiers 99 / 99.9 / 99.99
+    versions = ladder.versions               # ['V0','P99','P99_9','P99_99']
+    log.info("graph versions: %s", versions)
+    pd.DataFrame([ladder.thresholds]).to_csv(
+        os.path.join(out_dir, "ladder_thresholds.csv"), index=False)
+    # exclusion registry: broadest tier, flagged per stricter tier
+    tiers = list(ladder.exclusion_sets)
+    broad = sorted(ladder.exclusion_sets[tiers[0]])
+    reg = pd.DataFrame({"node": broad})
+    for t in tiers[1:]:
+        reg[f"in_{t}"] = [n in ladder.exclusion_sets[t] for n in broad]
+    reg.to_csv(os.path.join(out_dir, "ladder_exclusions.csv"), index=False)
+
+    # hub registry for hub-exposure metrics: P99_9 tier if present,
+    # otherwise the strictest available tier
+    hub_set = ladder.exclusion_sets.get(
+        "P99_9", ladder.exclusion_sets[tiers[-1]])
+
+    prev_partition: dict[str, pd.DataFrame] = {}
+    trackers = {v: TemporalTracker() for v in versions}
+
+    for path in paths:
+        time_key = re.search(r"cust_(\d{4}-\d{2})\.csv", path).group(1)
+        node_path = os.path.join(node_dir, f"node_{time_key}.parquet")
+        if os.path.exists(node_path):
+            log.info("%s: output exists, skipping month", time_key)
+            continue
+        raw = pd.read_csv(path)
+        hub_exp = hub_exposure(raw, hub_set)
+        n_rows, g_rows = [], []
+
+        for version in versions:
+            edges = cm.apply_version(raw, ladder, version)
+            if edges.empty:
+                continue
+            log.info("%s %s: %d edges", time_key, version, len(edges))
+
+            nf, part = node_metrics(edges)
+            nf = nf.merge(trackers[version].update(edges),
+                          on="node", how="left")
+            nf = nf.merge(hub_exp, on="node", how="left")
+            nf.insert(0, "version", version)
+            nf.insert(0, "time_key", time_key)
+            for c in ("node", "community_id", "ga_role"):
+                if c in nf.columns:
+                    nf[c] = nf[c].astype("string")
+            n_rows.append(_downcast(nf))
+
+            trophic_lv = (nf[["node", "trophic_level"]].dropna()
+                          if "trophic_level" in nf else
+                          pd.DataFrame(columns=["node", "trophic_level"]))
+            gm = graph_metrics(edges, part, nf, trophic_lv)
+            if version in prev_partition:
+                cp = cm.compare_partitions(prev_partition[version], part)
+                gm["nmi_vs_prev"] = cp["nmi"].iloc[0]
+                gm["ari_vs_prev"] = cp["ari"].iloc[0]
+            prev_partition[version] = part
+            gm.insert(0, "version", version)
+            gm.insert(0, "time_key", time_key)
+            g_rows.append(gm)
+
+            del edges, part
+            gc.collect()
+
+        if n_rows:
+            month = pd.concat(n_rows, ignore_index=True)
+            month.to_parquet(node_path)
+            log.info("wrote %s (%d rows, %d cols, %d versions)",
+                     node_path, len(month), month.shape[1], len(n_rows))
+            del month
+        if g_rows:
+            pd.concat(g_rows, ignore_index=True).to_csv(
+                os.path.join(graph_dir, f"graph_{time_key}.csv"),
+                index=False)
+        del raw, hub_exp, n_rows, g_rows
+        gc.collect()
+
+    log.info("done — per-month outputs in %s and %s", node_dir, graph_dir)
+
+
+if __name__ == "__main__":
+    run()
