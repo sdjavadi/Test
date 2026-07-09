@@ -295,6 +295,27 @@ def run(node_dir: str = NODE_DIR, out_dir: str = OUT_DIR):
                 months_in[(key, tax)] = m_in
 
             peers = peer_percentiles(df)
+
+            # -- role stability -------------------------------------------
+            mi_cols = [f"{tax}_months_in" for tax in TAXONOMIES]
+            mi = roles[mi_cols].astype(float)
+            roles["role_stability_score"] = mi.mean(axis=1)
+            # normalized by months observed (a 2-month customer can't have
+            # a 10-month stable role); clipped to [0, 1]
+            obs = df.set_index("node")["months_active"].reindex(
+                roles["node"]).to_numpy(float) \
+                if "months_active" in df.columns else np.nan
+            roles["role_stability_norm"] = np.clip(
+                roles["role_stability_score"] / np.maximum(obs, 1.0), 0, 1)
+            # how many taxonomies switched stable role THIS month
+            # (months_in == 1 signals a fresh role; masked for nodes we
+            # have never seen before, where all five are trivially 1)
+            seen_before = roles["node"].isin(
+                ps.index if ps is not None else [])
+            n_switch = (mi == 1).sum(axis=1).astype(float)
+            roles["n_role_switches"] = np.where(seen_before, n_switch,
+                                                np.nan)
+
             block = pd.concat(
                 [roles.reset_index(drop=True),
                  df[["strength_mom", "naics2", "naics3", "naics4"]]
