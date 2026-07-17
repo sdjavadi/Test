@@ -212,6 +212,69 @@ QUEUES = {
 
 
 # ---------------------------------------------------------------------------
+# Definitions surfaced in the UI (kept here so FastAPI can serve them too)
+# ---------------------------------------------------------------------------
+
+ROLE_DEFS = {
+    # flow_role
+    "collector": "Net accumulator: receives substantially more than it pays (flow ratio > +0.5). Deposits likely growing.",
+    "distributor": "Net payer: pays out substantially more than it receives (flow ratio < \u22120.5). Payroll-like pattern; funded from elsewhere.",
+    "conduit": "High-volume pass-through: in \u2248 out with top-decile throughflow. Treasury/settlement-like; relevant for AML review.",
+    "balanced_trader": "Genuine two-way commerce: balanced flows with above-median dollar-matched reciprocity.",
+    "terminal_payer": "Only pays within the visible network \u2014 its revenue side lives outside PNC.",
+    "terminal_payee": "Only receives within the visible network \u2014 its spend side lives outside PNC.",
+    "mixed": "No dominant flow pattern.",
+    # hierarchy_role
+    "upstream_supplier": "Bottom third of the flow hierarchy (trophic level): money reaches it early in supply chains.",
+    "midstream": "Middle third of the flow hierarchy: an intermediary position.",
+    "downstream_buyer": "Top third of the flow hierarchy: an end-buyer position.",
+    "unknown": "Hierarchy position could not be computed for this customer.",
+    # dependence_role
+    "single_relationship": "Fewer than 3 counterparts \u2014 too thin a file for concentration to be meaningful.",
+    "infra_dependent": ">70% of inflow arrives via infrastructure hubs (processors, payroll, settlement).",
+    "anchor_dependent": "One customer provides >70% of inflow \u2014 anchor loss is an attrition precursor.",
+    "captive_payer": ">70% of outflow goes to one payee \u2014 supply-chain fragility.",
+    "diversified": "Below-median concentration on both inflow and outflow.",
+    "moderate": "Neither concentrated nor clearly diversified.",
+    # embeddedness_role
+    "peripheral": "Edge of the visible network: very few counterparts or shallow core position.",
+    "connector": "Payment relationships spread across many communities \u2014 a cross-segment broker.",
+    "local_anchor": "Deep in the dense network core AND \u226570% of dollars stay in its own community \u2014 a load-bearing member.",
+    "embedded_local": "\u226570% of dollars stay inside its own community.",
+    "intermediate": "Between peripheral and embedded.",
+    # dynamics_role
+    "newcomer": "First appeared within the last ~3 months \u2014 too young to judge.",
+    "intermittent": "Reappeared after a gap of inactivity.",
+    "bleeding": "Sustained loss of payer revenue (\u226540% of payer dollars lost, or sharp decline with low retention). Requires \u22653 payers last month.",
+    "expanding": "\u226540% of inflow from brand-new payers with positive momentum. Requires \u22653 payers.",
+    "steady": "Stable counterpart set and stable dollars month-over-month.",
+    "variable": "Moving, but not classifiable as any of the above.",
+}
+
+TAXONOMY_DEFS = {
+    "flow_role": "What the customer DOES with money: accumulate, distribute, pass through, or trade.",
+    "dynamics_role": "What is HAPPENING to the customer month-over-month.",
+    "dependence_role": "How fragile its revenue/spend base is (concentration).",
+    "embeddedness_role": "Its position in the network fabric.",
+    "hierarchy_role": "Where it sits in the supply-chain flow hierarchy.",
+}
+
+METRIC_DEFS = {
+    "Role stability": "Average months the customer has held its current roles, divided by months observed (0\u20131). Near 1 = behaviorally locked in; low despite long tenure = chronic flux.",
+    "Inflow / Outflow / Net": "Total dollars received / paid / their difference, per month. Dotted markers show the month a stable role changed.",
+    "Role ribbon": "One band per role taxonomy across all months; a color change is a stabilized role transition (confirmed two consecutive months).",
+    "Size": "Percentile of total payment dollars within the customer's NAICS peer group.",
+    "Connectivity": "Percentile of number of distinct counterparts within its peer group.",
+    "Net-flow": "Percentile of net accumulation vs. peers \u2014 high = collector-like for its industry.",
+    "Revenue concentration": "Percentile of inflow concentration (HHI). High = more dependent on few payers than peers.",
+    "Retention": "Percentile of payer-set retention (Jaccard vs. last month) among peers.",
+    "Momentum": "Percentile of month-over-month growth among peers. Red = bottom quintile: losing ground to its industry.",
+    "Retained / New / Lost payers": "This month's inflow split into dollars from payers kept from last month vs. first-time payers; below zero, last month's dollars from payers who left.",
+    "Peer group": "Ranked within the finest NAICS level (4\u21923\u21922 digits) having \u226530 members that month. Percentiles are computed on the full customer population.",
+}
+
+
+# ---------------------------------------------------------------------------
 # Deep-dive builders
 # ---------------------------------------------------------------------------
 
