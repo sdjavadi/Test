@@ -41,6 +41,11 @@ METRICS_TABLE = os.environ.get("PKG_METRICS_TABLE",
 ROLES_TABLE = os.environ.get("PKG_ROLES_TABLE",
                              "bdahd01p_dlcdi1_cdi_tm.cust_c2c_roles")
 
+# Prototyping row cap: keep only the top-N customers BY STRENGTH per
+# (version, month). 0 disables. Roles are semi-joined against the same
+# top-N so metrics and roles always cover identical customers.
+ROW_LIMIT = int(os.environ.get("PKG_ROW_LIMIT", "50000"))
+
 NODE_COLS = [
     "time_key", "version", "node", "strength", "in_strength", "out_strength",
     "net_flow", "flow_ratio", "throughflow", "degree", "in_degree",
@@ -98,12 +103,25 @@ class ImpalaSource:
 
     def node_month(self, version: str, time_key: str) -> pd.DataFrame:
         cols = ", ".join(NODE_COLS)
-        return self._q(
-            f"SELECT {cols} FROM {METRICS_TABLE} "
-            f"WHERE version = {_lit(version)} "
-            f"AND time_key = {_lit(time_key)}")
+        sql = (f"SELECT {cols} FROM {METRICS_TABLE} "
+               f"WHERE version = {_lit(version)} "
+               f"AND time_key = {_lit(time_key)}")
+        if ROW_LIMIT > 0:
+            sql += f" ORDER BY strength DESC LIMIT {ROW_LIMIT}"
+        return self._q(sql)
 
     def roles_month(self, version: str, time_key: str) -> pd.DataFrame:
+        if ROW_LIMIT > 0:
+            # semi-join so roles cover EXACTLY the same top-N customers
+            return self._q(
+                f"SELECT r.* FROM {ROLES_TABLE} r "
+                f"JOIN (SELECT node FROM {METRICS_TABLE} "
+                f"      WHERE version = {_lit(version)} "
+                f"      AND time_key = {_lit(time_key)} "
+                f"      ORDER BY strength DESC LIMIT {ROW_LIMIT}) t "
+                f"ON r.node = t.node "
+                f"WHERE r.version = {_lit(version)} "
+                f"AND r.time_key = {_lit(time_key)}")
         return self._q(
             f"SELECT * FROM {ROLES_TABLE} "
             f"WHERE version = {_lit(version)} "
@@ -144,12 +162,19 @@ class ParquetSource:
     def node_month(self, version: str, time_key: str) -> pd.DataFrame:
         f = os.path.join(self.dir, "node", f"node_{time_key}.parquet")
         df = pd.read_parquet(f, columns=NODE_COLS)
-        return df[df["version"] == version].reset_index(drop=True)
+        df = df[df["version"] == version]
+        if ROW_LIMIT > 0:
+            df = df.nlargest(ROW_LIMIT, "strength")
+        return df.reset_index(drop=True)
 
     def roles_month(self, version: str, time_key: str) -> pd.DataFrame:
         f = os.path.join(self.dir, "roles", f"roles_{time_key}.parquet")
         df = pd.read_parquet(f)
-        return df[df["version"] == version].reset_index(drop=True)
+        df = df[df["version"] == version]
+        if ROW_LIMIT > 0:
+            keep = set(self.node_month(version, time_key)["node"])
+            df = df[df["node"].isin(keep)]
+        return df.reset_index(drop=True)
 
     def customer_history(self, node: str, version: str) -> pd.DataFrame:
         n = self._read("node", "node_*.parquet", NODE_COLS)
