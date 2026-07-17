@@ -19,7 +19,7 @@ TOP_N = 30
 
 
 def _latest(version: str) -> str:
-    return data.months(version)[-1]
+    return list(data.months(version))[-1]
 
 
 def _fmt_money(x: float) -> str:
@@ -36,8 +36,8 @@ def _mr(df: pd.DataFrame, month: str) -> pd.DataFrame:
 
 
 def _joined(version: str, month: str) -> pd.DataFrame:
-    n = _mr(data.node_panel(version), month)
-    r = _mr(data.roles_panel(version), month)
+    n = data.node_month(version, month)
+    r = data.roles_month(version, month)
     return n.merge(r.drop(columns=["naics2", "naics4"], errors="ignore"),
                    on=["time_key", "version", "node"], how="inner",
                    suffixes=("", "_r"))
@@ -48,7 +48,7 @@ def _prev_roles(version: str, month: str) -> pd.DataFrame | None:
     i = ms.index(month)
     if i == 0:
         return None
-    return _mr(data.roles_panel(version), ms[i - 1])
+    return data.roles_month(version, ms[i - 1])
 
 
 
