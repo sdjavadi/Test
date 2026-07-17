@@ -65,7 +65,9 @@ GOOD_ROLES = {"expanding", "steady", "diversified", "local_anchor"}
 def badge(text: str) -> str:
     cls = ("risk" if text in RISK_ROLES
            else "good" if text in GOOD_ROLES else "")
-    return f'<span class="badge {cls}">{text.replace("_", " ")}</span>'
+    tip = logic.ROLE_DEFS.get(text, "").replace('"', "&quot;")
+    return (f'<span class="badge {cls}" title="{tip}">'
+            f'{text.replace("_", " ")}</span>')
 
 
 # ------------------------------------------------------------- controls ----
@@ -164,6 +166,26 @@ with tab_dive:
         fig.update_layout(**{**PLOTLY_LAYOUT, "height": 170,
                              "margin": dict(l=10, r=10, t=30, b=5)})
         st.plotly_chart(fig, use_container_width=True)
+
+    # --- definitions ---------------------------------------------------------
+    with st.expander("\u2139\ufe0f What do these roles and metrics mean?"):
+        gcol1, gcol2 = st.columns(2)
+        with gcol1:
+            st.markdown("**This customer's current roles** *(hover any "
+                        "badge above for the same definitions)*")
+            for tax in logic.TAXONOMIES:
+                cur = last.get(f"{tax}_stable")
+                if pd.isna(cur):
+                    continue
+                st.markdown(
+                    f"- **{str(cur).replace('_', ' ')}** "
+                    f"({tax.replace('_role', '')} \u2014 "
+                    f"{logic.TAXONOMY_DEFS[tax].lower()}): "
+                    f"{logic.ROLE_DEFS.get(str(cur), '')}")
+        with gcol2:
+            st.markdown("**Charts & metrics on this page**")
+            for name, d in logic.METRIC_DEFS.items():
+                st.markdown(f"- **{name}**: {d}")
 
     # --- strength time series with role-change markers ----------------------
     fig = go.Figure()
