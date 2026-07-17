@@ -56,20 +56,21 @@ Terciles of `trophic_level` within month × version: `upstream_supplier` (bottom
 
 | Role | Rule | Interpretation |
 |---|---|---|
-| `infra_dependent` | hub_in_share > 0.7 | Revenue arrives via registry hubs (processors/payroll/settlement). **Checked first** so infrastructure dependence never masquerades as customer dependence — different risk story entirely |
+| `single_relationship` | degree < 3 | **Thin-file gate, checked first.** With 1–2 counterparts, top-1 share is structurally ≈ 1.0 — concentration rules would measure arithmetic, not behavior. Production 2025-04: ~73% of the V0 book |
+| `infra_dependent` | hub_in_share > 0.7 | Revenue arrives via registry hubs (processors/payroll/settlement). Checked before customer-dependence so the two risk stories never blur |
 | `anchor_dependent` | top1_in_share > 0.7 | One *customer* is the revenue base; anchor loss = attrition precursor |
 | `captive_payer` | top1_out_share > 0.7 | Spend concentrated on one payee; supply-chain fragility |
-| `diversified` | hhi_in ≤ median AND hhi_out ≤ median | Balanced book both directions |
+| `diversified` | hhi_in ≤ median AND hhi_out ≤ median (medians over degree ≥ 3 population) | Balanced book both directions |
 | `moderate` | residual | — |
 
 ### 2.4 `embeddedness_role` — position in the network fabric?
 
 | Role | Rule | Interpretation |
 |---|---|---|
+| `peripheral` | degree < 3 OR core_number ≤ P25 — **checked first** | Edge of the visible economy (often: most of their graph is outside PNC). Must precede embedded_local: a degree-1 node has frac_intra = 1.0 trivially and previously flooded that role (74% of the book) |
 | `connector` | participation_coef ≥ 0.62 | Edges spread across communities (GA-consistent cutoff); cross-segment broker |
-| `local_anchor` | core_number ≥ P90 AND frac_intra_edges_w ≥ 0.7 | Deep in the dense core *and* dollar-committed to its own community — the community's load-bearing member |
+| `local_anchor` | core_number **>** P90 (strict, computed over degree ≥ 3) AND frac_intra_edges_w ≥ 0.7 | Deep in the dense core *and* dollar-committed to its own community. Strict inequality prevents integer-tie inflation (18% qualified under ≥ at production) |
 | `embedded_local` | frac_intra_edges_w ≥ 0.7 | Dollar-committed to its community without being a hub of it |
-| `peripheral` | degree ≤ 2 OR core_number ≤ P25 | Edge of the visible economy (often: most of their graph is outside PNC) |
 | `intermediate` | residual | — |
 
 Complements `ga_role` (already in the node panel): GA is degree-topological, this is flow-weighted and community-dollar based.
@@ -80,9 +81,9 @@ Complements `ga_role` (already in the node panel): GA is degree-topological, thi
 |---|---|---|
 | `newcomer` | months_since_first_seen ≤ 2 | Too young to judge; excluded from drift alerts |
 | `intermittent` | activity_gap > 1 | Reappearing after absence; sporadic biller pattern |
-| `bleeding` | lost_payer_amount_share ≥ 0.4 OR (strength_mom ≤ −0.3 AND payer_jaccard ≤ P25) | **Revenue walking out** — the role most directly predictive of churn; a TM call list, not just a feature |
-| `expanding` | new_payer_amount_share ≥ 0.4 AND strength_mom > 0.1 | Growing book from new relationships |
-| `steady` | payer_jaccard ≥ median AND \|strength_mom\| < 0.2 | Stable counterpart set, stable dollars |
+| `bleeding` | (prior-month in_degree ≥ 3) AND [lost_payer_amount_share ≥ 0.4 OR (strength_mom ≤ −0.3 AND payer_jaccard ≤ P25)] | **Revenue walking out** — the role most directly predictive of churn; a TM call list, not just a feature |
+| `expanding` | (in_degree ≥ 3) AND new_payer_amount_share ≥ 0.4 AND strength_mom > 0.1 | Growing book from new relationships |
+| `steady` | payer_jaccard ≥ median AND \|strength_mom\| < 0.35 | Stable counterpart set, stable dollars |
 | `variable` | residual | Moving but not classifiable |
 
 `strength_mom` = log((strength_t + 1)/(strength_{t−1} + 1)), computed by the module and included in the output.
@@ -148,3 +149,15 @@ High-signal cells to watch:
 4. **Version semantics.** Roles on V0 describe the customer *including* infrastructure flow; on P99_9 they describe the *discretionary* relationship book. `terminal_*` and `peripheral` on de-hubbed versions are partly artifacts of hub removal — prefer V0 for flow/dependence roles, de-hubbed versions for embeddedness and dynamics. When in doubt, report the version next to the role.
 5. **Roles are per-graph statements, not identities.** "Conduit on V0, peripheral on P99" is not a contradiction — it says the customer's volume is infrastructure-mediated. The *disagreement between versions* is itself a feature.
 6. **Terminal roles will shrink dramatically** once PAYS_CPTY/counterparty data lands — most `terminal_*` customers are terminal only within PNC's visibility perimeter. Expect a large re-labeling event at that data milestone; version the role panel accordingly.
+
+
+---
+
+## 8. Recalibration Log
+
+| Date | Change | Production evidence |
+|---|---|---|
+| 2026-07 (post first prod run, 2025-04 V0, ~2.23M customers) | Added thin-file gate (`THIN_DEGREE = 3`): dependence → `single_relationship`; dynamics bleeding/expanding require ≥3 payers (prior/current month); percentile thresholds computed over the degree ≥ 3 population | `diversified` had collapsed to 0.7% while captive/anchor/infra absorbed 94% — top-1 share is structurally ≈1.0 for 1–2-counterpart customers |
+| 2026-07 | Embeddedness rule order: `peripheral` first; `local_anchor` core cutoff changed from ≥P90 to strict >P90 over eligible population | `embedded_local` at 74.7% (degree-1 nodes have frac_intra = 1.0 trivially); `local_anchor` at 18% vs. the ≤10% the P90 rule intends (integer ties) |
+| 2026-07 | `steady` momentum band widened from \|mom\| < 0.2 to < 0.35 | `variable` residual at 45% — the band was tighter than real monthly payment volatility |
+| — (documented, unchanged) | `flow_role` terminal shares (76% at prod) are structural, not a threshold artifact — most customers' other side lives outside PNC; benchmark for the counterparty-data milestone. `hierarchy_role` terciles are flat by construction: population shares carry no signal, only per-customer transitions do; trophic solve succeeded for all 2.23M nodes | — |
