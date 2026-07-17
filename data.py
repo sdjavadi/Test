@@ -47,7 +47,7 @@ ROLES_TABLE = os.environ.get("PKG_ROLES_TABLE",
 ROW_LIMIT = int(os.environ.get("PKG_ROW_LIMIT", "50000"))
 
 NODE_COLS = [
-    "time_key", "version", "node", "strength", "in_strength", "out_strength",
+    "time_key", "version", "node", "cust_name", "strength", "in_strength", "out_strength",
     "net_flow", "flow_ratio", "throughflow", "degree", "in_degree",
     "out_degree", "hhi_in", "hhi_out", "top1_in_share",
     "lost_payer_amount_share", "new_payer_amount_share", "payer_jaccard",
@@ -161,7 +161,13 @@ class ParquetSource:
 
     def node_month(self, version: str, time_key: str) -> pd.DataFrame:
         f = os.path.join(self.dir, "node", f"node_{time_key}.parquet")
-        df = pd.read_parquet(f, columns=NODE_COLS)
+        import pyarrow.parquet as pq
+        avail = set(pq.read_schema(f).names)
+        cols = [c for c in NODE_COLS if c in avail]
+        df = pd.read_parquet(f, columns=cols)
+        for c in NODE_COLS:
+            if c not in df.columns:
+                df[c] = None
         df = df[df["version"] == version]
         if ROW_LIMIT > 0:
             df = df.nlargest(ROW_LIMIT, "strength")
@@ -177,8 +183,10 @@ class ParquetSource:
         return df.reset_index(drop=True)
 
     def customer_history(self, node: str, version: str) -> pd.DataFrame:
-        n = self._read("node", "node_*.parquet", NODE_COLS)
-        n = n[(n["node"] == node) & (n["version"] == version)]
+        n = pd.concat([self.node_month(version, m)
+                       for m in self.months(version)], ignore_index=True)
+        n = n[n["node"] == node]
+        _ = None  # roles below
         r = self._read("roles", "roles_*.parquet")
         r = r[(r["node"] == node) & (r["version"] == version)]
         return _join_history(n, r)
