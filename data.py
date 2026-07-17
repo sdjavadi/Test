@@ -1,35 +1,46 @@
 """
-data.py — PKG Explorer data access layer.
+data.py — PKG Explorer data access layer (v2: Impala-first).
 
 Framework-free (no streamlit imports) so this module and logic.py can be
 lifted into the FastAPI service at dev-team handoff.
 
-Backends
---------
-PKG_BACKEND=parquet (default)   reads the per-month files produced by
-                                pkg_pipeline / pkg_roles under PKG_METRICS_DIR
-PKG_BACKEND=impala              queries the unified Hive tables; fill in
-                                the two SQL methods in ImpalaSource with
-                                your table names (one metrics table, one
-                                roles table, both keyed by
-                                time_key/version/node).
+Backends (PKG_BACKEND env var)
+------------------------------
+impala (default)   unified Hive tables via the bank-internal `dbi` helper
+parquet            per-month files from pkg_pipeline / pkg_roles (local dev)
 
-All loaders return pandas DataFrames with the schemas documented in
-PKG_MONTHLY_METRICS_MANIFEST.md and PKG_ROLES_MANIFEST.md.
+Tables (override via env)
+-------------------------
+PKG_METRICS_TABLE   default bdahd01p_dlcdi1_cdi_tm.cust_c2c_metrics
+PKG_ROLES_TABLE     default bdahd01p_dlcdi1_cdi_tm.cust_c2c_roles
+
+Interface contract (both backends):
+    months(version)                      -> list[str]
+    node_month(version, time_key)        -> DataFrame (NODE_COLS)
+    roles_month(version, time_key)       -> DataFrame (all role cols)
+    customer_history(node, version)      -> metrics+roles joined, all months
+    display_name(node)                   -> str
+
+Every Impala query is filtered on version + time_key (or node) and
+column-pruned — the app never pulls a full panel.
 """
 
 from __future__ import annotations
 
 import glob
 import os
+import re
 from functools import lru_cache
 
 import pandas as pd
 
 METRICS_DIR = os.environ.get("PKG_METRICS_DIR", "../metrics")
-BACKEND = os.environ.get("PKG_BACKEND", "parquet")
+BACKEND = os.environ.get("PKG_BACKEND", "impala")
+METRICS_TABLE = os.environ.get("PKG_METRICS_TABLE",
+                               "bdahd01p_dlcdi1_cdi_tm.cust_c2c_metrics")
+ROLES_TABLE = os.environ.get("PKG_ROLES_TABLE",
+                             "bdahd01p_dlcdi1_cdi_tm.cust_c2c_roles")
 
-# columns the app actually needs — keep the panel slim in memory
 NODE_COLS = [
     "time_key", "version", "node", "strength", "in_strength", "out_strength",
     "net_flow", "flow_ratio", "throughflow", "degree", "in_degree",
@@ -38,8 +49,80 @@ NODE_COLS = [
     "n_payer_lost", "n_payer_new", "top_payer_same", "hub_in_share",
     "months_active", "naics2", "naics4",
 ]
-ROLE_COLS = None  # roles files are already slim; take all
 
+_SAFE = re.compile(r"^[A-Za-z0-9_\-\.]+$")
+
+
+def _lit(value: str) -> str:
+    """Quote a value for SQL after strict whitelist validation. The dbi
+    helper has no parameter binding, so nothing outside [A-Za-z0-9_-.]
+    is ever interpolated."""
+    if not _SAFE.match(str(value)):
+        raise ValueError(f"unsafe literal rejected: {value!r}")
+    return f"'{value}'"
+
+
+# ---------------------------------------------------------------------------
+# Impala backend
+# ---------------------------------------------------------------------------
+
+class ImpalaSource:
+    """Unified Hive tables via the bank-internal `dbi` helper."""
+
+    DSN = "DSN=bdpimp04-impala;"
+    POOL = "root.CIB-AMG_Impala"
+
+    def __init__(self):
+        try:
+            import dbi  # bank-internal
+        except ImportError as e:
+            raise ImportError(
+                "the `dbi` helper is not importable — run inside the bank "
+                "environment or set PKG_BACKEND=parquet for local dev"
+            ) from e
+        self._dbi = dbi
+
+    def _q(self, sql: str) -> pd.DataFrame:
+        return self._dbi.db_get_query(
+            sql,
+            dsn=self.DSN,
+            pool=self.POOL,
+            conn_options={"SocketTimeout": 0},
+        )
+
+    def months(self, version: str) -> list[str]:
+        df = self._q(
+            f"SELECT DISTINCT time_key FROM {METRICS_TABLE} "
+            f"WHERE version = {_lit(version)}")
+        return sorted(df["time_key"].astype(str))
+
+    def node_month(self, version: str, time_key: str) -> pd.DataFrame:
+        cols = ", ".join(NODE_COLS)
+        return self._q(
+            f"SELECT {cols} FROM {METRICS_TABLE} "
+            f"WHERE version = {_lit(version)} "
+            f"AND time_key = {_lit(time_key)}")
+
+    def roles_month(self, version: str, time_key: str) -> pd.DataFrame:
+        return self._q(
+            f"SELECT * FROM {ROLES_TABLE} "
+            f"WHERE version = {_lit(version)} "
+            f"AND time_key = {_lit(time_key)}")
+
+    def customer_history(self, node: str, version: str) -> pd.DataFrame:
+        cols = ", ".join(NODE_COLS)
+        n = self._q(
+            f"SELECT {cols} FROM {METRICS_TABLE} "
+            f"WHERE version = {_lit(version)} AND node = {_lit(node)}")
+        r = self._q(
+            f"SELECT * FROM {ROLES_TABLE} "
+            f"WHERE version = {_lit(version)} AND node = {_lit(node)}")
+        return _join_history(n, r)
+
+
+# ---------------------------------------------------------------------------
+# Parquet backend (local dev)
+# ---------------------------------------------------------------------------
 
 class ParquetSource:
     def __init__(self, metrics_dir: str = METRICS_DIR):
@@ -53,78 +136,65 @@ class ParquetSource:
             (pd.read_parquet(f, columns=columns) for f in files),
             ignore_index=True)
 
-    def node_panel(self, version: str) -> pd.DataFrame:
-        df = self._read("node", "node_*.parquet", NODE_COLS)
+    def months(self, version: str) -> list[str]:
+        files = sorted(glob.glob(os.path.join(self.dir, "node",
+                                              "node_*.parquet")))
+        return [re.search(r"node_(\d{4}-\d{2})", f).group(1) for f in files]
+
+    def node_month(self, version: str, time_key: str) -> pd.DataFrame:
+        f = os.path.join(self.dir, "node", f"node_{time_key}.parquet")
+        df = pd.read_parquet(f, columns=NODE_COLS)
         return df[df["version"] == version].reset_index(drop=True)
 
-    def roles_panel(self, version: str) -> pd.DataFrame:
-        df = self._read("roles", "roles_*.parquet", ROLE_COLS)
+    def roles_month(self, version: str, time_key: str) -> pd.DataFrame:
+        f = os.path.join(self.dir, "roles", f"roles_{time_key}.parquet")
+        df = pd.read_parquet(f)
         return df[df["version"] == version].reset_index(drop=True)
 
     def customer_history(self, node: str, version: str) -> pd.DataFrame:
-        """Full metric + role history for one customer (deep dive)."""
-        n = self.node_panel(version)
-        r = self.roles_panel(version)
-        h = (n[n["node"] == node]
-             .merge(r[r["node"] == node],
+        n = self._read("node", "node_*.parquet", NODE_COLS)
+        n = n[(n["node"] == node) & (n["version"] == version)]
+        r = self._read("roles", "roles_*.parquet")
+        r = r[(r["node"] == node) & (r["version"] == version)]
+        return _join_history(n, r)
+
+
+def _join_history(n: pd.DataFrame, r: pd.DataFrame) -> pd.DataFrame:
+    drop = [c for c in ("naics2", "naics3", "naics4") if c in r.columns]
+    return (n.merge(r.drop(columns=drop),
                     on=["time_key", "version", "node"],
                     how="outer", suffixes=("", "_r"))
-             .sort_values("time_key").reset_index(drop=True))
-        return h
-
-    def graph_panel(self) -> pd.DataFrame:
-        files = sorted(glob.glob(os.path.join(self.dir, "graph",
-                                              "graph_*.csv")))
-        return pd.concat((pd.read_csv(f) for f in files), ignore_index=True)
+            .sort_values("time_key").reset_index(drop=True))
 
 
-class ImpalaSource:
-    """Production backend against the unified Hive tables.
+# ---------------------------------------------------------------------------
+# module-level cached accessors (interface used by logic.py / app.py)
+# ---------------------------------------------------------------------------
 
-    Wire up with impyla/pyodbc and set:
-        PKG_BACKEND=impala
-        PKG_METRICS_TABLE=<db.customer_metrics>
-        PKG_ROLES_TABLE=<db.customer_roles>
-    Keep queries column-pruned (NODE_COLS) and always filtered on
-    version + time_key or node — never SELECT * on the full table.
-    """
-
-    def __init__(self):
-        raise NotImplementedError(
-            "fill in Impala connection + the two SELECTs for your "
-            "unified tables; interface must match ParquetSource")
-
-
+@lru_cache(maxsize=1)
 def get_source():
     return ImpalaSource() if BACKEND == "impala" else ParquetSource()
 
 
-# ---- cached module-level accessors (lru: keyed by version) ----------------
-
 @lru_cache(maxsize=8)
-def node_panel(version: str) -> pd.DataFrame:
-    return get_source().node_panel(version)
+def months(version: str = "V0") -> tuple:
+    return tuple(get_source().months(version))
 
 
-@lru_cache(maxsize=8)
-def roles_panel(version: str) -> pd.DataFrame:
-    return get_source().roles_panel(version)
+@lru_cache(maxsize=32)
+def node_month(version: str, time_key: str) -> pd.DataFrame:
+    return get_source().node_month(version, time_key)
 
 
-@lru_cache(maxsize=1)
-def graph_panel() -> pd.DataFrame:
-    return get_source().graph_panel()
+@lru_cache(maxsize=32)
+def roles_month(version: str, time_key: str) -> pd.DataFrame:
+    return get_source().roles_month(version, time_key)
 
 
 def customer_history(node: str, version: str) -> pd.DataFrame:
     return get_source().customer_history(node, version)
 
 
-def months(version: str = "V0") -> list[str]:
-    return sorted(node_panel(version)["time_key"].unique())
-
-
 def display_name(node: str) -> str:
-    """Hook: join customer names from your Hive dimension table here.
-    Metrics parquet intentionally carries only the node id."""
+    """Hook: join customer names from your dimension table here."""
     return node
