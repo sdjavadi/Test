@@ -70,7 +70,7 @@ with st.expander("Analyst mode (graph version)", expanded=False):
         "Graph version", ["V0", "P99_9", "P99", "P99_99"], horizontal=True,
         help="V0 = full graph incl. infrastructure flow. P-tiers exclude "
              "hub/whale nodes above that percentile (see metrics manifest).")
-months = data.months(version)
+months = list(data.months(version))
 month = top[0].selectbox("Month", months, index=len(months) - 1)
 
 if "selected_node" not in st.session_state:
@@ -119,7 +119,8 @@ with tab_spot:
 
 # ------------------------------------------------------------ DEEP DIVE ----
 with tab_dive:
-    all_nodes = sorted(data.node_panel(version)["node"].unique())
+    all_nodes = sorted(
+        data.node_month(version, months[-1])["node"].unique())
     default_ix = (all_nodes.index(st.session_state.selected_node)
                   if st.session_state.selected_node in all_nodes else 0)
     node = st.selectbox("Customer", all_nodes, index=default_ix)
