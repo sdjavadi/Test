@@ -6,7 +6,7 @@ NOT available in cuGraph, implemented on CPU (scipy/numpy/pandas) against
 edge lists. All functions accept a pandas edge DataFrame with columns:
 
     source, dest, amount   (volume optional, never used as weight)
- 
+
 Conventions
 -----------
 - amount is the SOLE edge weight; log1p transform applied internally where
@@ -528,7 +528,8 @@ def apply_version(edges: pd.DataFrame, ladder: Ladder,
 
 # Placeholder NAICS values: CONFIGURABLE — enumerate via EDA on distinct
 # NAICS values before the production run and extend this list.
-PLACEHOLDER_NAICS = {"-1", "-1|UNKNOWN", "******", ""}
+PLACEHOLDER_NAICS = {"-1", "-1|UNKNOWN", "******", "******|UNKNOWN",
+                     "UNKNOWN", "UNKNOWN|UNKNOWN", ""}
 
 _BUSINESS_TOKENS = {
     "LLC", "INC", "CORP", "CORPORATION", "LTD", "LP", "LLP", "PLLC", "PC",
@@ -616,11 +617,19 @@ def build_node_typing(snapshot_paths: list[str],
         ["business", "individual"], default="unknown")
 
     # --- node_type precedence -------------------------------------------------
+    # PRECEDENCE (revised after production EDA): the original spec let
+    # placeholder imply business, but in production the NAICS field is
+    # never null — individuals carry '******|UNKNOWN' too. So: valid NAICS
+    # wins; otherwise (placeholder OR missing) the name-based entity_type
+    # decides.
+    is_valid = naics_status == "valid"
+    is_biz = entity_type == "business"
+    is_ind = entity_type == "individual"
     node_type = np.select(
-        [naics_status == "valid",
-         naics_status == "placeholder",
-         (naics_status == "missing") & (entity_type == "business"),
-         (naics_status == "missing") & (entity_type == "individual")],
+        [is_valid,
+         is_biz & (naics_status == "placeholder"),
+         is_biz & (naics_status == "missing"),
+         is_ind],
         ["business_naics_valid", "business_naics_placeholder",
          "business_naics_missing", "individual"],
         default="unknown")
@@ -628,7 +637,10 @@ def build_node_typing(snapshot_paths: list[str],
     out = pd.DataFrame({
         "node": nodes["node"], "entity_type": entity_type,
         "naics_status": naics_status, "node_type": node_type,
-        "naics_clean": naics.where(naics_status == "valid"),
+        # production NAICS is a composite 'code|description' string —
+        # keep only the leading digit code in naics_clean
+        "naics_clean": naics.str.extract(r"^(\d{2,6})")[0].where(
+            naics_status == "valid"),
     })
     log.info("node_type counts: %s",
              out["node_type"].value_counts().to_dict())
@@ -662,9 +674,29 @@ def composition_metrics(edges: pd.DataFrame, typing: pd.DataFrame,
     """
     e = edges.loc[edges["source"] != edges["dest"],
                   ["source", "dest", "amount"]].copy()
-    tmap = typing.set_index("node")
+    # KEY NORMALIZATION: typing is built with dtype=str while edge lists
+    # often parse numeric mdmIds as int64 — an unmatched dtype makes the
+    # reindex return all-NaN and silently types EVERY counterparty as
+    # 'unknown' (observed in production 2026-07). Force string keys on
+    # both sides, and on the hub set.
+    e["source"] = e["source"].astype(str)
+    e["dest"] = e["dest"].astype(str)
+    tmap = typing.copy()
+    tmap["node"] = tmap["node"].astype(str)
+    tmap = tmap.set_index("node")
+    if hub_set:
+        hub_set = {str(h) for h in hub_set}
     ntype = tmap["node_type"]
     n2 = tmap["naics_clean"].str[:2]
+    # loud guard: if the join misses, fail fast instead of emitting a
+    # plausible-looking all-'unknown' table
+    probe = ntype.reindex(pd.unique(e["source"])[:100_000])
+    miss = float(probe.isna().mean())
+    if miss > 0.5:
+        raise ValueError(
+            f"composition typing join missed {miss:.0%} of sampled edge "
+            f"nodes — node-id key mismatch between typing table and edge "
+            f"list (check dtypes / id formats)")
 
     frames = []
     for d, node_col, cp_col in (("in", "dest", "source"),
