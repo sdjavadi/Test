@@ -871,7 +871,10 @@ def run(data_dir: str = DATA_DIR, out_dir: str = OUT_DIR):
         if os.path.exists(node_path):
             log.info("%s: output exists, skipping month", time_key)
             continue
-        raw = pd.read_csv(path)
+        # SINGLE ID DTYPE POLICY: node ids are strings from ingestion on.
+        # (int-parsed ids collided with the str-typed typing table twice;
+        # one canonical dtype ends the class of bug.)
+        raw = pd.read_csv(path, dtype={"source": str, "dest": str})
         hub_exp = hub_exposure(raw, hub_set)
         # composition on the RAW graph (node-local; attached to all versions)
         comp = cm.composition_metrics(raw, typing, hub_set=hub_set)
