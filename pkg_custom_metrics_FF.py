@@ -484,7 +484,8 @@ def build_ladder(snapshot_paths: list[str],
     overlap so the union-criterion choice stays auditable."""
     deg_parts, str_parts = [], []
     for p in snapshot_paths:
-        e = pd.read_csv(p, usecols=["source", "dest", "amount"])
+        e = pd.read_csv(p, usecols=["source", "dest", "amount"],
+                        dtype={"source": str, "dest": str})
         d = pd.concat([
             e.groupby("source")["dest"].nunique().rename("deg"),
             e.groupby("dest")["source"].nunique().rename("deg")])
