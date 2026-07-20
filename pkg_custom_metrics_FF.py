@@ -584,13 +584,19 @@ def build_node_typing(snapshot_paths: list[str],
 
     # --- naics_status -------------------------------------------------------
     naics = nodes["naics"].astype("string").str.strip()
-    is_missing = naics.isna() | (naics == "")
-    is_ph = naics.fillna("").isin(ph) & ~is_missing
+    # NOTE: ops on nullable string dtype return nullable BooleanDtype whose
+    # .to_numpy() is an OBJECT array on some pandas versions — np.select
+    # then raises "invalid entry in condlist". Coerce every condition to a
+    # plain numpy bool array explicitly.
+    def _b(cond) -> np.ndarray:
+        return cond.fillna(False).to_numpy(dtype=bool)
+
+    is_missing = _b(naics.isna() | (naics == ""))
+    is_ph = _b(naics.fillna("").isin(ph)) & ~is_missing
     # a valid NAICS must start with >=2 digits and not be a placeholder
-    looks_code = naics.fillna("").str.match(r"^\d{2}")
+    looks_code = _b(naics.fillna("").str.match(r"^\d{2}"))
     naics_status = np.select(
-        [is_missing.to_numpy(), is_ph.to_numpy(),
-         looks_code.fillna(False).to_numpy()],
+        [is_missing, is_ph, looks_code],
         ["missing", "placeholder", "valid"], default="placeholder")
     ph_count = int((naics_status == "placeholder").sum())
     log.info("node typing: %d nodes | placeholder NAICS matched %d "
@@ -599,12 +605,14 @@ def build_node_typing(snapshot_paths: list[str],
 
     # --- entity_type (vectorized token typer) --------------------------------
     toks = _tokenize_names(nodes["name"])
-    has_biz = toks.map(lambda t: any(w in _BUSINESS_TOKENS for w in t))
-    n_alpha = toks.map(lambda t: sum(w.isalpha() for w in t))
-    n_tok = toks.map(len)
-    person_shaped = (~has_biz) & (n_alpha == n_tok) & n_tok.between(2, 3)
+    has_biz = toks.map(
+        lambda t: any(w in _BUSINESS_TOKENS for w in t)).to_numpy(dtype=bool)
+    n_alpha = toks.map(lambda t: sum(w.isalpha() for w in t)).to_numpy(int)
+    n_tok = toks.map(len).to_numpy(int)
+    person_shaped = (~has_biz) & (n_alpha == n_tok) & (n_tok >= 2) \
+        & (n_tok <= 3)
     entity_type = np.select(
-        [has_biz.to_numpy(), person_shaped.to_numpy()],
+        [has_biz, person_shaped],
         ["business", "individual"], default="unknown")
 
     # --- node_type precedence -------------------------------------------------
