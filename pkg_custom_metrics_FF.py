@@ -6,7 +6,7 @@ NOT available in cuGraph, implemented on CPU (scipy/numpy/pandas) against
 edge lists. All functions accept a pandas edge DataFrame with columns:
 
     source, dest, amount   (volume optional, never used as weight)
-
+ 
 Conventions
 -----------
 - amount is the SOLE edge weight; log1p transform applied internally where
