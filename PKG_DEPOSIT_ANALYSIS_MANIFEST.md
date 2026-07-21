@@ -170,19 +170,85 @@ declines"), plus permutation importances on the held-out folds.
 - Freeze test = the stakeholder slide: predictions made with data ending Nov 2025,
   evaluated on real 2026 outcomes.
 
+### 4.3 Results (run of July 2026)
+
+Sample: 85,317 at-risk customer-months; overall onset rate 15.1%; freeze test =
+17,575 rows, onset rate 5.9% (outcomes Dec 2025 – Feb 2026).
+
+**Freeze test (hgb):**
+
+| set | AUC | PR-AUC | lift@top10 |
+|---|---|---|---|
+| A — deposit-only | 0.905 | 0.407 | 6.28× |
+| B — graph-only | 0.551 | 0.072 | 1.43× |
+| C — combined | 0.904 | 0.401 | 6.33× |
+
+**C − A gap = −0.0006.** Rolling folds tell the same story (A/hgb 0.824–0.843;
+B/hgb 0.552–0.574; C ≈ A in every fold). Permutation importance: `dep_dlog_3m`
+dominates (0.121); every pkg feature ≈ 0.
+
+Context for the very strong deposit baseline: the 3v6 onset target is partly
+*mechanical* given the balance path — a customer drifting toward the −30%
+threshold is arithmetically close to onset, and `dep_dlog_3m` measures that
+drift on the same instrument that defines the target. The graph competed on a
+different, noisier instrument at ~7% activity coverage.
+
+### 4.4 Diagnostics (`pkg_deposit_diagnostics.py`)
+
+Two tests of whether the null gap is a coverage artifact:
+
+**D1 — visibility cut.** C−A gap by graph-presence subset, global models:
+full-vis +0.0009 [−0.002, +0.003]; partial −0.0008; absent −0.0072.
+Refit on fully-visible rows only: **+0.0012 [−0.001, +0.003]** — still null.
+Internal validity confirmed cleanly: AUC_B = 0.500 exactly where the graph is
+absent, 0.56 where present — the graph signal is real, merely redundant with
+deposit history.
+
+**D2 — surprise attrition.** Inside the deposit model's low-risk pool
+(bottom 50% / 80% by score), graph-only in-pool AUC = 0.587 / 0.559; a
+second-stage graph screen at a 10% budget catches 48 of the 385
+deposit-missed onsets vs 38 expected at random (**1.25×**) — directionally
+positive, operationally marginal.
+
+### 4.5 Verdict
+
+**For deposit-decline early warning, the C2C payment graph is a real-time
+coincident indicator, not a leading one — and the coverage excuse was tested
+and did not rescue it.** Where the graph fully sees the customer, it still adds
+no lift beyond deposit history. One caveat keeps the retest legitimate:
+"fully visible" means present in the C2C graph, not that C2C captures most of
+the customer's payment activity, so counterparty ingestion remains a valid
+before/after experiment rather than a formality.
+
+Positive by-products: (1) the deposit-only model itself is a shippable
+early-warning capability (AUC 0.90, 6.3× top-decile lift, validated
+out-of-time); (2) Tier 1 established genuine, economically coherent
+contemporaneous co-movement — the graph sees money moving as it moves;
+(3) the full pipeline reruns unchanged on the expanded graph, yielding
+before/after pairs on every statistic.
+
+**Recommendation**: present the deposit-only model as the near-term
+early-warning deliverable; position the PKG deposit story as "confirmed
+coincident signal through a 7% keyhole — retest on counterparty ingestion";
+direct PKG investment at use cases where graph structure is the product
+(motifs, rings, relationship scoring — per the PKN roadmap).
+
 ---
 
 ## 5. Reproduction order
 1. `deposit_panel_builder.run()` — Spark; writes 4 Hive tables (~min).
 2. `pkg_deposit_tier1.run(spark)` — Spark pull → pandas; CSVs + HTML figs in `tier1_out/`.
 3. `pkg_deposit_tier2.run(spark)` — Spark pull → pandas/sklearn; CSVs + figs in `tier2_out/`.
+4. `pkg_deposit_diagnostics.run(spark)` — visibility-cut + surprise-attrition tests; `tier2_out/diagnostics_summary.csv`.
 
 ## 6. Open items
 - Deposit table population filter (owner question) — defines generalization scope.
 - `min_prior_avg = $10K` floor: calibrate against the book's balance distribution.
 - `graph_presence_rate` denominator fix in `build_customer_dim` (cosmetic; numerator
   can count non-active months).
-- Counterparty ingestion: rerun Tiers 1–2 unchanged when PAYS_CPTY lands; the delta
-  in every statistic is the measurement-error experiment.
+- Optional: horizon-6 freeze rerun (deposit tail supports it; one-line config change).
+- **Counterparty ingestion: rerun steps 1–4 unchanged when PAYS_CPTY lands; the
+  delta in every statistic — coverage, correlations, event-study separation,
+  C−A gap — is the measurement-error experiment. §4.3–4.5 are the "before".**
 
 *Document prepared for internal use — PNC Treasury Management, Data Science*
