@@ -14,23 +14,34 @@ Builds four tables from (a) the liquidity-attrition lab table (wide balances) an
                                 C2C visibility index + tier, account-closure ratio
   4. {prefix}_coverage        — per-month join coverage in both directions
 
+Join-key model (revised): the metrics Hive table already carries a `cust_pwr_id`
+column (attached at Hive-write time). That column — NOT `node` — is the join key.
+Most metric rows have NULL cust_pwr_id (unmapped nodes: counterparty-like, internal,
+or simply without deposit relationships); they are filtered out before joining.
+Expectation: <100K mapped nodes ⇒ the joint panel is graph-sparse by construction
+and the `invisible` visibility tier will dominate. That sparsity is a finding
+(the counterparty-gap story), not a bug.
+
 Design decisions encoded here (see chat discussion):
   * decline flags recomputed at EVERY month from the wide bal_* columns — the table's
-    prior_avg / recent_avg / pct_change (anchored to latest_month) are ignored for panel work
+    prior_avg / recent_avg / pct_change (anchored to latest_month) are ignored
   * flag requires FULL windows (3 non-null recent, 6 non-null prior) and a prior_avg
     dollar floor to keep tiny-balance noise out of the event set
-  * zero-vs-null semantics unresolved until EDA — both are surfaced in diagnostics;
-    nulls are treated as missing, zeros as real values inside the active span
-  * fail-fast join guard on the metrics join (dtype/key mismatch ⇒ ~0% match ⇒ raise),
-    per the 2026-07 typing-join incident convention
+  * zero-vs-null semantics unresolved until EDA — both surfaced in diagnostics;
+    nulls treated as missing, zeros as real values inside the active span
+  * metrics grain check on (cust_pwr_id, month): several nodes may map to one power id;
+    default policy is fail-fast, optional keep-max-strength representative
+  * join guard runs graph→deposit: mapped nodes carry a power id by construction, so
+    they should overwhelmingly appear in the deposit table — a near-zero rate means
+    a key format/dtype mismatch (2026-07 typing-join incident convention), not coverage
   * all network metric columns prefixed pkg_, all derived deposit features prefixed dep_
-    (avoids collisions, e.g. months_active exists on the PKG side)
 
 OPEN ITEMS (confirm before production run):
   * cfg.node_metrics_table — actual Hive table name for the node metrics
   * cfg.min_prior_avg floor (default $10K — placeholder)
   * time_key format in the metrics table (normalizer handles YYYY-MM / YYYYMM / date)
-  * grain: assumed one row per cust_pwr_id in the lab table; job fails fast if not
+  * deposit-table grain: assumed one row per cust_pwr_id; job fails fast if not
+  * metrics mapping grain: is (cust_pwr_id, month) unique after the null filter?
 """
 
 from __future__ import annotations
@@ -65,17 +76,20 @@ class PanelConfig:
     decline_threshold: float = 0.30
     min_prior_avg: float = 10_000.0              # eligibility floor; TODO calibrate
 
-    # -- guards
-    join_guard_sample: int = 100_000
-    join_guard_min_rate: float = 0.05            # below this ⇒ key/dtype mismatch, raise
-    join_guard_warn_rate: float = 0.50           # below this ⇒ loud warning, continue
+    # -- metrics mapping grain policy when multiple nodes share (cust_pwr_id, month)
+    on_duplicate_mapping: str = "fail"           # "fail" | "keep_max_strength"
+
+    # -- join guard (direction: mapped graph nodes → deposit table)
+    join_guard_sample: int = 50_000
+    join_guard_min_rate: float = 0.05            # below ⇒ key/dtype mismatch, raise
+    join_guard_warn_rate: float = 0.70           # mapped nodes *should* be deposit customers
 
     # -- outputs
     out_db: str = "bdahd01p_dldsi1_dsi_lab"
     out_prefix: str = "pl43379_dsi_liq_pkg"
     write_mode: str = "overwrite"
 
-    # metric columns to carry into the joint panel; empty = all numeric + ids
+    # metric columns to carry into the joint panel; empty = all
     metric_cols: list[str] = field(default_factory=list)
 
 
@@ -122,10 +136,10 @@ def assert_unique_grain(df: DataFrame, key: str, what: str) -> None:
     n, k = df.count(), df.select(key).distinct().count()
     print(f"[grain] {what}: rows={n:,} distinct {key}={k:,}")
     if n != k:
-        dupes = (
-            df.groupBy(key).count().filter("count > 1").orderBy(F.desc("count")).limit(20)
+        (
+            df.groupBy(key).count().filter("count > 1")
+            .orderBy(F.desc("count")).limit(20).show(truncate=False)
         )
-        dupes.show(truncate=False)
         raise ValueError(
             f"{what} is not unique on {key} ({n - k:,} extra rows). "
             "Resolve grain (rltn vs cust rollup?) before building the panel."
@@ -168,7 +182,7 @@ def add_activity_bounds(long: DataFrame) -> DataFrame:
     active = F.col("balance").isNotNull() & (F.col("balance") != 0)
     w_cust = Window.partitionBy("cust_pwr_id")
 
-    out = (
+    return (
         long.withColumn("_active_idx", F.when(active, F.col("month_idx")))
         .withColumn("first_active_idx", F.min("_active_idx").over(w_cust))
         .withColumn("last_active_idx", F.max("_active_idx").over(w_cust))
@@ -181,13 +195,12 @@ def add_activity_bounds(long: DataFrame) -> DataFrame:
             .otherwise(F.lit("active_span")),
         )
     )
-    return out
 
 
 def zero_null_diagnostics(long: DataFrame) -> None:
     """Zero-vs-null semantics are unresolved — print the evidence, decide in EDA."""
-    print("\n[diag] balance null/zero shares by month (first/last 6 shown)")
-    diag = (
+    print("\n[diag] balance null/zero/negative shares by month")
+    (
         long.groupBy("month")
         .agg(
             F.count("*").alias("n"),
@@ -196,8 +209,8 @@ def zero_null_diagnostics(long: DataFrame) -> None:
             F.avg((F.col("balance") < 0).cast("int")).alias("neg_share"),
         )
         .orderBy("month")
+        .show(200, truncate=False)
     )
-    diag.show(200, truncate=False)
 
 
 # ----------------------------------------------------------------------------- stage 3: rolling features + decline flags
@@ -251,11 +264,10 @@ def add_deposit_features(long: DataFrame, cfg: PanelConfig) -> DataFrame:
         ((flag0 == 1) & (F.coalesce(F.lag(flag0, 1).over(w), F.lit(0)) == 0)).cast("int"),
     )
     w_cust = Window.partitionBy("cust_pwr_id")
-    df = df.withColumn(
+    return df.withColumn(
         "dep_first_event_month",
         F.min(F.when(F.col("dep_is_event_start") == 1, F.col("month"))).over(w_cust),
     )
-    return df
 
 
 # ----------------------------------------------------------------------------- stage 4: PKG metrics
@@ -266,49 +278,87 @@ def load_node_metrics(spark: SparkSession, cfg: PanelConfig) -> DataFrame:
     else:
         m = spark.read.parquet(cfg.node_metrics_parquet)
 
-    m = (
-        m.filter(F.col("version") == cfg.version)
-        .withColumn("month", _normalize_time_key("time_key"))
-        .withColumn("cust_pwr_id", F.trim(F.col("node").cast("string")))
-        .drop("time_key", "node", "version")
+    m = m.filter(F.col("version") == cfg.version).withColumn(
+        "month", _normalize_time_key("time_key")
     )
+
+    # cust_pwr_id was attached at Hive-write time and is the ONLY join key.
+    # NULL / empty ⇒ unmapped node (no deposit relationship) ⇒ excluded here.
+    n_total = m.count()
+    m = m.withColumn(
+        "cust_pwr_id", F.trim(F.col("cust_pwr_id").cast("string"))
+    ).filter(F.col("cust_pwr_id").isNotNull() & (F.col("cust_pwr_id") != ""))
+    n_mapped_rows = m.count()
+    n_mapped_ids = m.select("cust_pwr_id").distinct().count()
+    print(
+        f"[metrics] {cfg.version}: rows total={n_total:,}, "
+        f"mapped rows={n_mapped_rows:,} ({n_mapped_rows / max(n_total, 1):.1%}), "
+        f"distinct mapped cust_pwr_id={n_mapped_ids:,}"
+    )
+
+    m = resolve_mapping_grain(m, cfg)
+
+    m = m.drop("time_key", "version")
     if cfg.metric_cols:
-        keep = ["cust_pwr_id", "month"] + cfg.metric_cols
+        keep = ["cust_pwr_id", "month", "node"] + cfg.metric_cols
         m = m.select(*[c for c in keep if c in m.columns])
 
-    # prefix every metric column
+    # prefix every metric column (node id kept as pkg_node for traceability)
     for c in m.columns:
         if c not in ("cust_pwr_id", "month"):
             m = m.withColumnRenamed(c, f"pkg_{c}")
-    m = m.withColumn("month_idx", _month_idx(F.col("month")))
     return m
 
 
-def join_guard(deposit_long: DataFrame, metrics: DataFrame, cfg: PanelConfig) -> None:
-    """Sampled match-rate check — a dtype/key mismatch yields ~0% and must raise."""
-    sample = (
-        deposit_long.filter(
-            (F.col("balance_status") == "active_span")
-            & (F.col("month") >= cfg.graph_start)
-            & (F.col("month") <= cfg.graph_end)
+def resolve_mapping_grain(m: DataFrame, cfg: PanelConfig) -> DataFrame:
+    """Several graph nodes may share one power id. Default: fail fast and decide.
+    Optional: keep the max-strength node per (cust_pwr_id, month) as representative.
+    NOTE: a sum/aggregate rollup is deliberately NOT offered — strengths would add
+    but spectral/percentile metrics (pagerank, peer ranks) cannot be summed sensibly.
+    If multi-node customers matter, that becomes its own design discussion."""
+    dupes = m.groupBy("cust_pwr_id", "month").count().filter("count > 1")
+    n_dup = dupes.count()
+    if n_dup == 0:
+        print("[grain] metrics mapping is unique on (cust_pwr_id, month)")
+        return m
+    print(f"[grain][WARN] {n_dup:,} (cust_pwr_id, month) pairs map to multiple nodes")
+    dupes.orderBy(F.desc("count")).limit(20).show(truncate=False)
+    if cfg.on_duplicate_mapping == "keep_max_strength":
+        w = Window.partitionBy("cust_pwr_id", "month").orderBy(
+            F.desc_nulls_last("strength"), F.asc("node")
         )
-        .select("cust_pwr_id").distinct().limit(cfg.join_guard_sample)
+        out = m.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+        print("[grain] resolved: keeping max-strength node per (cust_pwr_id, month)")
+        return out
+    raise ValueError(
+        "metrics mapping not unique on (cust_pwr_id, month); set "
+        "on_duplicate_mapping='keep_max_strength' or resolve upstream."
     )
-    n = sample.count()
-    matched = sample.join(
-        metrics.select("cust_pwr_id").distinct(), "cust_pwr_id", "left_semi"
+
+
+def join_guard(deposit_long: DataFrame, metrics: DataFrame, cfg: PanelConfig) -> None:
+    """Direction: mapped graph nodes → deposit table. A mapped node carries a
+    power id by construction, so the overwhelming majority should exist in the
+    deposit table. Near-zero ⇒ key format/dtype mismatch ⇒ raise (2026-07
+    incident convention). Moderately low ⇒ warn (deposit table scope narrower
+    than the mapping — worth understanding, not fatal)."""
+    mapped = metrics.select("cust_pwr_id").distinct().limit(cfg.join_guard_sample)
+    n = mapped.count()
+    matched = mapped.join(
+        deposit_long.select("cust_pwr_id").distinct(), "cust_pwr_id", "left_semi"
     ).count()
     rate = matched / max(n, 1)
-    print(f"[guard] deposit→graph match rate on {n:,} sampled customers: {rate:.1%}")
+    print(f"[guard] mapped-node→deposit match rate on {n:,} sampled ids: {rate:.1%}")
     if rate < cfg.join_guard_min_rate:
         raise ValueError(
-            f"match rate {rate:.1%} < {cfg.join_guard_min_rate:.0%} — "
-            "almost certainly an ID dtype/format mismatch, not real non-coverage."
+            f"match rate {rate:.1%} < {cfg.join_guard_min_rate:.0%} — almost certainly "
+            "an ID format/dtype mismatch between the mapping and the deposit table."
         )
     if rate < cfg.join_guard_warn_rate:
         print(
             f"[guard][WARN] match rate {rate:.1%} below {cfg.join_guard_warn_rate:.0%} — "
-            "coverage is thin; visibility stratification is mandatory downstream."
+            "many mapped nodes lack rows in the attrition base; check table scope "
+            "(account types? relationship filter?) before trusting coverage numbers."
         )
 
 
@@ -348,8 +398,9 @@ def build_customer_dim(
         ),
     )
 
-    # composite visibility: mean pct_rank of presence + intensity, terciled;
-    # customers never observed in the graph are their own tier
+    # composite visibility: mean pct_rank of presence + intensity, terciled among
+    # graph-seen customers; never-seen customers form the dominant `invisible` tier
+    # (expected: <100K mapped nodes vs. the full deposit population)
     seen = per_cust.filter(F.col("months_in_graph") > 0)
     w_pres = Window.orderBy("graph_presence_rate")
     w_int = Window.orderBy("median_c2c_intensity")
@@ -402,7 +453,7 @@ def build_coverage(
         .agg(F.countDistinct("cust_pwr_id").alias("n_dep_active"))
     )
     gr = metrics.groupBy("month").agg(
-        F.countDistinct("cust_pwr_id").alias("n_graph_nodes")
+        F.countDistinct("cust_pwr_id").alias("n_graph_mapped")
     )
     jt = (
         joint.filter(
@@ -412,14 +463,13 @@ def build_coverage(
         .groupBy("month")
         .agg(F.countDistinct("cust_pwr_id").alias("n_joined"))
     )
-    cov = (
+    return (
         dep.join(gr, "month", "full")
         .join(jt, "month", "full")
         .withColumn("dep_coverage", F.col("n_joined") / F.col("n_dep_active"))
-        .withColumn("graph_coverage", F.col("n_joined") / F.col("n_graph_nodes"))
+        .withColumn("mapped_coverage", F.col("n_joined") / F.col("n_graph_mapped"))
         .orderBy("month")
     )
-    return cov
 
 
 # ----------------------------------------------------------------------------- main
@@ -447,7 +497,7 @@ def run(cfg: PanelConfig | None = None) -> None:
     join_guard(deposit_panel, metrics, cfg)
 
     joint = deposit_panel.join(
-        metrics.drop("month_idx"), ["cust_pwr_id", "month"], "left"
+        metrics, ["cust_pwr_id", "month"], "left"
     ).withColumn("in_graph_month", F.col("pkg_strength").isNotNull().cast("int"))
 
     customer_dim = build_customer_dim(deposit_panel, metrics, wide, cfg)
