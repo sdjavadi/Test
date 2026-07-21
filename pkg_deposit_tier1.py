@@ -298,10 +298,22 @@ def lead_lag(pdf: pd.DataFrame, cfg: Tier1Config) -> pd.DataFrame:
 
 def event_study(pdf: pd.DataFrame, cfg: Tier1Config) -> pd.DataFrame:
     rng = np.random.default_rng(cfg.random_state)
-    lo = pd.Period(cfg.graph_start, "M").ordinal + 24 * 0 + cfg.event_pre  # need t−pre ≥ start
-    hi = pd.Period(cfg.graph_end, "M").ordinal                             # t0 ≤ graph end
-    # month_idx in the panel is months-since-1970, same basis as Period ordinal
-    start_idx = pd.Period(cfg.graph_start, "M").ordinal
+
+    def _idx(ym: str) -> int:
+        """SAME basis as the Tier 0 Spark month_idx: year*12 + month − 1.
+        (NOT pandas Period.ordinal, which counts from 1970 — that mismatch
+        silently zeroed the event window in the first run.)"""
+        y, m = map(int, ym.split("-"))
+        return y * 12 + m - 1
+
+    start_idx = _idx(cfg.graph_start)
+    hi = _idx(cfg.graph_end)
+    pmin, pmax = int(pdf.month_idx.min()), int(pdf.month_idx.max())
+    if not (pmin <= start_idx <= pmax and pmin <= hi <= pmax):
+        raise ValueError(
+            f"month_idx basis mismatch: panel spans [{pmin}, {pmax}] but window "
+            f"bounds are [{start_idx}, {hi}] — check how month_idx was built."
+        )
 
     ev_idx = pdf.groupby("cust_pwr_id")["month_idx"].apply(
         lambda s: set(s[pdf.loc[s.index, "dep_is_event_start"].fillna(0).eq(1)])
