@@ -177,9 +177,12 @@ def q_rising_stars(version: str, month: str | None = None,
     """Expanding customers outgrowing their peers — the positive queue."""
     month = month or _latest(version)
     j = _joined(version, month)
-    hit = j[(j["dynamics_role_stable"] == "expanding")
-            | ((j["strength_mom_pctl_naics"] >= 0.9)
-               & (j["strength_mom"] > 0.1))].copy()
+    # 6-month-memory 'new' + a retained relationship base kills the
+    # one-month-wonder false positives (payers appearing then vanishing)
+    hit = j[((j["dynamics_role_stable"] == "expanding")
+             | ((j["strength_mom_pctl_naics"] >= 0.9)
+                & (j["strength_mom"] > 0.1)))
+            & (j["n_payer_retained"].fillna(0) >= 1)].copy()
     hit = hit.sort_values("strength_mom", ascending=False).head(top_n)
     if hit.empty:
         return _empty_guard(hit)
@@ -217,36 +220,32 @@ QUEUES = {
 
 ROLE_DEFS = {
     # flow_role
-    "collector": "Net accumulator: receives substantially more than it pays (flow ratio > +0.5). Deposits likely growing.",
-    "distributor": "Net payer: pays out substantially more than it receives (flow ratio < \u22120.5). Payroll-like pattern; funded from elsewhere.",
-    "conduit": "High-volume pass-through: in \u2248 out with top-decile throughflow. Treasury/settlement-like; relevant for AML review.",
-    "balanced_trader": "Genuine two-way commerce: balanced flows with above-median dollar-matched reciprocity.",
-    "terminal_payer": "Only pays within the visible network \u2014 its revenue side lives outside PNC.",
-    "terminal_payee": "Only receives within the visible network \u2014 its spend side lives outside PNC.",
+    "collector": "Net accumulator: receives substantially more than it pays (flow ratio > +0.5).",
+    "distributor": "Net payer: pays out substantially more than it receives (flow ratio < \u22120.5). Payroll-like.",
+    "conduit": "High-volume pass-through: in \u2248 out with top-decile throughflow. AML-relevant.",
+    "trader": "Genuine two-way commerce: balanced flows with above-median dollar-matched reciprocity.",
+    "one_sided": "Only pays OR only receives within the visible network \u2014 the other side lives outside PNC.",
     "mixed": "No dominant flow pattern.",
     # hierarchy_role
-    "upstream_supplier": "Bottom third of the flow hierarchy (trophic level): money reaches it early in supply chains.",
+    "upstream_supplier": "Bottom third of the flow hierarchy: money reaches it early in supply chains.",
     "midstream": "Middle third of the flow hierarchy: an intermediary position.",
     "downstream_buyer": "Top third of the flow hierarchy: an end-buyer position.",
-    "unknown": "Hierarchy position could not be computed for this customer.",
+    "unknown": "Hierarchy position could not be computed.",
     # dependence_role
     "single_relationship": "Fewer than 3 counterparts \u2014 too thin a file for concentration to be meaningful.",
     "infra_dependent": ">70% of inflow arrives via infrastructure hubs (processors, payroll, settlement).",
-    "anchor_dependent": "One customer provides >70% of inflow \u2014 anchor loss is an attrition precursor.",
-    "captive_payer": ">70% of outflow goes to one payee \u2014 supply-chain fragility.",
-    "diversified": "Below-median concentration on both inflow and outflow.",
-    "moderate": "Neither concentrated nor clearly diversified.",
+    "concentrated": ">70% of inflow from one payer OR >70% of outflow to one payee \u2014 fragile on one side.",
+    "balanced": "No dominant single relationship on either side.",
     # embeddedness_role
     "peripheral": "Edge of the visible network: very few counterparts or shallow core position.",
     "connector": "Payment relationships spread across many communities \u2014 a cross-segment broker.",
-    "local_anchor": "Deep in the dense network core AND \u226570% of dollars stay in its own community \u2014 a load-bearing member.",
-    "embedded_local": "\u226570% of dollars stay inside its own community.",
+    "embedded": "\u226570% of dollars stay inside its own payment community.",
     "intermediate": "Between peripheral and embedded.",
     # dynamics_role
     "newcomer": "First appeared within the last ~3 months \u2014 too young to judge.",
     "intermittent": "Reappeared after a gap of inactivity.",
     "bleeding": "Sustained loss of payer revenue (\u226540% of payer dollars lost, or sharp decline with low retention). Requires \u22653 payers last month.",
-    "expanding": "\u226540% of inflow from brand-new payers with positive momentum. Requires \u22653 payers.",
+    "expanding": "\u226540% of inflow from first-time payers (6-month memory) with positive momentum. Requires \u22653 payers.",
     "steady": "Stable counterpart set and stable dollars month-over-month.",
     "variable": "Moving, but not classifiable as any of the above.",
 }
@@ -269,7 +268,7 @@ METRIC_DEFS = {
     "Revenue concentration": "Percentile of inflow concentration (HHI). High = more dependent on few payers than peers.",
     "Retention": "Percentile of payer-set retention (Jaccard vs. last month) among peers.",
     "Momentum": "Percentile of month-over-month growth among peers. Red = bottom quintile: losing ground to its industry.",
-    "Retained / New / Lost payers": "This month's inflow split into dollars from payers kept from last month vs. first-time payers; below zero, last month's dollars from payers who left.",
+    "Counterparty cohorts": "Each month's relationships split by memory: retained (also present last month), returning (absent last month but seen within 6 months), new (first appearance in the 6-month window) \u2014 above zero; lost (present last month, gone now) below zero. Toggle between dollars and counterparty counts, payer or payee side.",
     "Peer group": "Ranked within the finest NAICS level (4\u21923\u21922 digits) having \u226530 members that month. Percentiles are computed on the full customer population.",
 }
 
@@ -322,6 +321,30 @@ def role_changes(h: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(out, columns=["time_key", "label"])
 
 
+# Metric trend selector for the deep dive: label -> (column, taxonomy
+# whose stable-role changes get marked on the chart, y-axis format)
+METRIC_TREND_OPTIONS = {
+    "Total flow ($)": ("strength", None, "$"),
+    "Flow ratio (net / total)": ("flow_ratio", "flow_role", "%"),
+    "Throughflow ($)": ("throughflow", "flow_role", "$"),
+    "Inflow concentration (HHI)": ("hhi_in", "dependence_role", ""),
+    "Top payer share": ("top1_in_share", "dependence_role", "%"),
+    "Hub inflow share": ("hub_in_share", "dependence_role", "%"),
+    "Payer retention (Jaccard)": ("payer_jaccard", "dynamics_role", "%"),
+    "Lost payer amount share": ("lost_payer_amount_share",
+                                "dynamics_role", "%"),
+    "New payer amount share (6-mo memory)": ("new_payer_amount_share",
+                                             "dynamics_role", "%"),
+    "Momentum (MoM log-ratio)": ("strength_mom", "dynamics_role", ""),
+    "Community participation": ("participation_coef",
+                                "embeddedness_role", ""),
+    "Intra-community $ share": ("frac_intra_edges_w",
+                                "embeddedness_role", "%"),
+    "Supply-chain position (trophic)": ("trophic_level",
+                                        "hierarchy_role", ""),
+}
+
+
 PEER_METRICS_SHOW = [
     ("strength_pctl_naics", "Size"),
     ("degree_pctl_naics", "Connectivity"),
@@ -342,13 +365,28 @@ def peer_snapshot(h: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["metric", "pctl"])
 
 
-def turnover_series(h: pd.DataFrame) -> pd.DataFrame:
-    """Per month: inflow split into retained vs new payers, plus the
-    lost-payer amount (previous month's dollars that left) as negative."""
-    t = h[["time_key", "in_strength", "new_payer_amount_share",
-           "lost_payer_amount_share"]].copy()
-    t["new"] = t["in_strength"] * t["new_payer_amount_share"].fillna(0)
-    t["retained"] = t["in_strength"] - t["new"]
-    prev_in = t["in_strength"].shift()
-    t["lost"] = -(prev_in * t["lost_payer_amount_share"].fillna(0))
-    return t[["time_key", "retained", "new", "lost"]]
+def cohort_series(h: pd.DataFrame, side: str = "payer",
+                  measure: str = "amount") -> pd.DataFrame:
+    """Counterparty cohorts per month, multi-window memory:
+    retained (also present last month), returning (absent last month, seen
+    within 6 months), new (first appearance in 6-month memory) above zero;
+    lost (present last month, gone now) below zero.
+    measure: 'amount' ($) or 'count' (# counterparties)."""
+    if measure == "amount":
+        base = h["in_strength"] if side == "payer" else h["out_strength"]
+        prev_base = base.shift()
+        return pd.DataFrame({
+            "time_key": h["time_key"],
+            "retained": base * h[f"retained_{side}_amount_share"],
+            "returning": base * h[f"returning_{side}_amount_share"],
+            "new": base * h[f"new_{side}_amount_share"],
+            "lost": -(prev_base
+                      * h[f"lost_{side}_amount_share"].fillna(0)),
+        })
+    return pd.DataFrame({
+        "time_key": h["time_key"],
+        "retained": h[f"n_{side}_retained"],
+        "returning": h[f"n_{side}_returning"],
+        "new": h[f"n_{side}_new"],
+        "lost": -h[f"n_{side}_lost"].fillna(0),
+    })
