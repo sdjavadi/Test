@@ -47,11 +47,21 @@ ROLES_TABLE = os.environ.get("PKG_ROLES_TABLE",
 ROW_LIMIT = int(os.environ.get("PKG_ROW_LIMIT", "50000"))
 
 NODE_COLS = [
-    "time_key", "version", "node", "cust_name", "strength", "in_strength", "out_strength",
+    "time_key", "version", "node", "cust_name", "naics_desc",
+    "strength", "in_strength", "out_strength",
     "net_flow", "flow_ratio", "throughflow", "degree", "in_degree",
     "out_degree", "hhi_in", "hhi_out", "top1_in_share",
-    "lost_payer_amount_share", "new_payer_amount_share", "payer_jaccard",
-    "n_payer_lost", "n_payer_new", "top_payer_same", "hub_in_share",
+    # counterparty cohorts (multi-window memory)
+    "n_payer_retained", "n_payer_returning", "n_payer_new", "n_payer_lost",
+    "n_payee_retained", "n_payee_returning", "n_payee_new", "n_payee_lost",
+    "retained_payer_amount_share", "returning_payer_amount_share",
+    "new_payer_amount_share", "lost_payer_amount_share",
+    "persistent_payer_amount_share",
+    "retained_payee_amount_share", "returning_payee_amount_share",
+    "new_payee_amount_share", "lost_payee_amount_share",
+    "payer_jaccard", "top_payer_same", "hub_in_share",
+    # metric-trend explorer inputs
+    "trophic_level", "participation_coef", "frac_intra_edges_w",
     "months_active", "naics2", "naics4",
 ]
 
