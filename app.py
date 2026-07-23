@@ -57,9 +57,9 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=40, r=20, t=40, b=30), height=320,
 )
 
-RISK_ROLES = {"bleeding", "conduit", "anchor_dependent", "infra_dependent",
+RISK_ROLES = {"bleeding", "conduit", "concentrated", "infra_dependent",
               "intermittent"}
-GOOD_ROLES = {"expanding", "steady", "diversified", "local_anchor"}
+GOOD_ROLES = {"expanding", "steady", "balanced", "embedded"}
 
 
 def badge(text: str) -> str:
@@ -88,18 +88,11 @@ tab_spot, tab_dive = st.tabs(["🔦 Spotlight", "🔬 Customer Deep Dive"])
 
 # ------------------------------------------------------------ SPOTLIGHT ----
 with tab_spot:
-    qcol, scol = st.columns([5, 1])
-    queue_name = qcol.radio("Queue", list(logic.QUEUES.keys()),
-                            horizontal=True, label_visibility="collapsed")
+    queue_name = st.radio("Queue", list(logic.QUEUES.keys()),
+                          horizontal=True, label_visibility="collapsed")
     fn, desc = logic.QUEUES[queue_name]
     st.caption(desc)
     q = fn(version, month)
-
-    if scol.button("🎲 Surprise me", use_container_width=True) and len(q):
-        pick = q.sample(1).iloc[0]
-        st.session_state.selected_node = pick["node"]
-        st.info(f"Picked **{pick.get('cust_name') or pick['node']}** — "
-                f"open the Deep Dive tab.")
 
     if q.empty:
         st.warning("No cases in this queue for the selected month/version.")
@@ -187,23 +180,49 @@ with tab_dive:
             for name, d in logic.METRIC_DEFS.items():
                 st.markdown(f"- **{name}**: {d}")
 
-    # --- strength time series with role-change markers ----------------------
+    # --- monthly flow: inflow up, outflow down, net line --------------------
     fig = go.Figure()
-    for col, name, colr in (("in_strength", "Inflow", GOOD),
-                            ("out_strength", "Outflow", ACCENT),
-                            ("net_flow", "Net", MUTED)):
-        fig.add_trace(go.Scatter(x=h["time_key"], y=h[col], name=name,
-                                 mode="lines+markers",
-                                 line=dict(color=colr, width=2)))
-    for _, ch in logic.role_changes(h).iterrows():
-        fig.add_vline(x=ch["time_key"], line_dash="dot",
-                      line_color="#98a2b3", opacity=0.6)
-        fig.add_annotation(x=ch["time_key"], yref="paper", y=1.02,
-                           text=ch["label"], showarrow=False,
-                           font=dict(size=10, color=MUTED),
-                           textangle=-25)
-    fig.update_layout(**PLOTLY_LAYOUT, title="Monthly flow ($)",
+    fig.add_trace(go.Bar(x=h["time_key"], y=h["in_strength"],
+                         name="Inflow", marker_color=GOOD))
+    fig.add_trace(go.Bar(x=h["time_key"], y=-h["out_strength"],
+                         name="Outflow", marker_color=ACCENT))
+    fig.add_trace(go.Scatter(x=h["time_key"], y=h["net_flow"],
+                             name="Net flow", mode="lines+markers",
+                             line=dict(color="#1a1d26", width=2.5)))
+    fig.add_hline(y=0, line_color="#98a2b3", line_width=1)
+    fig.update_layout(**PLOTLY_LAYOUT, barmode="relative",
+                      title="Monthly flow ($) — inflow above, outflow "
+                            "below, net as line",
                       hovermode="x unified")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # --- metric trend explorer ------------------------------------------------
+    sel = st.selectbox("Metric trend", list(logic.METRIC_TREND_OPTIONS),
+                       help="Pick a metric to see its history. If the "
+                            "metric helps define a role, vertical markers "
+                            "show when that role changed.")
+    mcol, mtax, mfmt = logic.METRIC_TREND_OPTIONS[sel]
+    fig = go.Figure()
+    if mcol in h.columns:
+        fig.add_trace(go.Scatter(x=h["time_key"], y=h[mcol], name=sel,
+                                 mode="lines+markers",
+                                 line=dict(color=ACCENT, width=2)))
+    if mtax is not None:
+        col = f"{mtax}_stable"
+        if col in h.columns:
+            sr = h[["time_key", col]].dropna()
+            ch = sr[sr[col].ne(sr[col].shift()) & sr[col].shift().notna()]
+            for _, r in ch.iterrows():
+                fig.add_vline(x=r["time_key"], line_dash="dot",
+                              line_color="#98a2b3", opacity=0.8)
+                fig.add_annotation(x=r["time_key"], yref="paper", y=1.04,
+                                   text=f"\u2192 {r[col]}",
+                                   showarrow=False,
+                                   font=dict(size=10, color=MUTED))
+    layout = dict(PLOTLY_LAYOUT)
+    if mfmt == "%":
+        layout["yaxis"] = dict(tickformat=".0%")
+    fig.update_layout(**layout, title=sel)
     st.plotly_chart(fig, use_container_width=True)
 
     c1, c2 = st.columns([3, 2])
@@ -240,27 +259,51 @@ with tab_dive:
     # --- peer bullet ----------------------------------------------------------
     with c2:
         ps = logic.peer_snapshot(h)
+        lvl = last.get("peer_level")
+        n_peers = last.get("peer_size")
+        grp = (f"{int(n_peers)} peers @ naics{int(lvl)}"
+               if pd.notna(n_peers) and pd.notna(lvl) and lvl
+               else "peer group unavailable")
         fig = go.Figure(go.Bar(
             x=ps["pctl"], y=ps["metric"], orientation="h",
-            marker_color=[ALERT if (m == "Momentum" and v is not None
+            text=[f"{v:.0%}" if pd.notna(v) else "" for v in ps["pctl"]],
+            textposition="outside",
+            hovertemplate=("<b>%{y}</b>: higher than %{x:.0%} of "
+                           + grp + "<extra></extra>"),
+            marker_color=[ALERT if (m == "Momentum" and pd.notna(v)
                                     and v <= 0.2)
                           else ACCENT for m, v in
                           zip(ps["metric"], ps["pctl"])]))
         fig.add_vline(x=0.5, line_dash="dot", line_color=MUTED)
-        fig.update_layout(**PLOTLY_LAYOUT, title="Vs. industry peers "
-                          "(percentile)", xaxis=dict(range=[0, 1]))
+        fig.add_annotation(x=0.5, yref="paper", y=1.08, text="median peer",
+                           showarrow=False,
+                           font=dict(size=10, color=MUTED))
+        fig.update_layout(**PLOTLY_LAYOUT,
+                          title=f"Standing among {grp}",
+                          xaxis=dict(range=[0, 1.12], tickformat=".0%"))
         st.plotly_chart(fig, use_container_width=True)
+        st.caption("Each bar: share of industry peers this customer "
+                   "ranks above on that dimension.")
 
-    # --- payer turnover --------------------------------------------------------
-    t = logic.turnover_series(h)
+    # --- counterparty cohorts (multi-window memory) --------------------------
+    st.markdown("##### Counterparty cohorts")
+    tc1, tc2, _ = st.columns([1, 1, 3])
+    side = tc1.radio("Side", ["payer", "payee"], horizontal=True)
+    measure = tc2.radio("Measure", ["amount", "count"], horizontal=True)
+    t = logic.cohort_series(h, side=side, measure=measure)
+    unit = "$" if measure == "amount" else "# counterparties"
     fig = go.Figure()
     fig.add_trace(go.Bar(x=t["time_key"], y=t["retained"], name="Retained",
                          marker_color=ACCENT))
-    fig.add_trace(go.Bar(x=t["time_key"], y=t["new"], name="New payers",
-                         marker_color=GOOD))
-    fig.add_trace(go.Bar(x=t["time_key"], y=t["lost"], name="Lost payers",
-                         marker_color=ALERT))
+    fig.add_trace(go.Bar(x=t["time_key"], y=t["returning"],
+                         name="Returning (\u22646-mo gap)",
+                         marker_color="#7ab8f5"))
+    fig.add_trace(go.Bar(x=t["time_key"], y=t["new"],
+                         name="New (first in 6 mo)", marker_color=GOOD))
+    fig.add_trace(go.Bar(x=t["time_key"], y=t["lost"],
+                         name="Lost vs last month", marker_color=ALERT))
+    fig.add_hline(y=0, line_color="#98a2b3", line_width=1)
     fig.update_layout(**PLOTLY_LAYOUT, barmode="relative",
-                      title="Inflow by payer cohort ($): retained / new "
-                            "above, lost below")
+                      title=f"{side.capitalize()} cohorts ({unit}): "
+                            "retained / returning / new above, lost below")
     st.plotly_chart(fig, use_container_width=True)
