@@ -40,12 +40,11 @@ Each taxonomy produces three columns: `{tax}` (raw, this month), `{tax}_stable` 
 
 | Role | Rule | Interpretation & questions it answers |
 |---|---|---|
-| `terminal_payee` | in_strength > 0, out_strength ≈ 0 | Endpoint of visible flow. **In the PKG this usually means the outflow side lives outside PNC** — a prospect-intelligence flag once counterparty data lands, not necessarily a hoarder |
-| `terminal_payer` | out_strength > 0, in_strength ≈ 0 | Mirror case: revenue side invisible to us |
+| `one_sided` | only pays OR only receives within the visible network | Endpoint of visible flow — the other side lives outside PNC (direction readable from flow_ratio sign). Prospect-intelligence flag once counterparty data lands |
 | `conduit` | \|flow_ratio\| ≤ 0.15 AND throughflow ≥ P90 | High-volume pass-through: treasury-like, settlement-like. AML-relevant (funnel candidate); deposit balance likely low relative to flow |
 | `collector` | flow_ratio > +0.5 | Net accumulator — deposits likely growing; liquidity-product target |
 | `distributor` | flow_ratio < −0.5 | Net payer — payroll-like; funded from somewhere else (often outside PNC) |
-| `balanced_trader` | \|flow_ratio\| ≤ 0.15 AND node reciprocity ≥ median | Genuine two-way commerce with matched dollars |
+| `trader` | \|flow_ratio\| ≤ 0.15 AND node reciprocity ≥ median | Genuine two-way commerce with matched dollars |
 | `mixed` | residual | No dominant flow pattern |
 
 ### 2.2 `hierarchy_role` — where in the supply chain?
@@ -58,19 +57,16 @@ Terciles of `trophic_level` within month × version: `upstream_supplier` (bottom
 |---|---|---|
 | `single_relationship` | degree < 3 | **Thin-file gate, checked first.** With 1–2 counterparts, top-1 share is structurally ≈ 1.0 — concentration rules would measure arithmetic, not behavior. Production 2025-04: ~73% of the V0 book |
 | `infra_dependent` | hub_in_share > 0.7 | Revenue arrives via registry hubs (processors/payroll/settlement). Checked before customer-dependence so the two risk stories never blur |
-| `anchor_dependent` | top1_in_share > 0.7 | One *customer* is the revenue base; anchor loss = attrition precursor |
-| `captive_payer` | top1_out_share > 0.7 | Spend concentrated on one payee; supply-chain fragility |
-| `diversified` | hhi_in ≤ median AND hhi_out ≤ median (medians over degree ≥ 3 population) | Balanced book both directions |
-| `moderate` | residual | — |
+| `concentrated` | top1_in_share > 0.7 OR top1_out_share > 0.7 | One relationship dominates a side (which side: check top1_in/out_share) — fragility; anchor loss = attrition precursor |
+| `balanced` | residual (incl. below-median concentration both sides) | No dominant single relationship |
 
 ### 2.4 `embeddedness_role` — position in the network fabric?
 
 | Role | Rule | Interpretation |
 |---|---|---|
-| `peripheral` | degree < 3 OR core_number ≤ P25 — **checked first** | Edge of the visible economy (often: most of their graph is outside PNC). Must precede embedded_local: a degree-1 node has frac_intra = 1.0 trivially and previously flooded that role (74% of the book) |
+| `peripheral` | degree < 3 OR core_number ≤ P25 — **checked first** | Edge of the visible economy (often: most of their graph is outside PNC). Must precede `embedded`: a degree-1 node has frac_intra = 1.0 trivially and previously flooded that role (74% of the book) |
 | `connector` | participation_coef ≥ 0.62 | Edges spread across communities (GA-consistent cutoff); cross-segment broker |
-| `local_anchor` | core_number **>** P90 (strict, computed over degree ≥ 3) AND frac_intra_edges_w ≥ 0.7 | Deep in the dense core *and* dollar-committed to its own community. Strict inequality prevents integer-tie inflation (18% qualified under ≥ at production) |
-| `embedded_local` | frac_intra_edges_w ≥ 0.7 | Dollar-committed to its community without being a hub of it |
+| `embedded` | frac_intra_edges_w ≥ 0.7 | Dollar-committed to its own community (its local anchors distinguishable via within_module_z and core_number metrics) |
 | `intermediate` | residual | — |
 
 Complements `ga_role` (already in the node panel): GA is degree-topological, this is flow-weighted and community-dollar based.
@@ -161,3 +157,5 @@ High-signal cells to watch:
 | 2026-07 | Embeddedness rule order: `peripheral` first; `local_anchor` core cutoff changed from ≥P90 to strict >P90 over eligible population | `embedded_local` at 74.7% (degree-1 nodes have frac_intra = 1.0 trivially); `local_anchor` at 18% vs. the ≤10% the P90 rule intends (integer ties) |
 | 2026-07 | `steady` momentum band widened from \|mom\| < 0.2 to < 0.35 | `variable` residual at 45% — the band was tighter than real monthly payment volatility |
 | — (documented, unchanged) | `flow_role` terminal shares (76% at prod) are structural, not a threshold artifact — most customers' other side lives outside PNC; benchmark for the counterparty-data milestone. `hierarchy_role` terciles are flat by construction: population shares carry no signal, only per-customer transitions do; trophic solve succeeded for all 2.23M nodes | — |
+| 2026-07 (usability) | **Taxonomy consolidation, 28 → 21 labels**: flow `terminal_payer`+`terminal_payee` → `one_sided`, `balanced_trader` → `trader`; dependence `anchor_dependent`+`captive_payer` → `concentrated`, `diversified`+`moderate` → `balanced`; embeddedness `local_anchor`+`embedded_local` → `embedded`. Detail lost to merging remains available in the underlying metrics (flow_ratio sign, top1_in/out_share, within_module_z). **Transition histories break at this boundary** — old and new labels must not be mixed in one transition matrix | Users could not retain 28 role definitions |
+| 2026-07 | `expanding` role and Rising Stars queue now use the **6-month-memory** `new_payer_amount_share` and require a retained relationship base | One-month-wonder payers (appear, vanish next month) produced false-positive rising stars under consecutive-snapshot comparison |
