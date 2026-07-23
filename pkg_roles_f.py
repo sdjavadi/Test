@@ -94,8 +94,8 @@ def assign_flow_role(df: pd.DataFrame) -> np.ndarray:
             fr < -0.5,
             (np.abs(fr) <= 0.15) & (rec >= med_recip),
         ],
-        ["terminal_payee", "terminal_payer", "conduit",
-         "collector", "distributor", "balanced_trader"],
+        ["one_sided", "one_sided", "conduit",
+         "collector", "distributor", "trader"],
         default="mixed")
 
 
@@ -127,9 +127,9 @@ def assign_dependence_role(df: pd.DataFrame) -> np.ndarray:
             t1o > 0.7,
             (hin <= med_hin) & (hout <= med_hout),
         ],
-        ["single_relationship", "infra_dependent", "anchor_dependent",
-         "captive_payer", "diversified"],
-        default="moderate")
+        ["single_relationship", "infra_dependent", "concentrated",
+         "concentrated", "balanced"],
+        default="balanced")
 
 
 def assign_embeddedness_role(df: pd.DataFrame) -> np.ndarray:
@@ -156,7 +156,7 @@ def assign_embeddedness_role(df: pd.DataFrame) -> np.ndarray:
             (core > thr_core) & (intra >= 0.7),
             intra >= 0.7,
         ],
-        ["peripheral", "connector", "local_anchor", "embedded_local"],
+        ["peripheral", "connector", "embedded", "embedded"],
         default="intermediate")
 
 
@@ -345,10 +345,12 @@ def run(node_dir: str = NODE_DIR, out_dir: str = OUT_DIR):
             roles["n_role_switches"] = np.where(seen_before, n_switch,
                                                 np.nan)
 
+            id_cols = [c for c in ("cust_name", "naics_desc")
+                       if c in df.columns]
             block = pd.concat(
                 [roles.reset_index(drop=True),
-                 df[["strength_mom", "naics2", "naics3", "naics4"]]
-                 .reset_index(drop=True),
+                 df[["strength_mom", "naics2", "naics3", "naics4"]
+                    + id_cols].reset_index(drop=True),
                  peers.reset_index(drop=True)], axis=1)
             block.insert(0, "version", version)
             block.insert(0, "time_key", time_key)
