@@ -62,7 +62,7 @@ The pipeline writes `ladder_thresholds.csv` (the six dollar/degree cutoffs, for 
 
 ## 2. Node-Level Metrics
 
-Output: `../metrics/node/node_{YYYY-MM}.parquet` — one file per month containing ALL versions stacked; one row per (version, node).
+Output: `../metrics/node/node_{YYYY-MM}.parquet` — one file per month containing ALL versions stacked; one row per (version, node). Every row carries the **identity columns** `cust_name` and `naics_desc` (the text after `|` in the composite NAICS, NA for placeholders) so the metrics and roles tables never require a join to the customer dimension for display.
 
 ### 2.1 Flow magnitude & balance (raw amount)
 
@@ -118,22 +118,23 @@ Output: `../metrics/node/node_{YYYY-MM}.parquet` — one file per month containi
 | `frac_intra_edges_w` | Share of the node's *amount* staying inside its community | 0.85 | Dollar-wise dependence; divergence from unweighted version shows whether the big money stays home or crosses out |
 | `naics_participation` | Participation coefficient with the NAICS partition swapped in | 0.9 | Industry diversification of the payment book |
 
-### 2.6 Relationship dynamics (cross-month; NaN in each version's first month)
+### 2.6 Relationship dynamics — multi-window counterparty cohorts (cross-month; NaN in each version's first month)
 
-The state metrics above describe the graph; churn lives in the *flux*. These compare each node's counterpart sets and flows against the previous month — the primary feature family for churn/deposit prediction.
+**Why multi-window**: comparing only consecutive snapshots over-counts churn — counterparts routinely skip a month and reappear, which also produced false-positive "rising stars" (payers appearing one month and vanishing the next). Each relationship therefore carries a **presence bitmask over the last 16 months**; classification uses a `W_NEW = 6`-month memory window (configurable).
 
-| Metric | Definition | Example | Questions |
-|---|---|---|---|
-| `n_payer_new / _lost / _retained` | Counterpart-set churn on the inbound side vs. prev month (`payee` variants for outbound) | Lost 3 of 5 payers | Relationship churn ahead of dollar churn |
-| `payer_jaccard`, `payee_jaccard` | retained / (new + lost + retained) | 0.33 | Stability of the counterpart book; low + falling = disengagement |
-| `lost_payer_amount_share` | Prev-month amount from now-lost payers / prev in_strength | 0.98 → nearly all revenue sources gone | **Revenue walking out the door** — expected top churn predictor |
-| `new_payer_amount_share` | Current amount from first-time payers / current in_strength | 0.4 | Book renewal vs. dependence on legacy payers |
-| `recurring_payer_amount_share`, `recurring_payee_amount_share` | 1 − new share: this month's amount on counterparties **retained** from last month (amount-weighted turnover sibling; NaN in each version's first month) | 0.85 | Revenue/spend stability on the existing relationship base — the amount-weighted complement of Jaccard |
-| `top_payer_same` | 1 if this month's #1 payer is last month's #1 | 0 | Anchor-payer loss — classic attrition precursor |
-| `top_payer_share_delta` | Δ top-1 payer share MoM | −0.3 | Anchor relationship weakening even before it disappears |
-| `months_since_first_seen`, `months_active`, `activity_gap` | Tenure; months present; months since previously active (1 = consecutive) | gap = 3 | Recency/tenure — trivial to compute, disproportionately predictive |
-| `nbr_strength_trend` | Inflow-weighted mean log MoM strength ratio of the node's payers | −0.4 | **Contagion**: is the customer's revenue base itself shrinking? Graph-native — invisible to tabular systems |
-| `inflow_from_shrinking_share` | Share of inflow from payers whose own strength fell >20% MoM | 0.6 | Distress exposure through the payment network |
+| Metric | Definition | Questions |
+|---|---|---|
+| `n_{side}_retained`, `retained_{side}_amount_share` | Counterparts also present last month (side ∈ payer/payee) | The stable month-over-month base |
+| `n_{side}_returning`, `returning_{side}_amount_share` | Absent last month but seen within the last 6 months | Reappearing relationships — churn that consecutive-month comparison miscounts as new |
+| `n_{side}_new`, `new_{side}_amount_share` | **First appearance within the 6-month memory** — genuinely new | True book growth; feeds the `expanding` role and the Rising Stars queue (with a retained-base requirement) |
+| `persistent_{side}_amount_share` | Amount from counterparts present in ≥ 4 of the last 6 months (incl. current) | The relationship core — the revenue that shows up almost every month |
+| `n_{side}_lost`, `lost_{side}_amount_share` | Present last month, absent now — **deliberately kept 1-month** (short-memory churn); a lost counterpart may return next month as `returning` | Immediate revenue interruption; pair with returning-rate to separate blips from exits |
+| `{side}_jaccard` | Counterpart-set Jaccard vs. previous month | Link-wise stability |
+| `top_payer_same`, `top_payer_share_delta` | Anchor-payer identity and share change MoM | Anchor loss precursor |
+| `months_since_first_seen`, `months_active`, `activity_gap` | Tenure and recency | Recency/tenure |
+| `nbr_strength_trend`, `inflow_from_shrinking_share` | Contagion: payers' own MoM trend; inflow share from shrinking payers | Distress exposure through the network |
+
+The three cohort shares (retained + returning + new) **partition current counterparts and sum to 1.0** per side. Burn-in: memory shorter than 6 months in the first W months of the panel overstates `new` and makes `persistent` unattainable — interpret cohorts from month ~7. The former `recurring_*` columns are **superseded** by this partition (recurring ≡ retained + returning).
 
 ### 2.7 Hub exposure (computed on raw edges, attached to every version)
 
@@ -272,7 +273,7 @@ Interpretation caveat from production data: at heavy de-hubbing (P99) modularity
 | Node typing table (entity_type / naics_status / node_type) | `pkg_custom_metrics.py` | — | token typer + placeholder config; np.select derivation; persisted node_typing.csv |
 | Counterparty composition, coverage, guarded sector mix | `pkg_custom_metrics.py` | raw | broadcast-join typing onto edges (string-normalized keys + >50%-miss fail-fast guard); one groupby-pivot per (d, w); computed on V0, attached to all versions |
 | Clustering coefficient (undirected, NaN k<2) | `pkg_pipeline.py` | unweighted | cuGraph triangle_count; CPU A³-diagonal fallback (dev only) |
-| n_neighbors; recurring in/out amount shares | `pkg_pipeline.py` | raw | dedup union of directions; 1 − new-share in TemporalTracker |
+| n_neighbors; multi-window counterparty cohorts (16-bit presence bitmask, W=6, popcount persistence) | `pkg_pipeline.py` | raw | bounded memory (rows dropped after 16 absent months); identity columns cust_name/naics_desc |
 | Orchestration | `pkg_pipeline.py` | — | safe() isolation; NaN frames on per-metric failure |
 
 **Deferred to upcoming modules**: community-level and NAICS-group metric tables; community-as-node / NAICS-as-node supergraph construction (`pkg_supergraph.py` retained for that work).
