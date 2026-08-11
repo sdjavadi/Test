@@ -35,8 +35,8 @@ Changes vs v2
                              nodes; computed on RAW edges, attached to all
                              versions)
 
-Graph versions: V0 raw | V1 de-hubbed (deg OR strength > P99.9)
-              | V2 mega-only (deg OR strength > P99.99)
+Graph versions: V0 raw | P99 | P99_9 (deg OR strength above that pctile).
+Tiers are set by LADDER_PCTS and derived from the ladder at runtime.
 Weight policy: amount only; log1p for spectral, raw for flow. SCC excluded.
 """
 
@@ -67,6 +67,11 @@ OUT_DIR = "../metrics"
 CUSTOMERS_CSV = None       # None -> "<data_dir>/customers.csv"
 TIME_BUDGET_H = 8.0        # GPU session cap; drives the ETA projector
 REUSE_LADDER = True        # load thresholds/exclusions from disk
+# Ablation tiers. V0 (raw) is always present and is not listed here.
+# This is the single source of truth: a ladder reloaded from disk is
+# reconciled against it below, so a retired tier left in
+# ladder_exclusions.csv cannot come back to life on the reuse path.
+LADDER_PCTS = (99.0, 99.9)
 GEO_METRICS = True         # per-version geographic block, inline
 GEO_ONLY = False           # skip graph metrics; emit ../metrics/geo/ only
 PERSIST_TRACKERS = True    # checkpoint cross-month state for clean resume
@@ -1113,7 +1118,7 @@ def run(data_dir: str = DATA_DIR, out_dir: str = OUT_DIR,
     if ladder is None:
         log.info("building ablation ladder from %d snapshots", len(paths))
         with rt.step("setup", "-", "build_ladder", len(paths)):
-            ladder = cm.build_ladder(paths)
+            ladder = cm.build_ladder(paths, percentiles=LADDER_PCTS)
         pd.DataFrame([ladder.thresholds]).to_csv(
             os.path.join(out_dir, "ladder_thresholds.csv"), index=False)
         tiers = list(ladder.exclusion_sets)
@@ -1123,6 +1128,34 @@ def run(data_dir: str = DATA_DIR, out_dir: str = OUT_DIR,
             reg[f"in_{t}"] = [n in ladder.exclusion_sets[t] for n in broad]
         reg.to_csv(os.path.join(out_dir, "ladder_exclusions.csv"),
                    index=False)
+
+    # ---- reconcile tiers against LADDER_PCTS ---------------------------
+    # load_ladder() rebuilds whatever tiers the CSVs happen to carry, so a
+    # tier retired from LADDER_PCTS survives on the reuse path until the
+    # artifacts are cleaned. Configuration wins; drop the extras in memory
+    # and say so loudly. Missing tiers are fatal — silently running a
+    # shorter ladder would invalidate the ablation comparison.
+    want = [cm._pct_label(p) for p in sorted(LADDER_PCTS)]
+    extra = [t for t in ladder.exclusion_sets if t not in want]
+    for t in extra:
+        ladder.exclusion_sets.pop(t)
+        ladder.thresholds.pop(f"degree_{t}", None)
+        ladder.thresholds.pop(f"strength_{t}", None)
+    if extra:
+        log.warning("ladder: dropped retired tier(s) %s not in "
+                    "LADDER_PCTS=%s. The on-disk artifacts still carry "
+                    "them — run fix_ladder_tiers.py to clean "
+                    "ladder_*.csv and any month files already written "
+                    "with those versions.", extra, want)
+    missing = [t for t in want if t not in ladder.exclusion_sets]
+    if missing:
+        raise RuntimeError(
+            f"ladder is missing tier(s) {missing} required by "
+            f"LADDER_PCTS={LADDER_PCTS}. Delete "
+            f"{os.path.join(out_dir, 'ladder_exclusions.csv')} and "
+            f"{os.path.join(out_dir, 'ladder_thresholds.csv')} to force a "
+            f"rebuild, or set REUSE_LADDER=False for one run.")
+
     versions = ladder.versions
     log.info("graph versions: %s", versions)
 
