@@ -1,0 +1,380 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Data & rails &middot; PKG Attrition</title>
+<script src='plotly.min.js'></script>
+<style>
+:root{--ink:#16181D;--mut:#6B7280;--line:#E5E7EB;--acc:#C1440E;--acc2:#4A6FA5;
+      --good:#2F6F4E;--warn:#B8860B;--bg:#FCFCFD}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:15px/1.62 "IBM Plex Sans","Segoe UI",-apple-system,sans-serif;
+     -webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:50;background:rgba(252,252,253,.96);
+     border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.topin{max-width:1180px;margin:0 auto;padding:11px 30px;display:flex;
+       align-items:center;gap:22px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:13.5px;letter-spacing:-.2px;white-space:nowrap}
+.brand span{color:var(--mut);font-weight:400}
+.nav{display:flex;gap:3px;flex-wrap:wrap;margin-left:auto}
+.nav a{font-size:12px;color:var(--mut);text-decoration:none;padding:5px 9px;
+       border-radius:5px;white-space:nowrap}
+.nav a:hover{background:#EEF0F3;color:var(--ink)}
+.nav a.on{background:var(--ink);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 30px 120px}
+h1{font-size:32px;margin:0 0 6px;letter-spacing:-.6px;line-height:1.18}
+h2{font-size:21px;margin:52px 0 10px;padding-top:24px;border-top:1px solid var(--line);
+   letter-spacing:-.2px;scroll-margin-top:70px}
+h3{font-size:16px;margin:30px 0 8px;color:var(--acc2)}
+h4{font-size:14px;margin:22px 0 6px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:26px}
+.lede{font-size:16.5px;line-height:1.6;border-left:3px solid var(--acc);
+      padding:4px 0 4px 18px;margin:22px 0 30px}
+p{margin:11px 0}ul,ol{margin:11px 0;padding-left:23px}li{margin:6px 0}
+a{color:var(--acc2)}
+table.t{border-collapse:collapse;width:100%;font-size:12.5px;margin:16px 0}
+table.t th{text-align:left;border-bottom:2px solid var(--ink);padding:8px 10px;
+           font-weight:600;vertical-align:bottom}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:top;
+           font-variant-numeric:tabular-nums}
+table.t tr:hover td{background:#F5F6F8}
+table.t td:first-child,table.t th:first-child{font-variant-numeric:normal}
+.box{background:#FFF;border:1px solid var(--line);border-radius:7px;padding:17px 21px;margin:20px 0}
+.box.hi{background:#FFF7ED;border-left:3px solid var(--acc);border-radius:0 7px 7px 0}
+.box.ok{background:#F1F7F3;border-left:3px solid var(--good);border-radius:0 7px 7px 0}
+.box.info{background:#F1F4F9;border-left:3px solid var(--acc2);border-radius:0 7px 7px 0}
+.box h4{margin-top:0}
+.kpi{display:flex;gap:14px;flex-wrap:wrap;margin:24px 0}
+.kpi div{flex:1 1 170px;background:#FFF;border:1px solid var(--line);border-radius:7px;
+         padding:15px 17px}
+.kpi b{display:block;font-size:26px;letter-spacing:-.6px;line-height:1.14;
+       font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.42}
+.figwrap{margin:22px 0 30px}
+.cap{color:var(--mut);font-size:12.5px;margin-top:6px;line-height:1.5;
+     border-left:2px solid var(--line);padding-left:12px}
+.note{color:var(--mut);font-size:12.5px;margin:8px 0 0}
+code{background:#F1F2F4;padding:1px 5px;border-radius:3px;font-size:12.5px;
+     font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+pre{background:#F7F8FA;border:1px solid var(--line);border-radius:6px;padding:14px 16px;
+    overflow-x:auto;font-size:12.5px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+    line-height:1.55}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.4px;
+     padding:2px 7px;border-radius:3px;text-transform:uppercase}
+.t-yes{background:#E7F0EA;color:var(--good)}
+.t-no{background:#F6EAEA;color:var(--acc)}
+.t-new{background:#FFF3E0;color:#8A5A00}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.pager{display:flex;justify-content:space-between;margin-top:58px;padding-top:20px;
+       border-top:1px solid var(--line);font-size:13px}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+      color:var(--mut);font-size:12px}
+@media print{.top{position:static}body{background:#fff}h2{page-break-after:avoid}
+             .figwrap,table.t{page-break-inside:avoid}}
+</style></head><body>
+<div class='top'><div class='topin'>
+<div class='brand'>PKG Deposit Attrition <span>&middot; Treasury Management</span></div>
+<div class='nav'><a href='index.html'>Overview</a><a href='01-definitions.html'>1 · Definitions</a><a href='02-variables.html'>2 · Variables</a><a href='03-data.html' class=on>3 · Data & rails</a><a href='04-model.html'>4 · Model & queue</a><a href='05-features.html'>5 · Feature ablation</a><a href='06-findings.html'>6 · Findings & next</a></div></div></div>
+<div class='wrap'><h1>3 · The data, and what the institution field really is</h1>
+<div class='sub'>Sources, inventory, column-level coverage, and the rail &times; institution
+analysis</div>
+
+<div class='lede'>The headline signal of this programme, <code>fin_out_n</code>, is built on
+<code>cpty_fin_entity_name</code> in the outbound direction — the <b>sparsest field in the payment
+table at 37%</b>. This section establishes why it is sparse, and the answer is not a data-quality
+gap. <b>It is arithmetic: the field is populated on ACH, RTP-PRT and wire, and never on card,
+cheque, PCARD or RTP-P2P.</b></div><h2 id='sources'>3.1 Sources</h2>
+<table class='t'>
+<tr><th>Table</th><th>Grain</th><th>Rows in scope</th><th>Notes</th></tr>
+<tr><td><code>dsihd01p_dsi.neo4j_payments</code></td><td>one row per transaction</td>
+<td>12,811,995,156</td><td>2024-01-01 to 2026-07-31. <code>trans_id</code> unique — a book
+transfer appears <b>once</b>, not twice. No returns or reversals.</td></tr>
+<tr><td><code>dsihd01p_dsi.lap_dsi_universe_optimized</code></td><td>account × sub-product × load date</td>
+<td>111,371,750</td><td>647 load dates, no weekends, 19&ndash;22 per
+month.</td></tr>
+</table>
+<p><b>Direction rule.</b> Both mdm ids present → <code>internal_c2c</code>; only
+<code>_receives</code> → <code>inbound_cpty</code>; only <code>_pays</code> →
+<code>outbound_cpty</code>. Whole-bank mix is 9.32bn outbound, 3.22bn inbound, 272M internal.</p><h2 id='inventory'>3.2 What previous runs already built</h2><div class='figwrap'><div style="height:400px; width:100%;">                            <div id="fig13" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig13")) {                    Plotly.newPlot(                        "fig13",                        [{"cliponaxis":false,"marker":{"color":["#C1440E","#C1440E","#C1440E","#4A6FA5","#4A6FA5","#9AA1AC","#9AA1AC","#9AA1AC","#9AA1AC"]},"orientation":"h","text":["529,321,118","2,746,664","2,005,315","94,602","120,457","1,384,217,026","1,952,288","2,746,664","5,253,585"],"textposition":"outside","x":{"dtype":"i4","bdata":"nsyMHyjpKQBDmR4AinEBAInWAQDCeYFSIModACjpKQDRKVAA"},"y":["v7 \u00b7 counterparty payer counts","v7 \u00b7 monthly incumbent flag","v7 \u00b7 calendar-time risk set","v6 \u00b7 labels","v6 \u00b7 frozen peer anchor","v2 \u00b7 pay_pairs (cpty|fin)","v2 \u00b7 payment features (21)","v2 \u00b7 customer-month panel","v2 \u00b7 account-month panel"],"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"type":"log","title":{"text":"rows (log scale)"}},"title":{"text":"Persisted artefacts \u2014 nothing below is rebuilt"},"height":400},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>The pair table alone is 1.38 billion rows. Every downstream run reads these rather than reprocessing 12.8 billion transactions, which is why an ablation cycle takes minutes rather than hours.</div></div><h2 id='unused'>3.3 Columns we have never read</h2>
+<p>The deposit table has 86 columns; 24 are in the analytical set.
+Several of the rest are fully populated and directly relevant to retention:</p>
+<table class='t'>
+<tr><th>Column</th><th>Population</th><th>Why it is interesting</th></tr>
+<tr><td><code>earnings_credit_rate</code></td><td>0.676</td>
+<td>The price the client receives for balances. Rate competitiveness is a first-order driver of
+balance movement and the model cannot currently see it.</td></tr>
+<tr><td><code>curr_int_rate</code> / <code>dep_curr_int_rate</code></td><td>1.000</td>
+<td>Fully populated on every row. Pricing position against peers is buildable today.</td></tr>
+<tr><td><code>interest_paid_mtd</code> / <code>_ytd</code></td><td>1.000 / 0.965</td>
+<td>Realised interest — the client's actual economics with us.</td></tr>
+<tr><td><code>ofsa_monthly_ftp_rate</code></td><td>0.832</td>
+<td>Funds-transfer-pricing rate: the internal value of the balance. Enables an
+<i>expected-value-at-risk</i> ranking rather than a probability ranking.</td></tr>
+<tr><td><code>rltn_pwr_id</code> / <code>rltn_name</code></td><td>1.000</td>
+<td>49,294 relationships behind 120,600 customers. <b>Sibling-entity decline is unexploited</b>
+and is a single join away.</td></tr>
+<tr><td><code>acquisition_cd</code></td><td>0.914</td>
+<td>How the relationship was won. Acquisition channel is a classic retention covariate.</td></tr>
+<tr><td><code>public_funds_flag</code>, <code>lob_indicator</code>, <code>market_desc</code></td>
+<td>1.000 / 1.000 / 0.868</td><td>Segmentation axes that would give the peer grouping something
+better than balance deciles alone.</td></tr>
+</table>
+<p class='note'>Fully-null columns confirmed: <code>certificate_number</code>,
+<code>maturity_dt</code>, <code>request_maturity_dt</code>, <code>rate_index</code>,
+<code>rate_option</code>, <code>rate_change_dt</code>, <code>bus_company_id</code>,
+<code>ecr_time_key</code>, <code>card_entry_mode</code>. There are no CDs in this universe.</p><h2 id='direction'>3.4 Coverage by direction</h2><div class='figwrap'><div style="height:420px; width:100%;">                            <div id="fig14" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig14")) {                    Plotly.newPlot(                        "fig14",                        [{"cliponaxis":false,"marker":{"color":"#C1440E"},"name":"Outbound \u2014 client pays","text":["99.9%","39.0%","36.8%"],"textposition":"outside","x":["cpty_name","unq_cpty_acct_id","cpty_fin_entity_name"],"y":{"dtype":"f8","bdata":"K4cW2c737z\u002f2KFyPwvXYP1pkO99Pjdc\u002f"},"type":"bar"},{"cliponaxis":false,"marker":{"color":"#4A6FA5"},"name":"Inbound \u2014 client is paid","text":["87.4%","92.5%","85.7%"],"textposition":"outside","x":["cpty_name","unq_cpty_acct_id","cpty_fin_entity_name"],"y":{"dtype":"f8","bdata":"K4cW2c736z+amZmZmZntPwaBlUOLbOs\u002f"},"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"yaxis":{"title":{"text":"share of transactions with the field populated"},"tickformat":".0%","range":[0,1.16]},"title":{"text":"How often each counterparty field is actually populated"},"barmode":"group","height":420},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>Measured on three sample months, one per year — 2024-06, 2025-06, 2026-06 — and stable across all three, so this is structure and not an incident. <b>The counterparty account id and the counterparty's bank are both ~2.35&times; better covered inbound than outbound.</b> The counterparty <i>name</i> is the exception: 99.9% outbound.</div></div><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Month</th>
+      <th>Direction</th>
+      <th>Transactions</th>
+      <th>Amount ($bn)</th>
+      <th>cpty_name</th>
+      <th>unq_cpty_acct_id</th>
+      <th>cpty_fin_entity_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2024-06</td>
+      <td>inbound_cpty</td>
+      <td>96412359</td>
+      <td>696</td>
+      <td>0.8630</td>
+      <td>0.9268</td>
+      <td>0.8696</td>
+    </tr>
+    <tr>
+      <td>2025-06</td>
+      <td>inbound_cpty</td>
+      <td>98794129</td>
+      <td>825</td>
+      <td>0.8707</td>
+      <td>0.9234</td>
+      <td>0.8556</td>
+    </tr>
+    <tr>
+      <td>2026-06</td>
+      <td>inbound_cpty</td>
+      <td>108327583</td>
+      <td>983</td>
+      <td>0.8881</td>
+      <td>0.9241</td>
+      <td>0.8466</td>
+    </tr>
+    <tr>
+      <td>2024-06</td>
+      <td>outbound_cpty</td>
+      <td>276759111</td>
+      <td>660</td>
+      <td>0.9987</td>
+      <td>0.3593</td>
+      <td>0.3397</td>
+    </tr>
+    <tr>
+      <td>2025-06</td>
+      <td>outbound_cpty</td>
+      <td>305502587</td>
+      <td>775</td>
+      <td>0.9987</td>
+      <td>0.3966</td>
+      <td>0.3756</td>
+    </tr>
+    <tr>
+      <td>2026-06</td>
+      <td>outbound_cpty</td>
+      <td>334589371</td>
+      <td>879</td>
+      <td>0.9989</td>
+      <td>0.4127</td>
+      <td>0.3892</td>
+    </tr>
+    <tr>
+      <td>2024-06</td>
+      <td>internal_c2c</td>
+      <td>8068231</td>
+      <td>143</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <td>2025-06</td>
+      <td>internal_c2c</td>
+      <td>8460095</td>
+      <td>162</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <td>2026-06</td>
+      <td>internal_c2c</td>
+      <td>9197792</td>
+      <td>235</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+  </tbody>
+</table><h2 id='rail'>3.5 Rail &times; institution &mdash; the gating question</h2><p>A wire carries a beneficiary bank. A cheque carries an image and a payee line.
+A debit-card signature transaction has an acquirer, not a receiving institution. If
+<code>cpty_fin_entity_name</code> is populated as a <i>function of the rail</i>, then
+<code>fin_out_n</code> is not a bank count — it is a rail-activity count, and its coverage ceiling
+is not fixable.</p><div class='figwrap'><div style="height:420px; width:100%;">                            <div id="fig15" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig15")) {                    Plotly.newPlot(                        "fig15",                        [{"cliponaxis":false,"marker":{"color":["#9AA1AC","#C1440E","#9AA1AC","#C1440E","#9AA1AC","#9AA1AC","#C1440E"]},"orientation":"h","showlegend":false,"text":["0.0000","1.0000","0.0000","0.9962","0.0000","0.0000","1.0000"],"textposition":"outside","x":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAADwPwAAAAAAAAAAcM6I0t7g7z8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA8D8="},"y":["DEBIT_CARD_SIGNATURE","ACH","RTP_P2P","RTP_PRT","CHECK","PCARD","WIRE"],"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":["#C1440E","#C1440E","#9AA1AC","#9AA1AC","#C1440E","#C1440E"]},"orientation":"h","showlegend":false,"text":["1.0000","1.0000","0.0000","0.0000","0.9869","0.9999"],"textposition":"outside","x":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwPwAAAAAAAAAAAAAAAAAAAABNhA1Pr5TvPx6n6Egu\u002f+8\u002f"},"y":["ACH","CHECK","DEBIT_CARD_SIGNATURE","RTP_P2P","RTP_PRT","WIRE"],"type":"bar","xaxis":"x2","yaxis":"y2"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"anchor":"y","domain":[0.0,0.475],"range":[0,1.3],"tickformat":".0%"},"yaxis":{"anchor":"x","domain":[0.0,1.0]},"xaxis2":{"anchor":"y2","domain":[0.525,1.0],"range":[0,1.3],"tickformat":".0%"},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"matches":"y","showticklabels":false},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Outbound \u2014 client pays","x":0.2375,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Inbound \u2014 client is paid","x":0.7625,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"Share of transactions carrying a counterparty institution, by rail"},"height":420},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'><b>It is 1.0000 or 0.0000 for every rail.</b> Not sparse — deterministic. ACH, RTP-PRT and WIRE carry the institution; DEBIT_CARD_SIGNATURE, CHECK, PCARD and RTP-P2P never do. The one exception is inbound CHECK, which carries the institution and the account but <b>never the name</b> (0.0000) — the paying bank is on the item, the payer's name is not parsed.</div></div><div class='figwrap'><div style="height:430px; width:100%;">                            <div id="fig16" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig16")) {                    Plotly.newPlot(                        "fig16",                        [{"connector":{"line":{"color":"#E5E7EB"}},"increasing":{"marker":{"color":"#C1440E"}},"measure":["relative","relative","relative","relative","relative","relative","relative","total"],"orientation":"v","text":["0.3584","0.0102","0.0012","0.0000","0.0000","0.0000","0.0000","0.3698"],"textposition":"outside","totals":{"marker":{"color":"#16181D"}},"x":["ACH","RTP_PRT","WIRE","RTP_P2P","DEBIT_CARD_SIGNATURE","CHECK","PCARD","TOTAL outbound\u003cbr\u003ehas_fin"],"y":[0.3584,0.01016124,0.0012,0.0,0.0,0.0,0.0,0],"type":"waterfall"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"yaxis":{"title":{"text":"contribution to outbound institution coverage"},"tickformat":".2f"},"title":{"text":"The 37% is arithmetic, not a data gap"},"height":430},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>ACH 0.3584 &times; 1.000, plus RTP-PRT 0.0102 &times; 0.996, plus WIRE 0.0012 &times; 1.000 = <b>0.3698</b>, against a measured overall outbound <code>has_fin</code> of <b>0.3700</b>. The 63 points that are missing are 59 points of debit card plus 4 points of cheque, PCARD and RTP-P2P. <b>No field choice moves this.</b></div></div><div class='figwrap'><div style="height:400px; width:100%;">                            <div id="fig17" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig17")) {                    Plotly.newPlot(                        "fig17",                        [{"hole":0.55,"labels":["ACH","RTP_PRT","WIRE"],"marker":{"colors":["#C1440E","#4A6FA5","#2F6F4E"]},"sort":false,"textinfo":"label+percent","values":{"dtype":"f8","bdata":"3GgAb4EE7z8pXI\u002fC9SicPy1DHOviNmo\u002f"},"type":"pie"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"title":{"text":"Of every outbound transaction that carries an institution, which rail produced it?"},"showlegend":false,"height":400},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'><b>96.9% is ACH.</b> Wire is 0.3%. <code>fin_out_n</code> should be restated everywhere as <i>the number of distinct institutions a client sends ACH to</i>. It is not a wire signal — an earlier hypothesis to that effect is refuted below.</div></div><div class='figwrap'><div style="height:430px; width:100%;">                            <div id="fig18" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig18")) {                    Plotly.newPlot(                        "fig18",                        [{"cliponaxis":false,"marker":{"color":"#9AA1AC"},"name":"share of transactions","text":["0.1%","35.8%","1.0%","59.1%","1.0%","2.1%","0.8%"],"textposition":"outside","x":["WIRE","ACH","CHECK","DEBIT_CARD_SIGNATURE","RTP_PRT","RTP_P2P","PCARD"],"y":{"dtype":"f8","bdata":"YTJVMCqpUz\u002fHuriNBvDWP\u002fXb14FzRoQ\u002fTDeJQWDl4j+IhVrTvOOEP2q8dJMYBJY\u002fFYxK6gQ0gT8="},"type":"bar"},{"cliponaxis":false,"marker":{"color":"#C1440E"},"name":"share of dollars","text":["56.8%","38.8%","2.4%","1.1%","0.5%","0.2%","0.1%"],"textposition":"outside","x":["WIRE","ACH","CHECK","DEBIT_CARD_SIGNATURE","RTP_PRT","RTP_P2P","PCARD"],"y":{"dtype":"f8","bdata":"ElWeWTkt4j+E9Z0xbtzYP8DaZPmgjZg\u002fJlBUC5VZhz+PzKJrKW9yPyYrK594OGM\u002f\u002fJ+OR8xKVT8="},"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"yaxis":{"title":{"text":"share of outbound"},"tickformat":".0%","range":[0,0.72]},"title":{"text":"Transactions and dollars are almost inverted"},"barmode":"group","height":430},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'><b>This is the nuance that changes how the 37% should be read.</b> Debit card is 59.1% of outbound transactions and 1.1% of outbound dollars. Wire is 0.1% of transactions and 56.8% of dollars. Weighted by <b>money rather than transaction count, institution coverage is 96.1%</b>, not 37%. The coverage problem is a retail-transaction-count problem; for a Treasury Management book measured in dollars, the field is nearly complete.</div></div><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Direction</th>
+      <th>Rail</th>
+      <th>Transactions</th>
+      <th>Amount ($bn)</th>
+      <th>Share of direction</th>
+      <th>has_fin</th>
+      <th>has_acct</th>
+      <th>has_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>DEBIT_CARD_SIGNATURE</td>
+      <td>541367638</td>
+      <td>26.3809</td>
+      <td>0.5905</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>ACH</td>
+      <td>328564832</td>
+      <td>898.8225</td>
+      <td>0.3584</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>0.9966</td>
+    </tr>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>RTP_P2P</td>
+      <td>19686206</td>
+      <td>5.4289</td>
+      <td>0.0215</td>
+      <td>0.0000</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>RTP_PRT</td>
+      <td>9368679</td>
+      <td>10.4136</td>
+      <td>0.0102</td>
+      <td>0.9962</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>CHECK</td>
+      <td>9114769</td>
+      <td>55.4809</td>
+      <td>0.0099</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>PCARD</td>
+      <td>7668418</td>
+      <td>3.0070</td>
+      <td>0.0084</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>outbound_cpty</td>
+      <td>WIRE</td>
+      <td>1080527</td>
+      <td>1,314</td>
+      <td>0.0012</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>0.9999</td>
+    </tr>
+    <tr>
+      <td>inbound_cpty</td>
+      <td>ACH</td>
+      <td>212360383</td>
+      <td>937.9287</td>
+      <td>0.6996</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>0.9989</td>
+    </tr>
+    <tr>
+      <td>inbound_cpty</td>
+      <td>CHECK</td>
+      <td>37870209</td>
+      <td>88.1130</td>
+      <td>0.1248</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <td>inbound_cpty</td>
+      <td>DEBIT_CARD_SIGNATURE</td>
+      <td>22848725</td>
+      <td>3.0190</td>
+      <td>0.0753</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>inbound_cpty</td>
+      <td>RTP_P2P</td>
+      <td>20495243</td>
+      <td>5.5815</td>
+      <td>0.0675</td>
+      <td>0.0000</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>inbound_cpty</td>
+      <td>RTP_PRT</td>
+      <td>8632692</td>
+      <td>5.0569</td>
+      <td>0.0284</td>
+      <td>0.9869</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>inbound_cpty</td>
+      <td>WIRE</td>
+      <td>1326819</td>
+      <td>1,464</td>
+      <td>0.0044</td>
+      <td>0.9999</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+    </tr>
+  </tbody>
+</table><h3>Is it a wire proxy? No — and it is better where wires are absent</h3><div class='figwrap'><div style="height:400px; width:100%;">                            <div id="fig19" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig19")) {                    Plotly.newPlot(                        "fig19",                        [{"marker":{"color":"#C1440E"},"name":"has fin_out_n","text":["870,056","580,559"],"textposition":"inside","x":["No wire this month","Sent a wire"],"y":{"dtype":"i4","bdata":"qEYNAM\u002fbCAA="},"type":"bar","xaxis":"x","yaxis":"y"},{"marker":{"color":"#9AA1AC"},"name":"no fin_out_n","text":["445,648","56,025"],"textposition":"inside","x":["No wire this month","Sent a wire"],"y":{"dtype":"i4","bdata":"0MwGANnaAAA="},"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":"#4A6FA5"},"showlegend":false,"text":["66.1%","91.2%"],"textposition":"outside","x":["No wire this month","Sent a wire"],"y":{"dtype":"f8","bdata":"9P3UeOkm5T\u002fJdr6fGi\u002ftPw=="},"type":"bar","xaxis":"x2","yaxis":"y2"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"anchor":"y","domain":[0.0,0.48400000000000004]},"yaxis":{"anchor":"x","domain":[0.0,1.0]},"xaxis2":{"anchor":"y2","domain":[0.6040000000000001,1.0]},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"range":[0,1.15],"tickformat":".0%"},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Client-months by wire use and institution count","x":0.24200000000000002,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Share of client-months with fin_out_n \u003e 0","x":0.802,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"barmode":"stack","title":{"text":"Wire use against institution coverage"},"height":400},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>Sending a wire raises the chance of having an institution count from 66.1% to 91.2% — an effect, but nowhere near determinism. <b>Two thirds of client-months with no wire at all still carry a <code>fin_out_n</code>, because they send ACH.</b></div></div><div class='figwrap'><div style="height:420px; width:100%;">                            <div id="fig20" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig20")) {                    Plotly.newPlot(                        "fig20",                        [{"cliponaxis":false,"marker":{"color":"#C1440E"},"name":"fin_out_n","text":["0.7204","0.6763","0.7430"],"textposition":"outside","x":["All clients","Wire users only","Non-wire clients"],"y":{"dtype":"f8","bdata":"kzoBTYQN5z8VHcnlP6TlPy2yne+nxuc\u002f"},"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":"#4A6FA5"},"name":"bal_live","text":["0.7024","0.6960","0.7030"],"textposition":"outside","x":["All clients","Wire users only","Non-wire clients"],"y":{"dtype":"f8","bdata":"mbuWkA965j8Sg8DKoUXmP+XQItv5fuY\u002f"},"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":"#9AA1AC"},"showlegend":false,"text":["41.9%","73.4%","32.2%"],"textposition":"outside","x":["All clients","Wire users only","Non-wire clients"],"y":{"dtype":"f8","bdata":"hJ7Nqs\u002fV2j851sVtNIDnPxsN4C2QoNQ\u002f"},"type":"bar","xaxis":"x2","yaxis":"y2"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"anchor":"y","domain":[0.0,0.45]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"range":[0.55,0.82]},"xaxis2":{"anchor":"y2","domain":[0.55,1.0]},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"range":[0,0.95],"tickformat":".0%"},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Discrimination (AUC, 6-month horizon)","x":0.225,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Share of the population scoreable","x":0.775,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"Conditioning the institution signal on wire use"},"height":420},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'><b>The decisive test.</b> <code>fin_out_n</code> performs <i>better</i> among non-wire clients (0.7430) than among wire users (0.6763), where <code>bal_live</code> beats it outright. It is not a wire detector. What it is scarce for is clients whose outbound activity is card and cheque — and those are exactly the clients where it cannot be computed at all (32% scoreable).</div></div><div class='figwrap'><div style="height:380px; width:100%;">                            <div id="fig21" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig21")) {                    Plotly.newPlot(                        "fig21",                        [{"cliponaxis":false,"marker":{"color":["#9AA1AC","#9AA1AC","#C1440E","#C1440E","#C1440E"]},"orientation":"h","text":["0.0%  (84,707 client-months)","0.0%  (13,774 client-months)","74.3%  (5,095 client-months)","74.9%  (188,621 client-months)","84.7%  (508,380 client-months)"],"textposition":"outside","x":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAEtZhjjWxec\u002fZ9Xnaiv25z+WIY51cRvrPw=="},"y":["check","card","rtp","wire","ach"],"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"range":[0,1.35],"tickformat":".0%","title":{"text":"share of client-months with an institution count"}},"title":{"text":"Clients using one rail only in a month \u2014 the mix confound removed"},"height":380},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>84,707 client-months are cheque-only and 13,774 are card-only. <b>None of them can ever be scored by an institution feature.</b> That is 98,481 client-months, roughly 5% of the panel, structurally invisible to the signal this programme has been briefing.</div></div><h2 id='keys'>3.6 Counterparty keys &mdash; measured before switching</h2><p>The obvious response to a 39.5%-covered account id sitting beside a
+99.9%-covered name is to re-key on the name. That is a change to <i>what a counterparty is</i>,
+so it was measured first. Two failure modes, opposite in direction and both silent.</p><div class='figwrap'><div style="height:400px; width:100%;">                            <div id="fig22" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig22")) {                    Plotly.newPlot(                        "fig22",                        [{"cliponaxis":false,"marker":{"color":"#C1440E"},"showlegend":false,"text":["10.8%\u003cbr\u003eof entities split","3.6%\u003cbr\u003eof entities split"],"textposition":"outside","x":["inbound_cpty","outbound_cpty"],"y":{"dtype":"f8","bdata":"HOviNhrAuz+1pnnHKTqiPw=="},"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":"#4A6FA5"},"showlegend":false,"text":["max 190,464","max 3,264"],"textposition":"outside","x":["inbound_cpty","outbound_cpty"],"y":{"dtype":"i4","bdata":"AOgCAMAMAAA="},"type":"bar","xaxis":"x2","yaxis":"y2"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"anchor":"y","domain":[0.0,0.445]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"range":[0,0.15],"tickformat":".0%"},"xaxis2":{"anchor":"y2","domain":[0.555,1.0]},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"type":"log"},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Under-merge \u2014 distinct names per counterparty account","x":0.2225,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Over-merge \u2014 distinct accounts per normalised name","x":0.7775000000000001,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"What a name key does to the definition of a counterparty"},"height":400},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>Under-merge is mild outbound (3.6% of real entities split into two or more) and material inbound (10.8%). Over-merge is the dangerous one: one normalised outbound name covers up to <b>3,264</b> distinct accounts, and inbound up to <b>190,464</b>.</div></div><div class='figwrap'><div style="height:520px; width:100%;">                            <div id="fig23" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig23")) {                    Plotly.newPlot(                        "fig23",                        [{"cliponaxis":false,"marker":{"color":"#4A6FA5"},"orientation":"h","text":["303,777","314,830","329,492","341,852","359,643","371,013","398,744","399,387","438,576","525,842","580,216","589,305","643,010","790,227","816,581","831,597","833,055","1,084,384","1,420,233","1,437,870"],"textposition":"outside","x":{"dtype":"i4","bdata":"oaIEAM7NBAAUBwUAXDcFANt8BQBFqQUAmBUGABsYBgAwsQYAEgYIAHjaCAD5\u002fQgAws8JANMODADFdQwAbbAMAB+2DADgixAAyasVAK7wFQA="},"y":["STARBUCKS 800 782 7282","VERIZON","SYNCHRONY BANK","ATT BILL PAYMENT","ATT","CITI CARD ONLINE","PRIME VIDEO CHANNELS","APPLE CASH SENT MONEY","SPECTRUM","VERIZON WIRELESS","INTL PURCH ADV FEE","AMEX EPAYMENT","COMCAST XFINITY","PAYPAL","DISCOVER","VENMO","NETFLIX COM","CHASE CREDIT CRD","APPLE COM BILL","CAPITAL ONE"],"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"title":{"text":"distinct paying customers"},"range":[0,1750000]},"title":{"text":"The generic-name registry \u2014 top 20 by payer count"},"height":520},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>Built on a <b>median-multiple</b> rule (15&times; the median, floored at 500) rather than a percentile, because a percentile flags a fixed fraction by construction. It catches <b>21,773 names — 0.06% of 38,808,093</b> — carrying <b>40.7% of all customer-counterparty links</b>. That is the right shape: a tiny number of processor and biller strings carrying an enormous share of the edges.</div></div><div class='box hi'><h4>Two problems with the registry as built</h4>
+<b>It was fitted on the whole bank, not the study population.</b> The worst over-merge offenders
+outbound are <code>MOM</code> (1,146 accounts), <code>DAD</code> (599), <code>JOSE RODRIGUEZ</code>
+(898), <code>CHECKING</code> (667), <code>LINK</code> (574) — retail peer-to-peer strings that a
+Treasury Management client would never pay. The threshold is calibrated to consumer volumes.<br><br>
+<b>It strips 40.7% of links.</b> For a corporate client, <code>AMEX EPAYMENT</code> or
+<code>CAPITAL ONE</code> may be a genuine, material counterparty relationship. Excluding them is
+defensible for churn measurement and lossy for everything else — and it is why the name-keyed
+features ended up with <i>lower</i> coverage (0.464) than the account-keyed ones (0.504).</div><div class='figwrap'><div style="height:470px; width:100%;">                            <div id="fig24" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig24")) {                    Plotly.newPlot(                        "fig24",                        [{"cliponaxis":false,"marker":{"color":["#9AA1AC","#9AA1AC","#C1440E","#C1440E","#C1440E","#C1440E","#C1440E","#9AA1AC","#C1440E","#9AA1AC","#9AA1AC","#9AA1AC","#9AA1AC","#9AA1AC","#9AA1AC","#9AA1AC"]},"orientation":"h","text":["755","772","794","824","842","887","898","907","1,146","1,287","1,576","1,609","1,793","1,944","2,497","3,264"],"textposition":"outside","x":{"dtype":"i2","bdata":"8wIEAxoDOANKA3cDggOLA3oEBwUoBkkGAQeYB8EJwAw="},"y":["HEALTH SAVINGS ACCOUNT","HEALTH EQUITY","JOSE GARCIA","NAME WITHHELD","HSA","JOSE HERNANDEZ","JOSE RODRIGUEZ","US BANK","MOM","WELLS FARGO","HOLIDAY INN EXPRESS","CHASE","WHATNOT","BANK OF AMERICA","000SUNITED MISSOURI","EXTRA SPACE MANAGEMENT"],"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"title":{"text":"distinct counterparty accounts sharing one normalised name"}},"title":{"text":"Worst outbound over-merge \u2014 highlighted entries are retail P2P strings"},"height":470},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>A name key that treats every payment labelled <code>MOM</code> as the same counterparty is not measuring a business relationship. This is the concrete reason the re-keying recommendation was withdrawn.</div></div><div class='pager'><a href='02-variables.html'>&larr; 2 · Variables</a><a href='04-model.html'>4 · Model & queue &rarr;</a></div><div class='foot'>PKG Deposit Attrition &middot; PNC Treasury Management, Data Science &middot; internal use only, not for external distribution.<br>Every figure traces to a run output in <code>attrition_v7/</code> or <code>attrition_v8/</code>. Charts need <code>plotly.min.js</code> in the same folder.</div></div></body></html>

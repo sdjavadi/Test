@@ -1,0 +1,286 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Findings & next &middot; PKG Attrition</title>
+<script src='plotly.min.js'></script>
+<style>
+:root{--ink:#16181D;--mut:#6B7280;--line:#E5E7EB;--acc:#C1440E;--acc2:#4A6FA5;
+      --good:#2F6F4E;--warn:#B8860B;--bg:#FCFCFD}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:15px/1.62 "IBM Plex Sans","Segoe UI",-apple-system,sans-serif;
+     -webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:50;background:rgba(252,252,253,.96);
+     border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.topin{max-width:1180px;margin:0 auto;padding:11px 30px;display:flex;
+       align-items:center;gap:22px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:13.5px;letter-spacing:-.2px;white-space:nowrap}
+.brand span{color:var(--mut);font-weight:400}
+.nav{display:flex;gap:3px;flex-wrap:wrap;margin-left:auto}
+.nav a{font-size:12px;color:var(--mut);text-decoration:none;padding:5px 9px;
+       border-radius:5px;white-space:nowrap}
+.nav a:hover{background:#EEF0F3;color:var(--ink)}
+.nav a.on{background:var(--ink);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 30px 120px}
+h1{font-size:32px;margin:0 0 6px;letter-spacing:-.6px;line-height:1.18}
+h2{font-size:21px;margin:52px 0 10px;padding-top:24px;border-top:1px solid var(--line);
+   letter-spacing:-.2px;scroll-margin-top:70px}
+h3{font-size:16px;margin:30px 0 8px;color:var(--acc2)}
+h4{font-size:14px;margin:22px 0 6px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:26px}
+.lede{font-size:16.5px;line-height:1.6;border-left:3px solid var(--acc);
+      padding:4px 0 4px 18px;margin:22px 0 30px}
+p{margin:11px 0}ul,ol{margin:11px 0;padding-left:23px}li{margin:6px 0}
+a{color:var(--acc2)}
+table.t{border-collapse:collapse;width:100%;font-size:12.5px;margin:16px 0}
+table.t th{text-align:left;border-bottom:2px solid var(--ink);padding:8px 10px;
+           font-weight:600;vertical-align:bottom}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:top;
+           font-variant-numeric:tabular-nums}
+table.t tr:hover td{background:#F5F6F8}
+table.t td:first-child,table.t th:first-child{font-variant-numeric:normal}
+.box{background:#FFF;border:1px solid var(--line);border-radius:7px;padding:17px 21px;margin:20px 0}
+.box.hi{background:#FFF7ED;border-left:3px solid var(--acc);border-radius:0 7px 7px 0}
+.box.ok{background:#F1F7F3;border-left:3px solid var(--good);border-radius:0 7px 7px 0}
+.box.info{background:#F1F4F9;border-left:3px solid var(--acc2);border-radius:0 7px 7px 0}
+.box h4{margin-top:0}
+.kpi{display:flex;gap:14px;flex-wrap:wrap;margin:24px 0}
+.kpi div{flex:1 1 170px;background:#FFF;border:1px solid var(--line);border-radius:7px;
+         padding:15px 17px}
+.kpi b{display:block;font-size:26px;letter-spacing:-.6px;line-height:1.14;
+       font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.42}
+.figwrap{margin:22px 0 30px}
+.cap{color:var(--mut);font-size:12.5px;margin-top:6px;line-height:1.5;
+     border-left:2px solid var(--line);padding-left:12px}
+.note{color:var(--mut);font-size:12.5px;margin:8px 0 0}
+code{background:#F1F2F4;padding:1px 5px;border-radius:3px;font-size:12.5px;
+     font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+pre{background:#F7F8FA;border:1px solid var(--line);border-radius:6px;padding:14px 16px;
+    overflow-x:auto;font-size:12.5px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+    line-height:1.55}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.4px;
+     padding:2px 7px;border-radius:3px;text-transform:uppercase}
+.t-yes{background:#E7F0EA;color:var(--good)}
+.t-no{background:#F6EAEA;color:var(--acc)}
+.t-new{background:#FFF3E0;color:#8A5A00}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.pager{display:flex;justify-content:space-between;margin-top:58px;padding-top:20px;
+       border-top:1px solid var(--line);font-size:13px}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+      color:var(--mut);font-size:12px}
+@media print{.top{position:static}body{background:#fff}h2{page-break-after:avoid}
+             .figwrap,table.t{page-break-inside:avoid}}
+</style></head><body>
+<div class='top'><div class='topin'>
+<div class='brand'>PKG Deposit Attrition <span>&middot; Treasury Management</span></div>
+<div class='nav'><a href='index.html'>Overview</a><a href='01-definitions.html'>1 · Definitions</a><a href='02-variables.html'>2 · Variables</a><a href='03-data.html'>3 · Data & rails</a><a href='04-model.html'>4 · Model & queue</a><a href='05-features.html'>5 · Feature ablation</a><a href='06-findings.html' class=on>6 · Findings & next</a></div></div></div>
+<div class='wrap'><h1>6 · Findings, corrections and next steps</h1>
+<div class='sub'>What is settled, what was withdrawn and why, what is still open</div><h2 id='settled'>6.1 What is settled</h2>
+<table class='t'>
+<tr><th style='width:32%'>Finding</th><th>Evidence</th></tr>
+<tr><td><b>Payment behaviour beats balance monitoring at every operating point</b></td>
+<td>Rolling-origin AUC 0.795 against 0.691 at six months; precision 0.651 against 0.508 at K=250;
+dominates across the entire precision–recall frontier</td></tr>
+<tr><td><b>And it is the only thing that works on clients who drain rather than close</b></td>
+<td>Balance retains 12% of its precision on <code>B_bal_exit</code>, payments 81%. The mechanism is
+that <code>bal_live</code> sums live legs, so on label A it is substantially recording the closure
+rather than predicting it</td></tr>
+<tr><td><b>At matched volume the model dominates the incumbent on every axis</b></td>
+<td>Same 12,667 alerts a month: 5,860 clients against 4,103, 28,386 conversations against 30,427,
+precision 16.3% against 11.7%, same 4-month median lead</td></tr>
+<tr><td><b>Combining signals helps — the v6 conclusion was an artefact of event time</b></td>
+<td>Even an unweighted count of twelve equal votes beats the champion single feature at every
+horizon and every list length once measured in calendar time</td></tr>
+<tr><td><b>The institution field is deterministic by rail</b></td>
+<td><code>has_fin</code> is 1.0000 or 0.0000 for every rail. ACH 0.3584 + RTP-PRT 0.0102 + WIRE
+0.0012 = 0.3698 against a measured 0.3700</td></tr>
+<tr><td><b>Weighted by dollars, institution coverage is 96%, not 37%</b></td>
+<td>Debit card is 59% of outbound transactions and 1% of outbound dollars; wire is 0.1% of
+transactions and 57% of dollars</td></tr>
+<tr><td><b>Fewer payments, not smaller ones</b></td>
+<td><code>count_dd</code> 0.946 → 0.000 while <code>ticket_dd</code> holds 0.968 → 0.616. Stayers
+flat at 1.00–1.01 throughout</td></tr>
+<tr><td><b>ACH is the sticky rail; cheque and RTP go first</b></td>
+<td>At rel_m −6: cheque 0.220, RTP 0.015, wire 0.530, card 0.698, ACH 0.736</td></tr>
+<tr><td><b>Four signals have no detectable onset in this panel</b></td>
+<td>Pinned at −12 and again at −18 on the same 4,734 clients, median cohort effect 0.000. They are
+watch-list criteria, not triggers</td></tr>
+<tr><td><b>One ranked list beats a two-tier design</b></td>
+<td>Same 8,750 alerts: 0.523 / 0.167 against 0.492 / 0.157</td></tr>
+<tr><td><b>The inbound institution signal is the best new feature family</b></td>
+<td><code>+ fin_in</code> lifts precision at K=250 from 0.6514 to 0.7246 for 18 features</td></tr>
+</table><div class='figwrap'><div style="height:380px; width:100%;">                            <div id="fig42" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig42")) {                    Plotly.newPlot(                        "fig42",                        [{"cliponaxis":false,"marker":{"color":["#9AA1AC","#4A6FA5","#C1440E"]},"text":["11.7%","65.1%","72.7%"],"textposition":"outside","x":["Incumbent 30% rule\n(at its own volume)","v7 model\n(K=250)","Recommended spec\n(K=250)"],"y":{"dtype":"f8","bdata":"wcqhRbbzvT8qqRPQRNjkP\u002fvL7snDQuc\u002f"},"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"yaxis":{"title":{"text":"precision"},"tickformat":".0%","range":[0,0.88]},"title":{"text":"Where the programme has got to"},"height":380},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>The two right-hand bars are at a 250-name list and the left-hand one is at 12,667 alerts a month, so this is <b>not</b> a like-for-like comparison — it is the arc of the work. The like-for-like version is in <a href='04-model.html#queue'>§4.3</a>, where the model beats the incumbent at identical volume on every axis.</div></div><div class='figwrap'><div style="height:420px; width:100%;">                            <div id="fig43" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig43")) {                    Plotly.newPlot(                        "fig43",                        [{"insidetextanchor":"start","insidetextfont":{"color":"#FFF","size":11.5},"marker":{"color":["#2F6F4E","#B8860B","#4A6FA5","#9AA1AC","#4A6FA5","#C1440E","#4A6FA5","#4A6FA5","#C1440E"]},"orientation":"h","showlegend":false,"text":["  Current \u2014 Repair, ablation, shipping decision","  Partly void \u2014 74 features; construction defect nulled five families","  Kept \u2014 Calendar time, queue, capacity","  Superseded \u2014 Coverage floor; twelve signals ranked in event time","  Kept \u2014 Difference-in-differences","  Void \u2014 Peer levels against change-tuned thresholds","  Kept \u2014 Labels","  Kept \u2014 Panels and payment features","  Void \u2014 Wrong closure code, wrong grain"],"textposition":"inside","x":[1,1,1,1,1,1,1,1,1],"y":["v8b","v8","v7","v6","v5","v4","v3","v2","v1"],"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"visible":false,"range":[0,1]},"title":{"text":"Nine runs \u2014 three produced results that were later withdrawn"},"bargap":0.25,"height":420},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>Three runs were voided outright and two more had headline claims withdrawn. In every case the defect was a measurement construction rather than a model choice, which is why §6.5 is a list of construction rules rather than modelling advice.</div></div><h2 id='superseded'>6.2 Superseded claims &mdash; kept, because the reason is the finding</h2><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Run</th>
+      <th>Claim that was briefed</th>
+      <th>Why it changed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>v3</td>
+      <td>Payments lead by 5 months (cpty_new_out at -10)</td>
+      <td>Lead detector searched inside its own baseline window</td>
+    </tr>
+    <tr>
+      <td>v4</td>
+      <td>Best lifts 1.1-5.9x; combining doesn't help</td>
+      <td>Peer levels against change-tuned thresholds</td>
+    </tr>
+    <tr>
+      <td>v4</td>
+      <td>bal_live separates at rel_m 0</td>
+      <td>Deciles built on bal_live — circular</td>
+    </tr>
+    <tr>
+      <td>v5</td>
+      <td>Payments lead by 7 months (amt_out_rtp at -12)</td>
+      <td>2.6% coverage feature topped the ordering</td>
+    </tr>
+    <tr>
+      <td>v5</td>
+      <td>Single 30.1x beats combined 16.3x</td>
+      <td>Compared -1 against -12 — different months</td>
+    </tr>
+    <tr>
+      <td>v6</td>
+      <td>fin_out_n is the best early-warning signal, 30.1x</td>
+      <td>Event-time only; scores 42% of the book and ranks 5th of 8 across everyone</td>
+    </tr>
+    <tr>
+      <td>v6</td>
+      <td>Combining signals never beats the best single</td>
+      <td>True only for an unweighted count. In calendar time even that count wins</td>
+    </tr>
+    <tr>
+      <td>v6</td>
+      <td>Payments lead the balance by 2 months</td>
+      <td>Event-time claim. Calendar-time median lead is 2-4 months depending on capacity</td>
+    </tr>
+    <tr>
+      <td>v7</td>
+      <td>Four signals separate at exactly -12</td>
+      <td>Still true, and widening to -18 on the same cohort moved none of them</td>
+    </tr>
+    <tr>
+      <td>v7</td>
+      <td>Two-tier queue is the deliverable</td>
+      <td>One ranked list taken to the same depth beats it on precision AND recall</td>
+    </tr>
+    <tr>
+      <td>roadmap</td>
+      <td>Counterparty coverage is blocked on PAYS_CPTY / CptyFinEntity</td>
+      <td>Those milestones belong to the Neo4j graph. This analysis reads the source table</td>
+    </tr>
+    <tr>
+      <td>v8-plan</td>
+      <td>Re-key outbound counterparties on name for 2.5x coverage</td>
+      <td>Account key wins on both coverage (0.504 vs 0.464) and lift (+0.0064 vs +0.0038)</td>
+    </tr>
+    <tr>
+      <td>v8-plan</td>
+      <td>Trend features are free information</td>
+      <td>94 trend features cost 11 precision points on the combined spec</td>
+    </tr>
+  </tbody>
+</table><div class='box hi'><h4>Three of these need active correction, not just retirement</h4>
+<b>1.</b> <code>fin_out_n</code> has been briefed as "the number of banks a client pays" at 30×
+lift. It is <i>the number of distinct institutions a client sends ACH to</i>, it scores 42% of the
+book, and it ranks fifth of eight across the whole population.<br>
+<b>2.</b> "Combining signals doesn't help" should be withdrawn outright, not amended.<br>
+<b>3.</b> "Payments lead the balance by 2 months" is an event-time claim. The calendar-time
+replacement is a median lead of 2 months at a 250-name list and 4 months at incumbent volume.
+They are different measurements and the brief should carry the second.</div><h2 id='open'>6.3 What is still open</h2>
+
+<h3 id='attribution'>Competitor loss versus business contraction</h3>
+<p>Unanswered. The first attempt built a two-axis split — counterparty survival against
+ticket-hold — and returned a <b>clean null</b>: the stayer-median survival cut came out at
+<b>1.000</b>, meaning essentially every baseline counterparty of a typical stayer is still being
+paid by someone. The axis is degenerate, both "partners gone" quadrants are empty, and the two
+surviving quadrants sit at lift 1.07 and 0.93. Only 1,150 of ~7,600 attriters could be classified.</p>
+<p>Two changes would give it a chance, and both are cheap:</p>
+<ul>
+<li>Raise the liveness bar from "any other payer" to <b>at least two other payers</b>, excluding
+the target.</li>
+<li>Restrict the baseline set to counterparties with a <b>low PNC payer count</b> — a processor
+tells you nothing, a regional supplier tells you everything. One histogram of payer counts decides
+whether a cut leaves enough counterparties per client to compute a share over.</li>
+</ul>
+<p>There is also a construct that has not been tried and needs no new data: <b>a payment to a
+counterparty carrying the client's own name at a named non-PNC institution</b>. Departing clients
+already route 1.7× more of their outflow to themselves (8.2% against 4.9%), and attaching
+<code>cpty_fin_entity_name</code> turns that trait into a named destination. The v8 version of this
+was too sparse to survive the dd transform (8.4% coverage); read as a <i>level</i> rather than a
+dd it may work.</p>
+
+<h3>The dd construction is now the coverage constraint</h3>
+<p>74.3% of client-months carry a <code>fin_out_n</code> value. Only 31% carry a <code>dd</code>.
+<b>The transform costs 43 points of coverage — far more than any field choice.</b> Before adding
+attributes it is worth asking whether the <i>t−6 … t−4</i> reference window and the
+<code>MIN_REF</code> gate are right for every family, or whether a shorter reference plus a
+level-and-change pair would keep more of the book scoreable.</p>
+
+<h3>Per-fold stability</h3>
+<p>Seven folds, AUC standard deviation ~0.017. Every headline number in this report is a pooled
+figure. The per-fold precision spread has not been examined, and if one origin is carrying the
+result the conclusion changes.</p>
+
+<h3>No live evidence that an alert changes an outcome</h3>
+<p>Everything here is retrospective. Nothing has been scored forward, no alert has reached a
+relationship manager, and <b>retained balances</b> — the measure the business would actually judge
+this on — cannot be produced without a pilot.</p><h2 id='next'>6.4 Next steps, in order</h2>
+<table class='t'>
+<tr><th>#</th><th>Step</th><th>Why now</th><th>Effort</th></tr>
+<tr><td>1</td><td><b>Re-run the capacity-matched table on the recommended specification</b></td>
+<td>The 0.7269 is a client-month precision. The distinct-client, conversation and lead-time
+translation is what a manager reads, and it has not been computed</td><td>Hours</td></tr>
+<tr><td>2</td><td><b>Delete every block marked "no"</b></td>
+<td><code>railmix</code>, <code>timing</code>, <code>concentration</code>, <code>selfpay</code>,
+<code>trend</code>. A feature that moved nothing on seven folds against a fixed baseline will not
+start working later, and carrying it costs review surface</td><td>Trivial</td></tr>
+<tr><td>3</td><td><b>Pilot on one segment or region for a quarter</b>, alongside the existing rule
+rather than replacing it</td><td>The only way to learn whether an alert changes an outcome</td>
+<td>Weeks</td></tr>
+<tr><td>4</td><td><b>Collect 200–300 win/loss outcomes</b> from the relationship teams</td>
+<td>Unblocks the competitor question and gives the programme its first outcome labels. Cheapest
+high-value item on the list</td><td>Small</td></tr>
+<tr><td>5</td><td><b>Add customer attributes</b> — segment, NAICS, size band, product holdings</td>
+<td>Measured against the recommended specification as the fixed baseline, so their lift is
+separable from the payment rebuild's</td><td>2–3 weeks</td></tr>
+<tr><td>6</td><td><b>Read the deposit columns we have never opened</b> — earnings credit rate, FTP
+rate, acquisition code, relationship id</td><td>Pricing position and sibling-entity decline are
+whole categories of evidence the model is blind to, and all are populated today</td>
+<td>1–2 weeks</td></tr>
+<tr><td>7</td><td><b>Compliance and fair-lending review</b></td><td>Required before any
+client-facing use, and better started while the model is still moving</td><td>Lead time</td></tr>
+<tr><td>8</td><td><b>Agree the productionisation path</b> — monthly scoring job, delivery, and who
+owns the threshold</td><td>The analysis is a notebook. Nothing runs on a schedule and nothing
+writes an alert anywhere</td><td>Medium</td></tr>
+</table><h2 id='rules'>6.5 Standing rules this programme has accumulated</h2>
+<p>Each of these cost a run. They are listed because the next person will otherwise pay for them
+again.</p>
+<ul>
+<li><b>Never quote a pooled accuracy number without its coverage.</b> A metric on the subset a
+feature can score is not a metric on the book.</li>
+<li><b>Fix the cohort before reading a curve across a window.</b> Composition otherwise
+masquerades as an effect — this is what invalidated the v1 error-versus-k curve and it is why §2.4
+reads the restricted cohort twice.</li>
+<li><b>Peer groups must be frozen.</b> Recomputed monthly, a shrinking client slides down the
+deciles alongside its own decline.</li>
+<li><b>Ship on the metric that matches the decision.</b> AUC ranked the widest specification first
+and precision at capacity ranked it fifth.</li>
+<li><b>A restated field is not a point-in-time field.</b> <code>segment_desc</code> carries a
+restatement lift of 21.7 at rel_m −1 and is excluded everywhere.</li>
+<li><b>Every id is a string end to end.</b> An int64/string mismatch in 2026-07 typed every
+counterparty <code>unknown</code> and produced entirely plausible output.</li>
+<li><b>Check whether an index is absolute or relative.</b> <code>m_idx</code> runs
+24289–24319; treating it as 0-based built 24,296 empty folds and failed silently.</li>
+<li><b>A gate designed for one variable type will silently delete another.</b>
+<code>MIN_REF &gt; 1.0</code> nulled five feature families and their zero deltas were read as
+evidence.</li>
+<li><b>Give every row in a summary table a distinct label.</b> A duplicate key in a dict printed
+one count where three were intended, and it survived two runs.</li>
+</ul><div class='pager'><a href='05-features.html'>&larr; 5 · Feature ablation</a><span></span></div><div class='foot'>PKG Deposit Attrition &middot; PNC Treasury Management, Data Science &middot; internal use only, not for external distribution.<br>Every figure traces to a run output in <code>attrition_v7/</code> or <code>attrition_v8/</code>. Charts need <code>plotly.min.js</code> in the same folder.</div></div></body></html>
