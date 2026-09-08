@@ -1,0 +1,140 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Overview &middot; PKG Attrition</title>
+<script src='plotly.min.js'></script>
+<style>
+:root{--ink:#16181D;--mut:#6B7280;--line:#E5E7EB;--acc:#C1440E;--acc2:#4A6FA5;
+      --good:#2F6F4E;--warn:#B8860B;--bg:#FCFCFD}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:15px/1.62 "IBM Plex Sans","Segoe UI",-apple-system,sans-serif;
+     -webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:50;background:rgba(252,252,253,.96);
+     border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.topin{max-width:1180px;margin:0 auto;padding:11px 30px;display:flex;
+       align-items:center;gap:22px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:13.5px;letter-spacing:-.2px;white-space:nowrap}
+.brand span{color:var(--mut);font-weight:400}
+.nav{display:flex;gap:3px;flex-wrap:wrap;margin-left:auto}
+.nav a{font-size:12px;color:var(--mut);text-decoration:none;padding:5px 9px;
+       border-radius:5px;white-space:nowrap}
+.nav a:hover{background:#EEF0F3;color:var(--ink)}
+.nav a.on{background:var(--ink);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 30px 120px}
+h1{font-size:32px;margin:0 0 6px;letter-spacing:-.6px;line-height:1.18}
+h2{font-size:21px;margin:52px 0 10px;padding-top:24px;border-top:1px solid var(--line);
+   letter-spacing:-.2px;scroll-margin-top:70px}
+h3{font-size:16px;margin:30px 0 8px;color:var(--acc2)}
+h4{font-size:14px;margin:22px 0 6px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:26px}
+.lede{font-size:16.5px;line-height:1.6;border-left:3px solid var(--acc);
+      padding:4px 0 4px 18px;margin:22px 0 30px}
+p{margin:11px 0}ul,ol{margin:11px 0;padding-left:23px}li{margin:6px 0}
+a{color:var(--acc2)}
+table.t{border-collapse:collapse;width:100%;font-size:12.5px;margin:16px 0}
+table.t th{text-align:left;border-bottom:2px solid var(--ink);padding:8px 10px;
+           font-weight:600;vertical-align:bottom}
+table.t td{border-bottom:1px solid var(--line);padding:7px 10px;vertical-align:top;
+           font-variant-numeric:tabular-nums}
+table.t tr:hover td{background:#F5F6F8}
+table.t td:first-child,table.t th:first-child{font-variant-numeric:normal}
+.box{background:#FFF;border:1px solid var(--line);border-radius:7px;padding:17px 21px;margin:20px 0}
+.box.hi{background:#FFF7ED;border-left:3px solid var(--acc);border-radius:0 7px 7px 0}
+.box.ok{background:#F1F7F3;border-left:3px solid var(--good);border-radius:0 7px 7px 0}
+.box.info{background:#F1F4F9;border-left:3px solid var(--acc2);border-radius:0 7px 7px 0}
+.box h4{margin-top:0}
+.kpi{display:flex;gap:14px;flex-wrap:wrap;margin:24px 0}
+.kpi div{flex:1 1 170px;background:#FFF;border:1px solid var(--line);border-radius:7px;
+         padding:15px 17px}
+.kpi b{display:block;font-size:26px;letter-spacing:-.6px;line-height:1.14;
+       font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.42}
+.figwrap{margin:22px 0 30px}
+.cap{color:var(--mut);font-size:12.5px;margin-top:6px;line-height:1.5;
+     border-left:2px solid var(--line);padding-left:12px}
+.note{color:var(--mut);font-size:12.5px;margin:8px 0 0}
+code{background:#F1F2F4;padding:1px 5px;border-radius:3px;font-size:12.5px;
+     font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+pre{background:#F7F8FA;border:1px solid var(--line);border-radius:6px;padding:14px 16px;
+    overflow-x:auto;font-size:12.5px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+    line-height:1.55}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.4px;
+     padding:2px 7px;border-radius:3px;text-transform:uppercase}
+.t-yes{background:#E7F0EA;color:var(--good)}
+.t-no{background:#F6EAEA;color:var(--acc)}
+.t-new{background:#FFF3E0;color:#8A5A00}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.pager{display:flex;justify-content:space-between;margin-top:58px;padding-top:20px;
+       border-top:1px solid var(--line);font-size:13px}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+      color:var(--mut);font-size:12px}
+@media print{.top{position:static}body{background:#fff}h2{page-break-after:avoid}
+             .figwrap,table.t{page-break-inside:avoid}}
+</style></head><body>
+<div class='top'><div class='topin'>
+<div class='brand'>PKG Deposit Attrition <span>&middot; Treasury Management</span></div>
+<div class='nav'><a href='index.html' class=on>Overview</a><a href='01-definitions.html'>1 · Definitions</a><a href='02-variables.html'>2 · Variables</a><a href='03-data.html'>3 · Data & rails</a><a href='04-model.html'>4 · Model & queue</a><a href='05-features.html'>5 · Feature ablation</a><a href='06-findings.html'>6 · Findings & next</a></div></div></div>
+<div class='wrap'><h1>Deposit attrition early warning &mdash; full technical report</h1>
+<div class='sub'>Payment Knowledge Graph &middot; PNC Treasury Management &middot; Data Science
+&middot; consolidated across runs v6&ndash;v8b &middot; September 2026</div>
+
+<div class='lede'>Payment behaviour predicts a departing treasury client, and it does so on the
+clients where the deposit balance is blind. At matched alert volume the model finds
+<b>43% more departing clients than the rule in production today</b>, with
+<b>2,000 fewer client conversations</b> and the same four months of warning. On clients who drain
+an account rather than close it, balance-based scoring retains <b>12%</b> of its accuracy and
+payment-based scoring retains <b>81%</b>.</div><div class='kpi'>
+<div><b>0.7269</b><span>precision at 250 alerts a month, best specification
+ (baseline 0.6514)</span></div>
+<div><b>+43%</b><span>more departing clients found than the incumbent at identical volume</span></div>
+<div><b>&minus;35%</b><span>client conversations per client saved</span></div>
+<div><b>96%</b><span>of outbound <i>dollars</i> carry a counterparty institution &mdash; against
+ 37% of transactions</span></div>
+</div><div class='figwrap'><div style="height:340px; width:100%;">                            <div id="fig1" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig1")) {                    Plotly.newPlot(                        "fig1",                        [{"cliponaxis":false,"marker":{"color":"#C1440E"},"showlegend":false,"text":["5,860"],"textposition":"outside","x":["Model"],"y":[5860],"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":"#9AA1AC"},"showlegend":false,"text":["4,103"],"textposition":"outside","x":["Incumbent"],"y":[4103],"type":"bar","xaxis":"x","yaxis":"y"},{"cliponaxis":false,"marker":{"color":"#C1440E"},"showlegend":false,"text":["28,386"],"textposition":"outside","x":["Model"],"y":[28386],"type":"bar","xaxis":"x2","yaxis":"y2"},{"cliponaxis":false,"marker":{"color":"#9AA1AC"},"showlegend":false,"text":["30,427"],"textposition":"outside","x":["Incumbent"],"y":[30427],"type":"bar","xaxis":"x2","yaxis":"y2"},{"cliponaxis":false,"marker":{"color":"#C1440E"},"showlegend":false,"text":["16.3%"],"textposition":"outside","x":["Model"],"y":[0.163],"type":"bar","xaxis":"x3","yaxis":"y3"},{"cliponaxis":false,"marker":{"color":"#9AA1AC"},"showlegend":false,"text":["11.7%"],"textposition":"outside","x":["Incumbent"],"y":[0.117],"type":"bar","xaxis":"x3","yaxis":"y3"},{"cliponaxis":false,"marker":{"color":"#C1440E"},"showlegend":false,"text":["74.7%"],"textposition":"outside","x":["Model"],"y":[0.747],"type":"bar","xaxis":"x4","yaxis":"y4"},{"cliponaxis":false,"marker":{"color":"#9AA1AC"},"showlegend":false,"text":["52.3%"],"textposition":"outside","x":["Incumbent"],"y":[0.523],"type":"bar","xaxis":"x4","yaxis":"y4"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"anchor":"y","domain":[0.0,0.1975]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"showticklabels":false,"showgrid":false,"range":[0,7500.8]},"xaxis2":{"anchor":"y2","domain":[0.2675,0.465]},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"showticklabels":false,"showgrid":false,"range":[0,38946.56]},"xaxis3":{"anchor":"y3","domain":[0.535,0.7325]},"yaxis3":{"anchor":"x3","domain":[0.0,1.0],"showticklabels":false,"showgrid":false,"range":[0,0.20864000000000002]},"xaxis4":{"anchor":"y4","domain":[0.8025,1.0]},"yaxis4":{"anchor":"x4","domain":[0.0,1.0],"showticklabels":false,"showgrid":false,"range":[0,0.95616]},"annotations":[{"font":{"size":12},"showarrow":false,"text":"Departing clients\u003cbr\u003efound","x":0.09875,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":12},"showarrow":false,"text":"Client\u003cbr\u003econversations","x":0.36625,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":12},"showarrow":false,"text":"Precision","x":0.63375,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":12},"showarrow":false,"text":"Share of all\u003cbr\u003edepartures caught","x":0.90125,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"Same 12,667 alerts a month \u2014 the model against the rule in production"},"bargap":0.35,"height":340},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>Seven rolling test months, ~79,000 live clients scored each month, 7,845 client departures in the window. <b>Conversations</b> collapses a client re-flagged within three months into one outreach. The model is better on every axis at once, so there is no trade to argue about.</div></div><div class='figwrap'><div style="height:430px; width:100%;">                            <div id="fig2" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig2")) {                    Plotly.newPlot(                        "fig2",                        [{"line":{"color":"#C1440E","width":3},"marker":{"size":7},"mode":"lines+markers","name":"M4_pay_plus_bal","x":[50,100,250,500,1000,2500],"y":[0.834,0.771,0.651,0.587,0.554,0.384],"type":"scatter"},{"line":{"color":"#4A6FA5","width":2},"marker":{"size":7},"mode":"lines+markers","name":"M3_pay_only","x":[50,100,250,500,1000,2500],"y":[0.557,0.549,0.515,0.446,0.329,0.211],"type":"scatter"},{"line":{"color":"#2F6F4E","width":2},"marker":{"size":7},"mode":"lines+markers","name":"R_bal_live","x":[50,100,250,500,1000,2500],"y":[0.503,0.514,0.508,0.513,0.512,0.347],"type":"scatter"},{"line":{"color":"#B8860B","width":2},"marker":{"size":7},"mode":"lines+markers","name":"R_count12","x":[50,100,250,500,1000,2500],"y":[0.5,0.437,0.373,0.325,0.261,0.178],"type":"scatter"},{"line":{"color":"#7B5EA7","width":2},"marker":{"size":7},"mode":"lines+markers","name":"R_fin_out_n","x":[50,100,250,500,1000,2500],"y":[0.366,0.32,0.291,0.262,0.19,0.119],"type":"scatter"},{"line":{"color":"#9AA1AC","width":2},"marker":{"size":7},"mode":"lines+markers","name":"R_p30","x":[50,100,250,500,1000,2500],"y":[0.066,0.08,0.103,0.107,0.112,0.112],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"type":"log","title":{"text":"alerts per month (log)"},"tickvals":[50,100,250,500,1000,2500],"ticktext":["50","100","250","500","1,000","2,500"]},"yaxis":{"title":{"text":"precision"},"tickformat":".0%","rangemode":"tozero"},"title":{"text":"Precision falls as the queue gets longer \u2014 the shape of the decision"},"height":430},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'>A queue is a capacity decision, not a threshold decision. The gap between the fitted model (M4) and every rule widens as the list shortens, which is exactly where a high-conviction retention list would operate.</div></div><div class='figwrap'><div style="height:430px; width:100%;">                            <div id="fig3" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fig3")) {                    Plotly.newPlot(                        "fig3",                        [{"cliponaxis":false,"marker":{"color":"#4A6FA5"},"name":"A \u00b7 clients who close","orientation":"h","text":["0.508","0.508","0.651","0.515","0.291","0.291","0.373","0.103"],"textposition":"outside","x":{"dtype":"f8","bdata":"qMZLN4lB4D+oxks3iUHgP6JFtvP91OQ\u002fexSuR+F64D85tMh2vp\u002fSPzm0yHa+n9I\u002frBxaZDvf1z+R7Xw\u002fNV66Pw=="},"y":["M1_bal_only","R_bal_live","M4_pay_plus_bal","M3_pay_only","M2_fin_only","R_fin_out_n","R_count12","R_p30"],"type":"bar"},{"cliponaxis":false,"marker":{"color":"#C1440E"},"name":"B \u00b7 clients who drain","orientation":"h","text":["0.063","0.063","0.335","0.333","0.237","0.237","0.314","0.088"],"textposition":"outside","x":{"dtype":"f8","bdata":"VOOlm8QgsD9U46WbxCCwP3E9CtejcNU\u002fHVpkO99P1T+8dJMYBFbOP7x0kxgEVs4\u002ff2q8dJMY1D+6SQwCK4e2Pw=="},"y":["M1_bal_only","R_bal_live","M4_pay_plus_bal","M3_pay_only","M2_fin_only","R_fin_out_n","R_count12","R_p30"],"type":"bar"}],                        {"template":{"layout":{"colorway":["#C1440E","#4A6FA5","#2F6F4E","#B8860B","#7B5EA7","#0E7C86","#9AA1AC","#8C5A3C"],"font":{"color":"#16181D","family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12.5},"hoverlabel":{"bgcolor":"#FFF","bordercolor":"#E5E7EB","font":{"family":"IBM Plex Sans, \"Segoe UI\", -apple-system, sans-serif","size":12}},"legend":{"bgcolor":"rgba(0,0,0,0)","font":{"size":11.5},"orientation":"h","x":1,"xanchor":"right","y":1.0,"yanchor":"bottom"},"margin":{"b":56,"l":64,"r":28,"t":54},"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","title":{"font":{"color":"#16181D","size":15},"x":0,"xanchor":"left","y":0.97},"xaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"},"yaxis":{"automargin":true,"gridcolor":"#E5E7EB","linecolor":"#E5E7EB","tickcolor":"#E5E7EB","ticklen":4,"ticks":"outside","zerolinecolor":"#E5E7EB"}}},"xaxis":{"title":{"text":"precision at K=250"},"tickformat":".2f","range":[0,0.82]},"title":{"text":"Balance-based scoring collapses on the shell-account population"},"barmode":"group","height":430},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div><div class='cap'><b>R_bal_live and M1_bal_only retain 12% of their precision</b> on clients who keep accounts open and move the money out. The payment-based signals retain 81%. Base rates differ by only 0.86&times;, so this is a collapse, not a denominator effect.</div></div><h2 id='pages'>What is in this report</h2>
+<table class='t'>
+<tr><th style='width:20%'>Page</th><th>Contains</th></tr>
+<tr><td><a href='01-definitions.html'><b>1 · Definitions</b></a></td>
+<td>What "attrition" means here — three competing definitions and why <code>A_full_exit</code> is
+primary; account closure mechanics and the status taxonomy; the dependent variable, the risk set,
+and the observability rule that keeps censoring honest</td></tr>
+<tr><td><a href='02-variables.html'><b>2 · Variables</b></a></td>
+<td>Every independent variable: the twelve base signals, the difference-in-differences transform
+and its frozen peer group, the 74 features added in v8, and what was deliberately excluded on
+leakage grounds</td></tr>
+<tr><td><a href='03-data.html'><b>3 · Data & rails</b></a></td>
+<td>Source tables, artefact inventory, column-level population rates, coverage by direction, and
+the <b>rail &times; institution</b> analysis that determines what <code>fin_out_n</code>
+actually measures</td></tr>
+<tr><td><a href='04-model.html'><b>4 · Model & queue</b></a></td>
+<td>The move from event time to calendar time; rolling-origin discrete-time hazard; eight
+specifications compared; the capacity-constrained queue; the incumbent measured the same way;
+validation on the second label</td></tr>
+<tr><td><a href='05-features.html'><b>5 · Feature ablation</b></a></td>
+<td>The v8 feature build, the construction defect that silently nulled five families, the repair,
+and the block-by-block ablation that decides what ships</td></tr>
+<tr><td><a href='06-findings.html'><b>6 · Findings & next</b></a></td>
+<td>Consolidated findings, every superseded claim with the reason it changed, open questions, and
+the sequenced next steps</td></tr>
+</table><h2 id='shape'>The shape of the work</h2>
+<p>Eight runs over roughly a year. Three produced results that were later withdrawn, and the
+reasons are more instructive than the numbers — they are all in
+<a href='06-findings.html#superseded'>§6</a>. The three structural changes that stuck:</p>
+<ol>
+<li><b>Difference-in-differences (v5&ndash;v6).</b> Compare a client to its own recent history,
+then to its frozen peer group. This survives the permanent 2024 data floor and is computable in
+production every month.</li>
+<li><b>Calendar time (v7).</b> Everything before v7 measured statistics inside an event-time cell.
+A queue is a rank within a calendar month over the whole live book. The two answer different
+questions and only the second can be handed to a sales team.</li>
+<li><b>Ship on precision at capacity, not AUC (v8&ndash;v8b).</b> The two metrics disagreed hard:
+the widest specification had the best AUC and the worst precision. A queue lives in the extreme
+tail of the ranking; AUC is a global average.</li>
+</ol><div class='box hi'><h4>One correction that runs through the whole document</h4>
+An earlier version of this work reported counterparty coverage as blocked on the
+<code>PAYS_CPTY</code> and <code>CptyFinEntity</code> ingestion milestones. <b>Those milestones
+belong to the Neo4j payment graph. This analysis does not use the graph.</b> It reads
+<code>dsihd01p_dsi.neo4j_payments</code> directly, and that table already carries the counterparty
+name, the counterparty account and the counterparty's bank on both directions at transaction-day
+grain. Nothing in the feature roadmap is waiting on an ingestion.</div><div class='pager'><span></span><a href='01-definitions.html'>1 · Definitions &rarr;</a></div><div class='foot'>PKG Deposit Attrition &middot; PNC Treasury Management, Data Science &middot; internal use only, not for external distribution.<br>Every figure traces to a run output in <code>attrition_v7/</code> or <code>attrition_v8/</code>. Charts need <code>plotly.min.js</code> in the same folder.</div></div></body></html>
