@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why deposit clients leave — PKG attrition findings (v11)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Spectral:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+:root{
+  --paper:#F1F4F0; --sheet:#FAFBF8; --ink:#1B2432; --muted:#5A6472; --rule:#D3D9D1;
+  --disp:#2A6CAD; --contr:#B07A1C; --neutral:#8B95A3; --mixed:#7B5E9E; --good:#2F7A55; --bad:#B4432F;
+  --band:#E3E9E2;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161C; --sheet:#181D25; --ink:#E4E8EE; --muted:#9AA4B2; --rule:#2C3440;
+    --disp:#6AA6E0; --contr:#D9A548; --neutral:#7F8A99; --mixed:#A98BD1; --good:#5BB386; --bad:#E07A62;
+    --band:#212833;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161C; --sheet:#181D25; --ink:#E4E8EE; --muted:#9AA4B2; --rule:#2C3440;
+  --disp:#6AA6E0; --contr:#D9A548; --neutral:#7F8A99; --mixed:#A98BD1; --good:#5BB386; --bad:#E07A62;
+  --band:#212833;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 56px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:400 16px/1.6 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-variant-numeric:tabular-nums}
+a{color:var(--disp)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--disp);outline-offset:2px}
+h1,h2,h3{font-family:Spectral,Georgia,"Times New Roman",serif;font-weight:600;line-height:1.2;margin:0}
+h1{font-size:clamp(2rem,5vw,3.1rem);letter-spacing:-.01em;max-width:22ch}
+h2{font-size:clamp(1.5rem,3.2vw,2rem);margin-bottom:.6rem}
+h3{font-size:1.2rem;margin:2rem 0 .4rem}
+p{margin:.7rem 0;max-width:68ch}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.prose{max-width:720px}
+
+nav.toc{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--rule);
+  padding-top:env(safe-area-inset-top,0px)}
+nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-top:8px;padding-bottom:8px}
+nav.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.88rem;padding:6px 10px;border-radius:6px}
+nav.toc a:hover{color:var(--ink);background:var(--band)}
+
+header.hero{padding:48px 0 12px}
+.hero .lede{font-family:Spectral,Georgia,serif;font-size:clamp(1.15rem,2.2vw,1.4rem);line-height:1.5;max-width:52ch;margin:1.1rem 0 0}
+.meta{color:var(--muted);font-size:.9rem;margin-top:1rem}
+.hero-fig{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:14px 10px 6px;margin-top:26px}
+.hero-fig .cap{padding:0 10px 8px}
+
+section{padding:44px 0 8px;border-top:1px solid var(--rule);margin-top:36px}
+.part{color:var(--muted);font-size:.95rem;margin-bottom:.2rem}
+figure{margin:18px 0 8px;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:12px 8px 4px}
+figure .cap{padding:0 10px 8px;font-size:.92rem;color:var(--muted);max-width:none}
+figure .cap b{color:var(--ink);font-weight:600}
+.chart{width:100%;height:360px}
+.chart.tall{height:440px}
+.chart.short{height:260px}
+.grid2{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:860px){.grid2{grid-template-columns:1fr 1fr}.grid2 figure{margin:0}}
+
+.callout{border-left:3px solid var(--disp);background:var(--sheet);padding:12px 16px;margin:18px 0;border-radius:0 8px 8px 0;max-width:720px}
+.callout.warn{border-left-color:var(--contr)}
+.callout p{margin:.3rem 0}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:20px 0}
+.stats div{background:var(--sheet);padding:12px 14px}
+.stats b{display:block;font-family:Spectral,Georgia,serif;font-size:1.55rem;font-weight:600}
+.stats span{color:var(--muted);font-size:.86rem;line-height:1.35;display:block}
+
+.tablewrap{overflow-x:auto;margin:16px 0;border:1px solid var(--rule);border-radius:10px;background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:620px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.85rem}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;white-space:nowrap}
+.held{color:var(--good);font-weight:600}.failed{color:var(--bad);font-weight:600}
+
+.sim{display:grid;grid-template-columns:1fr;gap:14px;align-items:center}
+@media (min-width:860px){.sim{grid-template-columns:300px 1fr}}
+.sliders label{display:block;font-size:.92rem;margin:14px 0 4px}
+.sliders input[type=range]{width:100%;accent-color:var(--disp)}
+.readout{font-family:Spectral,Georgia,serif;font-size:2.4rem;font-weight:600;margin:8px 0 0}
+.readout small{display:block;font-family:"IBM Plex Sans",sans-serif;font-size:.88rem;font-weight:400;color:var(--muted)}
+
+.plays{display:grid;grid-template-columns:1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:18px 0}
+@media (min-width:700px){.plays{grid-template-columns:1fr 1fr}}
+.plays div{background:var(--sheet);padding:14px 16px}
+.plays h4{margin:0 0 4px;font-size:1rem}
+.plays p{margin:0;font-size:.92rem;color:var(--muted)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:1px}
+
+ul.tight{padding-left:1.2rem;max-width:68ch}ul.tight li{margin:.35rem 0}
+footer{color:var(--muted);font-size:.85rem;padding:36px 0 48px;border-top:1px solid var(--rule);margin-top:48px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#answer">Answer</a>
+    <a href="#score">What drives the score</a>
+    <a href="#why">Why they leave</a>
+    <a href="#early">Seeing it early</a>
+    <a href="#plays">The plays</a>
+    <a href="#decide">What settles it</a>
+    <a href="#scorecard">Scorecard</a>
+    <a href="#next">Caveats and next steps</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<header class="hero" id="answer">
+  <h1>Why deposit clients leave, and what the payment graph can tell an RM</h1>
+  <p class="lede">Where both answers could be observed, between 30% and 66% of departing clients moved their banking elsewhere rather than shrinking. By dollars the range is 42% to 85%. Displacement rises steeply with client size.</p>
+  <p class="meta">Payment Knowledge Graph attrition programme, notebook v11.3. Cluster runs of 24 September 2026. PNC Treasury Management, Data Science. Internal.</p>
+  <div class="hero-fig">
+    <div id="c_hero" class="chart" role="img" aria-label="Range of the displaced share among eligible attriters, in clients and in dollars"></div>
+    <p class="cap" style="color:var(--muted);font-size:.9rem">Eligible attriters only (1,408 clients, where relationship survival can be checked). The solid bar runs from the observed estimate to the recall-corrected estimate; whiskers are 95% client-bootstrap intervals. The hollow marker is the old all-typeable dollar figure (88%), which is biased and retired.</p>
+  </div>
+</header>
+
+<div class="prose">
+  <p>This report answers the two questions an RM asks when a name lands on their list. <b>Why is this client on my list?</b> covers which signals carry the attrition score and which earn nothing. <b>Is the client shrinking, or moving its banking?</b> decides whether to lead with credit and working capital, or to compete on price, ECR and service.</p>
+  <p>The model is fixed: all 74 signals (148 columns), full exit within six months, trained and scored only where the money is still here, 1,000 alerts a month ranked on probability × normal balance<sup>0.5</sup>.</p>
+</div>
+
+<div class="stats">
+  <div><b>0.7483</b><span>AUC, money still here. Reproduces v10c exactly</span></div>
+  <div><b>229</b><span>departing clients reached across 3,035 conversations</span></div>
+  <div><b>$606.8m</b><span>capped departing balance reached</span></div>
+  <div><b>$10.4m</b><span>retained a year at a 1% save rate; break-even 0.125%</span></div>
+</div>
+
+<!-- ───────────────────────── PART 1 ───────────────────────── -->
+<section id="score">
+  <p class="part">Question 1</p>
+  <h2>What drives the attrition score</h2>
+  <div class="prose">
+    <p>The refit is stable: seven rolling test months, every fit converged, top-decile calibration 1.011. Each signal was measured three ways: alone, by the AUC lost when it is removed and the model refitted, and by the AUC lost when it is shuffled.</p>
+  </div>
+
+  <figure>
+    <div id="c_folds" class="chart short" role="img" aria-label="AUC by test month"></div>
+    <p class="cap"><b>The score holds across all seven test months.</b> AUC ranges from 0.730 to 0.758 around a mean of 0.748.</p>
+  </figure>
+
+  <div class="grid2">
+    <figure>
+      <div id="c_tiers" class="chart short" role="img" aria-label="74 signals by what they add"></div>
+      <p class="cap"><b>Only five signals are indispensable.</b> 55 predict well alone but others cover for them; one hurts.</p>
+    </figure>
+    <figure>
+      <div id="c_core" class="chart short" role="img" aria-label="AUC lost when each core signal is removed"></div>
+      <p class="cap"><b>The core five</b>, by AUC lost when removed and refitted.</p>
+    </figure>
+  </div>
+
+  <h3>AUC and dollars disagree about which families matter</h3>
+  <div class="prose">
+    <p>AUC averages the whole book; the queue only ever reaches the top 1,000 a month. Judged on the dollars the queue reaches, the ranking of families changes.</p>
+  </div>
+  <figure>
+    <div id="c_family" class="chart" role="img" aria-label="AUC and dollars lost when each family is removed"></div>
+    <p class="cap"><b>fin_in (institutions paying in) costs almost no AUC but is the only family whose dollar contribution is clearly above zero</b>: $56.9m [$14.9m–$107.5m]. Faded bars have intervals that cross zero. AUC alone would have dropped fin_in.</p>
+  </figure>
+
+  <div class="callout">
+    <p><b>cptya_out earns nothing.</b> Removing it costs 0.0000 AUC and $6.5m (not distinguishable from zero), yet it is the top reason on 20.9% of alerts, of which only 2.2% left. A spec without it is the next thing to test.</p>
+    <p><b>The model cannot be cut to 10 signals.</b> The top 10 fall 0.016 AUC and $85.2m [$20.5m–$159.6m] short; the top 40 come within 0.003 AUC and $17.9m (interval crosses zero). About 40 signals is the floor.</p>
+    <p><b>Never show RMs coefficients.</b> 25 of 74 signals have a model sign opposite to their standalone direction. Reason codes explain the ranking, not the client's motive.</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── PART 2 ───────────────────────── -->
+<section id="why">
+  <p class="part">Question 2</p>
+  <h2>Why they leave: moving the banking, or shrinking the business</h2>
+  <div class="prose">
+    <p>Three kinds of payment evidence separate the stories. Money sent to the client's own name at another bank points to a move. Former PNC trading partners still trading with the client elsewhere after exit points to a move. Those partners going quiet points to a shrinking business. Every threshold is calibrated so it fires for at most 5% of comparable clients who stayed.</p>
+  </div>
+
+  <div class="grid2">
+    <figure>
+      <div id="c_funnel" class="chart" role="img" aria-label="How many attriters can be typed"></div>
+      <p class="cap"><b>Contraction can only be seen for about one typeable attriter in five.</b> It needs trading partners who also bank at PNC.</p>
+    </figure>
+    <figure>
+      <div id="c_coverage" class="chart" role="img" aria-label="Evidence coverage by size band"></div>
+      <p class="cap"><b>Own-name evidence covers ~90% in every band; survival evidence 13–27%.</b> Larger clients are more often eligible.</p>
+    </figure>
+  </div>
+
+  <figure>
+    <div id="c_indicators" class="chart tall" role="img" aria-label="How often each indicator fires for attriters and stayers"></div>
+    <p class="cap"><b>The evidence fires far more for leavers than for stayers</b>, except new-bank dollars (dropped as a class) and sibling transfers (kept as a flag only). Lift shown at the right of each pair.</p>
+  </figure>
+
+  <h3>Why the old 88% headline was wrong</h3>
+  <div class="prose">
+    <p>Earlier versions reported that 88% of typed departing dollars were displacement. That compared a detector that sees nearly everyone with one that sees a fifth of clients, so it leaned toward displacement by construction. The honest comparison is made only where both answers were possible.</p>
+  </div>
+  <figure>
+    <div id="c_bias" class="chart short" role="img" aria-label="Share of attriters each detector can see"></div>
+    <p class="cap"><b>The two detectors do not see the same clients.</b> Own-name evidence is usable for about 92% of typeable attriters; relationship survival for 19.4%.</p>
+  </figure>
+
+  <h3>The answer, by size band</h3>
+  <figure>
+    <div id="c_bands" class="chart tall" role="img" aria-label="Displaced share of eligible attriters by size band"></div>
+    <p class="cap"><b>Small clients mostly contract on every point estimate; displacement rises with size.</b> Observed (circle) is likely low, because missed name matches read as contraction. Recall-corrected (triangle) is likely high, because it counts every client with live partners as displaced. Diamonds are the observed share after subtracting what the same rules find among stayers. Use the buttons to switch between clients and dollars. The $10m+ band rests on 29 clients.</p>
+  </figure>
+
+  <div class="grid2">
+    <figure>
+      <div id="c_validity" class="chart" role="img" aria-label="Convergent validity of the typing"></div>
+      <p class="cap"><b>The types are real, not noise.</b> Receipts and supplier breadth, which the rules never used, separate them (AUC 0.63). Drain speed does not.</p>
+    </figure>
+    <figure>
+      <div id="c_mix" class="chart" role="img" aria-label="What the rules find among all typeable attriters, by band"></div>
+      <p class="cap"><b>Most typeable dollars carry no direct evidence either way.</b> Share of normal balance by class, all typeable attriters (includes the ineligible, so not the headline).</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────────────────────── PART 3 ───────────────────────── -->
+<section id="early">
+  <p class="part">Question 2, at alert time</p>
+  <h2>Seeing the type while the money is still here</h2>
+  <div class="prose">
+    <p>The direct evidence mostly appears around and after exit, which is too late for an RM. So the directly typed eligible clients (717) became labels for a model that predicts the type from what is visible at the alert.</p>
+  </div>
+  <div class="grid2">
+    <figure>
+      <div id="c_early" class="chart" role="img" aria-label="Type AUC by months before exit"></div>
+      <p class="cap"><b>The type is predictable six months out, well beyond size.</b> Model plus evidence stays between 0.76 and 0.78 at every lead; size alone falls from 0.68 to 0.59.</p>
+    </figure>
+    <figure>
+      <div id="c_within" class="chart" role="img" aria-label="Type AUC within size bands"></div>
+      <p class="cap"><b>It holds within size bands, except $10m+</b>, where 12 labelled clients are too few to rank.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────────────────────── PART 4 ───────────────────────── -->
+<section id="plays">
+  <p class="part">From finding to action</p>
+  <h2>The plays</h2>
+  <div class="plays">
+    <div><h4><span class="dot" style="background:var(--disp)"></span>COMPETE</h4><p>Lead with pricing, ECR and service. The client looks like it is moving its banking.</p></div>
+    <div><h4><span class="dot" style="background:var(--contr)"></span>SUPPORT</h4><p>Lead with credit, working capital or restructuring. Only issued where contraction is observable.</p></div>
+    <div><h4><span class="dot" style="background:var(--neutral)"></span>DISCOVER</h4><p>Ask before offering. The evidence does not point either way.</p></div>
+    <div><h4><span class="dot" style="background:var(--mixed)"></span>VERIFY_INTERNAL</h4><p>Check for a re-key or a move to a sibling entity first.</p></div>
+  </div>
+
+  <figure>
+    <div id="c_lr" class="chart" role="img" aria-label="Likelihood ratio by cut-off"></div>
+    <p class="cap"><b>Cut-offs are set where the evidence triples the odds of the type</b>, and stays there at every stricter cut-off. COMPETE at p ≥ 0.44 (3.01×), SUPPORT at p ≤ 0.17 (3.03×). Training prior: 30.8% displaced. Points are the cut-offs reported in table 8d.</p>
+  </figure>
+
+  <div class="grid2">
+    <figure>
+      <div id="c_queue" class="chart" role="img" aria-label="Queue by play"></div>
+      <p class="cap"><b>COMPETE carries a quarter of departing dollars at below-average precision</b>; it is largely the large-client bucket. SUPPORT has the best precision on few dollars. Bubble size = alerts.</p>
+    </figure>
+    <figure>
+      <div id="c_replicate" class="chart" role="img" aria-label="Odds shift on departing alerts by play"></div>
+      <p class="cap"><b>On real departing alerts, both plays point the right way</b> at about 2.5–2.7× the odds; DISCOVER carries no type information, as it should. Small counts: 28 and 20.</p>
+    </figure>
+  </div>
+
+  <figure>
+    <div id="c_observe" class="chart short" role="img" aria-label="Alerts by play and whether contraction is observable"></div>
+    <p class="cap"><b>Half the alerts have no internal PNC flows, so contraction cannot be seen for them.</b> A low p(displacement) there means no move was seen, not that the business is shrinking, so those alerts go to DISCOVER.</p>
+  </figure>
+</section>
+
+<!-- ───────────────────────── PART 5 ───────────────────────── -->
+<section id="decide">
+  <p class="part">Closing the range</p>
+  <h2>What will settle the answer</h2>
+  <div class="prose">
+    <p>The 30–66% range comes from two groups of eligible attriters: 714 called CONTRACTION, some of which may be moves the name matcher missed, and 296 whose partners are still alive but where no move was seen. RMs are reviewing 40 of each. Their verdicts turn the range into one number.</p>
+  </div>
+  <figure>
+    <div class="sim">
+      <div class="sliders">
+        <label for="s_contr">Share of CONTRACTION calls RMs judge to be moves: <b id="v_contr">20%</b></label>
+        <input id="s_contr" type="range" min="0" max="100" step="1" value="20">
+        <label for="s_alive">Share of "partners alive, no move seen" judged moves: <b id="v_alive">50%</b></label>
+        <input id="s_alive" type="range" min="0" max="100" step="1" value="50">
+        <p class="readout" id="readout">45.2%<small>of eligible attriters displaced (clients)</small></p>
+      </div>
+      <div id="c_decide" class="chart" role="img" aria-label="Displaced share for every combination of RM verdicts"></div>
+    </div>
+    <p class="cap"><b>The CONTRACTION reviews decide the headline.</b> Even if every "partners alive" client was a move, the share reaches only 45.6%. For a majority to be displacement, more than 8% of CONTRACTION calls must be hidden moves (29% if only half the alive group is). The line marks 50%. Clients only; dollar weights stay in the notebook's <code>point_estimate()</code>.</p>
+  </figure>
+</section>
+
+<!-- ───────────────────────── SCORECARD ───────────────────────── -->
+<section id="scorecard">
+  <p class="part">Accountability</p>
+  <h2>Pre-registered predictions</h2>
+  <div class="prose"><p>Written before the first run and scored mechanically. Never re-scored across versions.</p></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>Prediction</th><th>Confidence</th><th class="num">Measured</th><th>Verdict</th></tr></thead>
+      <tbody id="scoreBody"></tbody>
+    </table>
+  </div>
+  <div class="callout warn"><p><b>P7 held on a biased measure.</b> It was scored on all typeable dollars, where displacement is over-detected. The eligible-only estimate (42–85% of dollars) replaces it.</p></div>
+</section>
+
+<!-- ───────────────────────── NEXT ───────────────────────── -->
+<section id="next">
+  <p class="part">Before this reaches an RM</p>
+  <h2>Caveats and next steps</h2>
+  <ul class="tight">
+    <li><b>The typing is a hypothesis about why, built from payment behaviour.</b> It becomes a finding when RMs confirm the review sample, and a product when win/loss outcomes are recorded against the play they were given.</li>
+    <li><b>A play is a conversation opener, not an offer.</b> Routing credit offers by this score needs a fair-lending review first; destination data needs the permissible-use read.</li>
+    <li><b>No institution or client is named here.</b> Full identifiers stay in the notebook's access-controlled CSVs.</li>
+    <li><b>Small cells are small.</b> The $10m+ band has 29 eligible attriters; the play replication rests on 28 and 20 departing clients.</li>
+  </ul>
+  <h3>Next</h3>
+  <ul class="tight">
+    <li>RM verdicts on the 80-client range sample, then <code>point_estimate()</code> for a single answer in clients and dollars.</li>
+    <li>Test an all-features spec without the cptya_out family, judged in capped dollars.</li>
+    <li>If the evidence-to-date block keeps its lift at 4–6 months out, add it to the attrition model as a family.</li>
+    <li>Verify the B label and the largest clients (v10d backlog).</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Sources: pkg_attrition_eda v11.2 and v11.3 cluster outputs (tables 2b, 3b–3c, 4b, 6a–6h, 7a–7e, 8a–8d, 9a–9b-ii, 10). Aggregates only. Internal — PNC Treasury Management, Data Science.</div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function C(){ return {paper:css('--paper'),sheet:css('--sheet'),ink:css('--ink'),muted:css('--muted'),rule:css('--rule'),
+  disp:css('--disp'),contr:css('--contr'),neutral:css('--neutral'),mixed:css('--mixed'),good:css('--good'),bad:css('--bad'),band:css('--band')}; }
+const pct = (v,d=1) => (v*100).toFixed(d)+'%';
+const CFG = {displayModeBar:false, responsive:true};
+const narrow = () => window.innerWidth < 640;
+
+function base(c, extra){
+  const L = {
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{family:'"IBM Plex Sans", system-ui, sans-serif', size:12.5, color:c.ink},
+    margin:{l:56, r:18, t:18, b:44},
+    hoverlabel:{bgcolor:c.sheet, bordercolor:c.rule, font:{color:c.ink, family:'"IBM Plex Sans", sans-serif'}},
+    legend:{orientation:'h', x:0, y:1.12, font:{size:12, color:c.muted}, bgcolor:'rgba(0,0,0,0)'},
+    xaxis:{gridcolor:c.rule, zerolinecolor:c.rule, linecolor:c.rule, tickfont:{color:c.muted}, title:{font:{color:c.muted, size:12}}},
+    yaxis:{gridcolor:c.rule, zerolinecolor:c.rule, linecolor:c.rule, tickfont:{color:c.muted}, title:{font:{color:c.muted, size:12}}}
+  };
+  return deepMerge(L, extra || {});
+}
+function deepMerge(a,b){
+  for (const k in b){
+    if (b[k] && typeof b[k]==='object' && !Array.isArray(b[k]) && a[k] && typeof a[k]==='object') a[k]=deepMerge(a[k], b[k]);
+    else a[k]=b[k];
+  }
+  return a;
+}
+
+// ───────────────── data (from the cluster runs) ─────────────────
+const D = {
+  folds:{origin:[24307,24308,24309,24310,24311,24312,24313], auc:[.7518,.7428,.7564,.7449,.7299,.7548,.7576], mean:.7483},
+  tiers:[['core',5],['redundant',55],['weak',13],['harmful',1]],
+  core:[['balance level (log)',.0015],['$ out by wire',.0010],['$ received from PNC customers',.0009],['number of payments in',.0008],['$ paid to other PNC customers',.0005]],
+  family:[
+    {f:'payment_v7', auc:.0191, d:25.9, lo:null, hi:null, sig:false},
+    {f:'deposit',    auc:.0062, d:59.0, lo:null, hi:null, sig:false},
+    {f:'fin_in',     auc:.0005, d:56.9, lo:14.9, hi:107.5, sig:true},
+    {f:'cptya_out',  auc:.0000, d:6.5,  lo:null, hi:null, sig:false}],
+  bands:['$10k–100k','$100k–1m','$1m–10m','$10m+'],
+  cov:{own:[.921,.935,.897,.879], partner:[.844,.829,.774,.729], elig:[.133,.239,.271,.271]},
+  ind:[
+    {n:'Any displacement evidence', a:.133, s:.061, lift:2.19, pop:'typeable'},
+    {n:'Own-name transfers elsewhere', a:.111, s:.045, lift:2.47, pop:'typeable'},
+    {n:'Partners trade with client elsewhere', a:.155, s:.053, lift:2.95, pop:'eligible'},
+    {n:'Partners gone everywhere', a:.592, s:.068, lift:8.77, pop:'eligible'},
+    {n:'Dollars to never-used banks (dropped)', a:.047, s:.050, lift:0.95, pop:'typeable'},
+    {n:'Transfers to own entities (flag only)', a:.024, s:.047, lift:0.52, pop:'typeable'}],
+  elig:{ // 6h
+    n:[444,695,240,29,1408],
+    obsC:[.195,.333,.386,.474,.298], obsClo:[.155,.288,.312,.263,.267], obsChi:[.237,.375,.456,.700,.324],
+    corC:[.491,.735,.734,.967,.663], corClo:[.415,.659,.623,.674,.598], corChi:[.576,.828,.861,1,.736],
+    adjC:[.109,.237,.314,.399,.207],
+    obsD:[.199,.370,.438,.419,.416], obsDlo:[.151,.314,.344,.190,.318], obsDhi:[.246,.426,.523,.705,.517],
+    corD:[.484,.788,.801,.952,.854], corDlo:[.405,.699,.664,.611,.700], corDhi:[.575,.894,.940,1,1]},
+  valid:[
+    {f:'Drain speed', auc:.525, lo:.497, hi:.555, ind:true},
+    {f:'Receipts, drain vs base', auc:.630, lo:.604, hi:.659, ind:true},
+    {f:'Supplier breadth', auc:.634, lo:.604, hi:.661, ind:true},
+    {f:'Ticket size ratio', auc:.673, lo:.644, hi:.703, ind:false},
+    {f:'Wire share of drain', auc:.748, lo:.724, hi:.772, ind:false},
+    {f:'Largest single payment', auc:.768, lo:.745, hi:.791, ind:false}],
+  mix:{disp:[.099,.154,.169,.588], mixed:[.010,.017,.016,.003], contr:[.099,.108,.116,.033], none:[.792,.720,.700,.376]},
+  early:{x:[-6,-5,-4,-3,-2,-1],
+    both:[.773,.772,.758,.766,.769,.775], model:[.768,.756,.755,.748,.751,.741],
+    evidence:[.705,.726,.724,.769,.749,.749], size:[.683,.681,.663,.681,.653,.588]},
+  within:{n:[256,338,111,12], both:[.773,.793,.694,.531], size:[.574,.625,.614,.750]},
+  lr:{compete:{t:[.39,.40,.44,.50,.60,.70,.80,.90,.95], lr:[3.00,2.96,3.01,3.36,3.55,4.08,3.92,5.20,5.45], n:[342,335,315,287,233,183,145,73,33], ag:[.572,.569,.573,.600,.613,.645,.636,.698,.708]},
+      support:{t:[.05,.10,.15,.17,.20,.30], lr:[4.04,3.18,3.17,3.03,3.00,2.35], n:[278,371,423,436,454,518], ag:[.901,.877,.877,.872,.871,.841]}},
+  queue:[
+    {p:'VERIFY_INTERNAL', alerts:155, dep:17, prec:.110, share$:.125, capd:75.8},
+    {p:'COMPETE', alerts:909, dep:52, prec:.057, share$:.257, capd:156.1},
+    {p:'DISCOVER', alerts:1553, dep:105, prec:.068, share$:.542, capd:328.8},
+    {p:'SUPPORT', alerts:418, dep:55, prec:.132, share$:.076, capd:46.1}],
+  rep:[{p:'COMPETE', n:28, share:.786, base:.595, lr:2.50, reads:'displaced'},
+       {p:'SUPPORT', n:20, share:.650, base:.405, lr:2.72, reads:'contracted'},
+       {p:'DISCOVER', n:26, share:.577, base:.595, lr:0.93, reads:'displaced'}],
+  obs:{plays:['COMPETE','DISCOVER','SUPPORT','VERIFY_INTERNAL'], observable:[782,258,418,101], extrap:[127,1295,0,54]},
+  pe:{d:303, c:714, n:296}
+};
+const SCORE = [
+  ['P1','Refit AUC within ±0.003 of 0.7483','~85%','0.7483',true],
+  ['P2','Top-10 signals within 0.010 AUC of all 74','~60%','0.0160',false],
+  ['P3','payment_v7 is the costliest family to drop (dollars)','~75%','deposit',false],
+  ['P4','At least a third of signals add nothing uniquely','~65%','31.1%',false],
+  ['P5','Standalone vs unique rank Spearman < 0.6','~60%','0.2437',true],
+  ['P6','Displacement evidence ≥ 2× stayers','~70%','2.19×',true],
+  ['P7','Displacement ≥ 60% of directly typed $','~60%','87.9%',true],
+  ['P8','Relationship survival observable for ≥ 40%','~50%','19.4%',false],
+  ['P9','Name-matching recall proxy ≥ 50%','~50%','64.2%',true],
+  ['P10','Drain speed separates the types, AUC ≥ 0.60','~55%','0.5249',false],
+  ['P11','p(displacement | leaving) AUC ≥ 0.70','~50%','0.7698',true],
+  ['P12','Internal moves < 5% of typeable attriters','~70%','2.4%',true]];
+
+// ───────────────── charts ─────────────────
+const B = {};
+
+B.c_hero = c => {
+  const e = D.elig, i = 4;
+  const rows = ['Dollars','Clients'];
+  const obs = [e.obsD[i], e.obsC[i]], cor = [e.corD[i], e.corC[i]];
+  const data = [
+    {type:'scatter', mode:'lines', x:[e.adjC[i], e.obsC[i]], y:['Clients','Clients'], line:{color:c.disp, width:3, dash:'dot'}, hoverinfo:'skip', showlegend:false},
+  ];
+  rows.forEach((r,k)=>{
+    data.push({type:'scatter', mode:'lines', x:[obs[k], cor[k]], y:[r,r], line:{color:c.disp, width:16}, opacity:.3, hoverinfo:'skip', showlegend:false});
+  });
+  data.push({type:'scatter', mode:'markers+text', name:'observed', x:obs, y:rows,
+    error_x:{type:'data', symmetric:false, array:[e.obsDhi[i]-e.obsD[i], e.obsChi[i]-e.obsC[i]], arrayminus:[e.obsD[i]-e.obsDlo[i], e.obsC[i]-e.obsClo[i]], color:c.disp, thickness:1.2, width:5},
+    marker:{size:15, color:c.disp, line:{color:c.sheet, width:2}}, text:obs.map(v=>pct(v,0)), textposition:'bottom center', textfont:{size:14, color:c.ink},
+    hovertemplate:'%{y}, observed: %{x:.1%}<extra></extra>'});
+  data.push({type:'scatter', mode:'markers+text', name:'recall-corrected', x:cor, y:rows,
+    error_x:{type:'data', symmetric:false, array:[e.corDhi[i]-e.corD[i], e.corChi[i]-e.corC[i]], arrayminus:[e.corD[i]-e.corDlo[i], e.corC[i]-e.corClo[i]], color:c.disp, thickness:1.2, width:5},
+    marker:{size:16, symbol:'triangle-up', color:c.disp, line:{color:c.sheet, width:2}}, text:cor.map(v=>pct(v,0)), textposition:'bottom center', textfont:{size:14, color:c.ink},
+    hovertemplate:'%{y}, recall-corrected: %{x:.1%}<extra></extra>'});
+  data.push({type:'scatter', mode:'markers+text', name:'background-adjusted', x:[e.adjC[i]], y:['Clients'],
+    marker:{size:11, symbol:'diamond', color:c.sheet, line:{color:c.disp, width:2}}, text:[pct(e.adjC[i],0)], textposition:'top center', textfont:{size:12, color:c.muted},
+    hovertemplate:'Clients, adjusted against stayers: %{x:.1%}<extra></extra>'});
+  data.push({type:'scatter', mode:'markers+text', name:'old headline (biased)', x:[.879], y:['Dollars'],
+    marker:{size:13, symbol:'circle-open', color:c.muted, line:{width:2}}, text:['old 88%'], textposition:'top center', textfont:{size:12, color:c.muted},
+    hovertemplate:'Old all-typeable dollar share: 87.9% (biased)<extra></extra>'});
+  return {data, layout: base(c, {margin:{l:70, r:22, t:10, b:40}, showlegend:!narrow(),
+    xaxis:{range:[0,1.02], tickformat:'.0%', dtick:narrow()?.25:.1, title:{text:'share of eligible attriters who were displaced'}},
+    yaxis:{type:'category', categoryorder:'array', categoryarray:rows, gridcolor:'rgba(0,0,0,0)', tickfont:{size:14, color:c.ink}},
+    legend:{y:1.08},
+    shapes:[{type:'line', x0:.5, x1:.5, xref:'x', y0:0, y1:1, yref:'paper', line:{color:c.muted, width:1, dash:'dot'}}],
+    annotations:[{x:.5, y:1, yref:'paper', text:'half', showarrow:false, font:{size:11, color:c.muted}, xanchor:'left', xshift:4, yanchor:'top'}]})};
+};
+
+B.c_folds = c => ({
+  data:[{type:'bar', name:'AUC by test month', x:D.folds.origin.map((o,i)=>'month '+(i+1)), y:D.folds.auc, marker:{color:c.disp}, text:D.folds.auc.map(v=>v.toFixed(3)), textposition:'outside', textfont:{color:c.muted, size:11},
+    customdata:D.folds.origin, hovertemplate:'origin m_idx %{customdata}<br>AUC %{y:.4f}<extra></extra>'},
+    {type:'scatter', mode:'lines', x:['month 1','month 7'], y:[D.folds.mean, D.folds.mean], line:{color:c.ink, dash:'dash', width:1.2}, name:'mean 0.7483', hoverinfo:'skip'}],
+  layout: base(c, {yaxis:{range:[.70,.77], tickformat:'.2f', title:{text:'AUC'}}, showlegend:true, legend:{y:1.18}, margin:{t:28}})});
+
+B.c_tiers = c => {
+  const col = {core:c.disp, redundant:c.neutral, weak:c.rule, harmful:c.bad};
+  return {data: D.tiers.map(([k,v])=>({type:'bar', orientation:'h', name:k+' ('+v+')', x:[v], y:['signals'], marker:{color:col[k], line:{color:c.sheet, width:1}},
+      text:[v], textposition:'inside', insidetextanchor:'middle', textfont:{color:k==='weak'?c.ink:'#fff'}, hovertemplate:k+': %{x} of 74<extra></extra>'})),
+    layout: base(c, {barmode:'stack', showlegend:true, legend:{y:1.35, traceorder:'normal'}, margin:{l:10, t:40, b:36}, yaxis:{visible:false}, xaxis:{range:[0,74], title:{text:'number of signals'}}})};
+};
+
+B.c_core = c => ({
+  data:[{type:'bar', orientation:'h', x:D.core.map(r=>r[1]), y:D.core.map(r=>r[0]), marker:{color:c.disp},
+    text:D.core.map(r=>'+'+r[1].toFixed(4)), textposition:'outside', textfont:{size:11, color:c.muted}, hovertemplate:'%{y}: +%{x:.4f} AUC<extra></extra>'}],
+  layout: base(c, {margin:{l:narrow()?150:200, t:10, b:40}, yaxis:{autorange:'reversed', tickfont:{size:11.5, color:c.ink}}, xaxis:{range:[0,.002], tickformat:'.4f', title:{text:'AUC lost when removed'}}})});
+
+B.c_family = c => {
+  const F = D.family;
+  const op = F.map(r=>r.sig?1:.38);
+  return {data:[
+    {type:'bar', orientation:'h', x:F.map(r=>r.auc), y:F.map(r=>r.f), xaxis:'x', yaxis:'y', marker:{color:c.neutral}, name:'AUC lost',
+      text:F.map(r=>r.auc.toFixed(4)), textposition:'outside', textfont:{size:11, color:c.muted}, hovertemplate:'%{y}: %{x:.4f} AUC<extra></extra>'},
+    {type:'bar', orientation:'h', x:F.map(r=>r.d), y:F.map(r=>r.f), xaxis:'x2', yaxis:'y2', marker:{color:c.disp, opacity:op}, name:'dollars lost',
+      error_x:{type:'data', symmetric:false, array:F.map(r=>r.hi==null?0:r.hi-r.d), arrayminus:F.map(r=>r.lo==null?0:r.d-r.lo), color:c.ink, thickness:1.2, width:4},
+      text:F.map(r=>'$'+r.d.toFixed(1)+'m'), textposition:'inside', insidetextanchor:'start', textfont:{size:11, color:c.ink},
+      customdata:F.map(r=>r.sig?'95% interval $'+r.lo+'m–$'+r.hi+'m':'interval crosses zero'),
+      hovertemplate:'%{y}: $%{x:.1f}m<br>%{customdata}<extra></extra>'}],
+    layout: base(c, {showlegend:false, grid:{rows:1, columns:2, pattern:'independent'}, margin:{l:86, t:36, b:44},
+      xaxis:{domain:[0,.42], range:[0,.024], tickformat:narrow()?'.2f':'.3f', nticks:narrow()?3:6, tickangle:0, title:{text:'AUC lost'}},
+      xaxis2:{domain:[.52,1], range:[0,125], nticks:narrow()?3:7, tickangle:0, title:{text:'capped $m lost'}, gridcolor:c.rule, tickfont:{color:c.muted}, zerolinecolor:c.rule},
+      yaxis:{autorange:'reversed', tickfont:{color:c.ink}}, yaxis2:{autorange:'reversed', showticklabels:false, anchor:'x2'},
+      annotations:[{text:'by AUC', x:0, xref:'paper', y:1.1, yref:'paper', showarrow:false, xanchor:'left', font:{color:c.muted}},
+                   {text:'by dollars the queue reaches', x:.52, xref:'paper', y:1.1, yref:'paper', showarrow:false, xanchor:'left', font:{color:c.muted}}]})};
+};
+
+B.c_funnel = c => ({
+  data:[{type:'bar', orientation:'h', y:['A attriters','typeable','eligible'], x:[16384,7245,1408],
+    marker:{color:[c.neutral, c.disp, c.contr]},
+    text:['16,384','7,245 (44% of attriters)','1,408 (19.4% of typeable)'], textposition:'outside', cliponaxis:false, textfont:{color:c.ink},
+    hovertemplate:'%{y}: %{x:,}<extra></extra>'}],
+  layout: base(c, {margin:{l:90, r:20, t:10, b:40}, yaxis:{autorange:'reversed', tickfont:{color:c.ink}},
+    xaxis:{range:[0,26000], title:{text:'clients'}, tickformat:','}})});
+
+B.c_coverage = c => ({
+  data:[
+    {type:'bar', name:'own-name key usable', x:D.bands, y:D.cov.own, marker:{color:c.disp}, hovertemplate:'%{x}: %{y:.1%}<extra>own-name key</extra>'},
+    {type:'bar', name:'partner key usable', x:D.bands, y:D.cov.partner, marker:{color:c.neutral}, hovertemplate:'%{x}: %{y:.1%}<extra>partner key</extra>'},
+    {type:'bar', name:'eligible (survival observable)', x:D.bands, y:D.cov.elig, marker:{color:c.contr}, text:D.cov.elig.map(v=>pct(v,0)), textposition:'outside', textfont:{size:11, color:c.muted},
+      hovertemplate:'%{x}: %{y:.1%}<extra>eligible</extra>'}],
+  layout: base(c, {barmode:'group', yaxis:{tickformat:'.0%', range:[0,1.05]}, legend:{y:1.28}, margin:{t:78}})});
+
+B.c_indicators = c => {
+  const I = D.ind.slice().reverse();
+  return {data:[
+    {type:'bar', orientation:'h', name:'A attriters', x:I.map(r=>r.a), y:I.map(r=>r.n), marker:{color:c.disp}, customdata:I.map(r=>r.pop),
+      hovertemplate:'%{y}<br>attriters: %{x:.1%} (%{customdata})<extra></extra>'},
+    {type:'bar', orientation:'h', name:'stayers', x:I.map(r=>r.s), y:I.map(r=>r.n), marker:{color:c.neutral},
+      hovertemplate:'%{y}<br>stayers: %{x:.1%}<extra></extra>'}],
+    layout: base(c, {barmode:'group', margin:{l:narrow()?160:250, r:64, t:36}, xaxis:{tickformat:'.0%', range:[0,.72], title:{text:'share of clients where the indicator fires'}},
+      yaxis:{tickfont:{size:11.5, color:c.ink}}, legend:{y:1.1},
+      annotations:I.map(r=>({x:.72, xref:'x', y:r.n, yref:'y', text:r.lift.toFixed(2)+'×', showarrow:false, xanchor:'left', xshift:4,
+        font:{size:12, color:r.lift>=2?c.good:c.bad}}))})};
+};
+
+B.c_bias = c => ({
+  data:[{type:'bar', orientation:'h', y:['Relationship survival<br>(shows contraction)','Own-name evidence<br>(shows displacement)'], x:[.194,.92],
+    marker:{color:[c.contr, c.disp]}, text:['19.4%','≈92%'], textposition:'outside', textfont:{color:c.ink, size:13}, hovertemplate:'%{y}: %{x:.0%}<extra></extra>'}],
+  layout: base(c, {margin:{l:narrow()?150:190, t:10, b:40}, xaxis:{range:[0,1.08], tickformat:'.0%', title:{text:'share of typeable attriters the detector can see'}}, yaxis:{tickfont:{color:c.ink}}})});
+
+B.c_bands = c => {
+  const e = D.elig, n = e.n.slice(0,4), xi = [0,1,2,3], dx = .09;
+  const four = a => a.slice(0,4);
+  const mk = (kind, vis) => {
+    const O = four(kind==='C'?e.obsC:e.obsD), Ol = four(kind==='C'?e.obsClo:e.obsDlo), Oh = four(kind==='C'?e.obsChi:e.obsDhi);
+    const R = four(kind==='C'?e.corC:e.corD), Rl = four(kind==='C'?e.corClo:e.corDlo), Rh = four(kind==='C'?e.corChi:e.corDhi);
+    const tr = [];
+    xi.forEach(i => tr.push({type:'scatter', mode:'lines', x:[i,i], y:[O[i],R[i]], line:{color:c.disp, width:18}, opacity:.22, hoverinfo:'skip', showlegend:false, visible:vis}));
+    tr.push({type:'scatter', mode:'markers+text', name:'observed', x:xi.map(i=>i-dx), y:O, visible:vis,
+      error_y:{type:'data', symmetric:false, array:Oh.map((v,i)=>v-O[i]), arrayminus:O.map((v,i)=>v-Ol[i]), color:c.disp, thickness:1.2, width:4},
+      marker:{size:13, color:c.disp, line:{color:c.sheet, width:2}}, text:O.map(v=>pct(v,0)), textposition:'middle left', textfont:{size:11, color:c.muted},
+      customdata:n.map((k,i)=>[D.bands[i], k]), hovertemplate:'%{customdata[0]} (n=%{customdata[1]})<br>observed %{y:.1%}<extra></extra>'});
+    tr.push({type:'scatter', mode:'markers+text', name:'recall-corrected', x:xi.map(i=>i+dx), y:R, visible:vis,
+      error_y:{type:'data', symmetric:false, array:Rh.map((v,i)=>v-R[i]), arrayminus:R.map((v,i)=>v-Rl[i]), color:c.disp, thickness:1.2, width:4},
+      marker:{size:14, symbol:'triangle-up', color:c.disp, line:{color:c.sheet, width:2}}, text:R.map(v=>pct(v,0)), textposition:'middle right', textfont:{size:11, color:c.muted},
+      customdata:n.map((k,i)=>[D.bands[i], k]), hovertemplate:'%{customdata[0]} (n=%{customdata[1]})<br>recall-corrected %{y:.1%}<extra></extra>'});
+    if (kind==='C') tr.push({type:'scatter', mode:'markers', name:'adjusted vs stayers', x:xi.map(i=>i-dx), y:four(e.adjC), visible:vis,
+      marker:{size:10, symbol:'diamond', color:c.sheet, line:{color:c.disp, width:2}}, customdata:D.bands, hovertemplate:'%{customdata}<br>adjusted %{y:.1%}<extra></extra>'});
+    return tr;
+  };
+  const tc = mk('C', true), td = mk('D', false);
+  const visC = tc.map(()=>true).concat(td.map(()=>false));
+  const visD = tc.map(()=>false).concat(td.map(()=>true));
+  return {data: tc.concat(td), layout: base(c, {yaxis:{range:[0,1.05], tickformat:'.0%', title:{text:'displaced share'}},
+    xaxis:{range:[-.5,3.5], tickvals:xi, ticktext:D.bands.map((b,i)=>b+'<br><span style="font-size:10px">n='+n[i]+'</span>'), tickfont:{color:c.ink}, showgrid:false, zeroline:false},
+    shapes:[{type:'line', xref:'paper', x0:0, x1:1, y0:.5, y1:.5, line:{color:c.muted, dash:'dot', width:1}}],
+    legend:{y:1.02, yanchor:'bottom'}, margin:{t:78, b:56},
+    updatemenus:[{type:'buttons', direction:'right', x:1, xanchor:'right', y:1.24, yanchor:'top', showactive:true,
+      bgcolor:c.sheet, bordercolor:c.rule, font:{color:c.ink, size:12}, active:0,
+      buttons:[{label:'Clients', method:'restyle', args:['visible', visC]}, {label:'Dollars', method:'restyle', args:['visible', visD]}]}]})};
+};
+
+B.c_validity = c => {
+  const V = D.valid;
+  return {data:[{type:'scatter', mode:'markers', x:V.map(r=>r.auc), y:V.map(r=>r.f),
+    error_x:{type:'data', symmetric:false, array:V.map(r=>r.hi-r.auc), arrayminus:V.map(r=>r.auc-r.lo), color:c.muted, thickness:1.2, width:4},
+    marker:{size:12, color:V.map(r=>r.ind?c.disp:c.sheet), line:{color:c.disp, width:2}},
+    customdata:V.map(r=>r.ind?'independent of the rules':'close to the rules'), hovertemplate:'%{y}: AUC %{x:.3f}<br>%{customdata}<extra></extra>'},
+    {type:'scatter', mode:'lines', x:[.5,.5], y:[V[0].f, V[V.length-1].f], line:{color:c.muted, dash:'dot', width:1}, hoverinfo:'skip'},
+    {type:'scatter', mode:'lines', x:[.6,.6], y:[V[0].f, V[V.length-1].f], line:{color:c.good, dash:'dash', width:1}, hoverinfo:'skip'}],
+    layout: base(c, {showlegend:false, margin:{l:narrow()?140:170, t:24}, xaxis:{range:[.47,.82], title:{text:'AUC separating displacement from contraction'}},
+      yaxis:{tickfont:{size:11.5, color:c.ink}},
+      annotations:[{x:.8, y:V[0].f, text:'filled = independent<br>hollow = rule-adjacent', showarrow:false, xanchor:'right', font:{size:11, color:c.muted}, align:'right'}]})};
+};
+
+B.c_mix = c => {
+  const M = D.mix;
+  const tr = (k,name,col) => ({type:'bar', name, x:D.bands, y:M[k], marker:{color:col}, hovertemplate:'%{x}: %{y:.1%}<extra>'+name+'</extra>'});
+  return {data:[tr('disp','displacement',c.disp), tr('mixed','mixed',c.mixed), tr('contr','contraction',c.contr), tr('none','no direct evidence',c.band)],
+    layout: base(c, {barmode:'stack', yaxis:{tickformat:'.0%', range:[0,1]}, legend:{y:1.2}, margin:{t:40}})};
+};
+
+B.c_early = c => {
+  const E = D.early;
+  const s = (k,name,col,dash) => ({type:'scatter', mode:'lines+markers', name, x:E.x, y:E[k], line:{color:col, width:2.4, dash:dash||'solid'}, marker:{size:7},
+    hovertemplate:'%{x} months: %{y:.3f}<extra>'+name+'</extra>'});
+  return {data:[s('both','model + evidence',c.disp), s('model','model features',c.neutral), s('evidence','evidence only',c.mixed,'dot'), s('size','size only',c.contr,'dash')],
+    layout: base(c, {xaxis:{title:{text:'months before exit'}, dtick:1}, yaxis:{range:[.55,.82], title:{text:'type AUC'}}, legend:{y:1.2}, margin:{t:40}})};
+};
+
+B.c_within = c => {
+  const W = D.within;
+  return {data:[
+    {type:'bar', name:'model + evidence', x:D.bands, y:W.both, marker:{color:c.disp}, customdata:W.n, hovertemplate:'%{x} (n=%{customdata}): %{y:.3f}<extra>model + evidence</extra>'},
+    {type:'bar', name:'size only', x:D.bands, y:W.size, marker:{color:c.contr}, hovertemplate:'%{x}: %{y:.3f}<extra>size only</extra>'},
+    {type:'scatter', mode:'lines', x:[D.bands[0], D.bands[3]], y:[.5,.5], line:{color:c.muted, dash:'dot', width:1}, hoverinfo:'skip', showlegend:false}],
+    layout: base(c, {barmode:'group', yaxis:{range:[.4,.85], title:{text:'type AUC within band'}}, legend:{y:1.2}, margin:{t:40},
+      annotations:D.bands.map((b,i)=>({x:b, y:.42, text:'n='+W.n[i], showarrow:false, font:{size:11, color:'#fff'}}))})};
+};
+
+B.c_lr = c => {
+  const L = D.lr;
+  const tr = (o,name,col,chosen) => ({type:'scatter', mode:'lines+markers', name, x:o.t, y:o.lr, line:{color:col, width:2.4}, marker:{size:o.t.map(t=>t===chosen?15:7), color:col,
+    line:{color:c.sheet, width:o.t.map(t=>t===chosen?2:0)}}, customdata:o.n.map((n,i)=>[n, o.ag[i]]),
+    hovertemplate:'cut-off %{x:.2f}: %{y:.2f}×<br>%{customdata[0]} clients, agreement %{customdata[1]:.1%}<extra>'+name+'</extra>'});
+  return {data:[tr(L.support,'SUPPORT (p ≤ cut-off)',c.contr,.17), tr(L.compete,'COMPETE (p ≥ cut-off)',c.disp,.44),
+    {type:'scatter', mode:'lines', x:[0,1], y:[3,3], line:{color:c.muted, dash:'dash', width:1}, hoverinfo:'skip', showlegend:false}],
+    layout: base(c, {xaxis:{range:[0,1], title:{text:'p(displacement | leaving) cut-off'}}, yaxis:{range:[1.8,6], title:{text:'odds ÷ prior odds'}}, legend:{y:1.2}, margin:{t:40},
+      annotations:[{x:.44, y:3.01, text:'0.44', showarrow:true, arrowhead:0, ax:0, ay:-30, font:{color:c.disp}, arrowcolor:c.disp},
+                   {x:.17, y:3.03, text:'0.17', showarrow:true, arrowhead:0, ax:0, ay:-30, font:{color:c.contr}, arrowcolor:c.contr},
+                   {x:.98, y:3, text:'3×', showarrow:false, xanchor:'right', yshift:9, font:{size:11, color:c.muted}}]})};
+};
+
+B.c_queue = c => {
+  const Q = D.queue, col = {VERIFY_INTERNAL:c.mixed, COMPETE:c.disp, DISCOVER:c.neutral, SUPPORT:c.contr};
+  return {data:[{type:'scatter', mode:'markers+text', x:Q.map(r=>r.prec), y:Q.map(r=>r['share$']), text:Q.map(r=>r.p), textposition:'top center',
+    textfont:{size:11, color:c.ink}, marker:{size:Q.map(r=>Math.sqrt(r.alerts)*1.4), color:Q.map(r=>col[r.p]), opacity:.85, line:{color:c.sheet, width:1.5}},
+    customdata:Q.map(r=>[r.alerts, r.dep, r.capd]), hovertemplate:'%{text}<br>%{customdata[0]} alerts, %{customdata[1]} departed<br>precision %{x:.1%}<br>%{y:.1%} of departing $ ($%{customdata[2]}m)<extra></extra>'},
+    {type:'scatter', mode:'lines', x:[229/3035,229/3035], y:[0,.65], line:{color:c.muted, dash:'dot', width:1}, hoverinfo:'skip'}],
+    layout: base(c, {showlegend:false, xaxis:{range:[.03,.16], tickformat:'.0%', title:{text:'precision (left within 6 months)'}},
+      yaxis:{range:[0,.66], tickformat:'.0%', title:{text:'share of departing $'}},
+      annotations:[{x:229/3035, y:.02, text:'queue average 7.5%', showarrow:false, xanchor:'left', xshift:4, font:{size:11, color:c.muted}}]})};
+};
+
+B.c_replicate = c => {
+  const R = D.rep, col = {COMPETE:c.disp, SUPPORT:c.contr, DISCOVER:c.neutral};
+  return {data:[{type:'bar', x:R.map(r=>r.p), y:R.map(r=>r.lr), marker:{color:R.map(r=>col[r.p])},
+    text:R.map(r=>r.lr.toFixed(2)+'×'), textposition:'outside', textfont:{color:c.ink},
+    customdata:R.map(r=>[r.n, r.share, r.base, r.reads]),
+    hovertemplate:'%{x}: %{customdata[1]:.1%} %{customdata[3]} vs %{customdata[2]:.1%} base<br>n = %{customdata[0]} typed departing<extra></extra>'},
+    {type:'scatter', mode:'lines', x:['COMPETE','DISCOVER'], y:[1,1], line:{color:c.muted, dash:'dot', width:1}, hoverinfo:'skip'},
+    {type:'scatter', mode:'lines', x:['COMPETE','DISCOVER'], y:[3,3], line:{color:c.muted, dash:'dash', width:1}, hoverinfo:'skip'}],
+    layout: base(c, {showlegend:false, yaxis:{range:[0,3.6], title:{text:'odds shift vs queue mix'}},
+      annotations:[{x:'DISCOVER', y:1, text:'no information', showarrow:false, xanchor:'left', xshift:30, yshift:8, font:{size:11, color:c.muted}},
+                   {x:'DISCOVER', y:3, text:'design target', showarrow:false, xanchor:'left', xshift:30, yshift:8, font:{size:11, color:c.muted}}]})};
+};
+
+B.c_observe = c => {
+  const O = D.obs;
+  return {data:[
+    {type:'bar', orientation:'h', name:'contraction observable', y:O.plays, x:O.observable, marker:{color:c.disp}, hovertemplate:'%{y}: %{x} observable<extra></extra>'},
+    {type:'bar', orientation:'h', name:'extrapolated (no internal flows)', y:O.plays, x:O.extrap, marker:{color:c.band, line:{color:c.neutral, width:1}}, hovertemplate:'%{y}: %{x} extrapolated<extra></extra>'}],
+    layout: base(c, {barmode:'stack', margin:{l:narrow()?110:130, t:36}, xaxis:{title:{text:'alerts'}}, yaxis:{autorange:'reversed', tickfont:{color:c.ink}}, legend:{y:1.25}})};
+};
+
+function peVal(xc, xa){ const p = D.pe; return (p.d + xc*p.c + xa*p.n)/(p.d + p.c + p.n); }
+B.c_decide = c => {
+  const g = []; for (let i=0;i<=20;i++) g.push(i/20);
+  const z = g.map(xa => g.map(xc => peVal(xc, xa)));
+  const xc = +document.getElementById('s_contr').value/100, xa = +document.getElementById('s_alive').value/100;
+  return {data:[
+    {type:'heatmap', x:g, y:g, z, zmin:.2, zmax:1, colorscale:[[0,c.contr],[.375,c.sheet],[1,c.disp]],
+      colorbar:{tickformat:'.0%', thickness:10, len:.9, tickfont:{color:c.muted}, outlinewidth:0},
+      hovertemplate:'CONTRACTION judged moves %{x:.0%}<br>alive group judged moves %{y:.0%}<br>displaced %{z:.1%}<extra></extra>'},
+    {type:'contour', x:g, y:g, z, showscale:false, contours:{start:.5, end:.5, size:.1, coloring:'none', showlabels:true, labelfont:{color:c.ink, size:11}},
+      line:{color:c.ink, width:2}, hoverinfo:'skip'},
+    {type:'scatter', mode:'markers', x:[xc], y:[xa], marker:{size:14, color:c.sheet, line:{color:c.ink, width:2}}, hoverinfo:'skip'}],
+    layout: base(c, {showlegend:false, xaxis:{range:[0,1], tickformat:'.0%', title:{text:'CONTRACTION calls judged moves'}, gridcolor:'rgba(0,0,0,0)'},
+      yaxis:{range:[0,1], tickformat:'.0%', title:{text:'"partners alive" judged moves'}, gridcolor:'rgba(0,0,0,0)'}, margin:{t:10, r:10}})};
+};
+
+// ───────────────── render ─────────────────
+function renderAll(){
+  const c = C();
+  for (const id in B){
+    const el = document.getElementById(id);
+    if (!el) continue;
+    try { const {data, layout} = B[id](c); Plotly.react(el, data, layout, CFG); }
+    catch(err){ el.textContent = 'Chart could not be drawn: ' + err.message; }
+  }
+}
+function updateDecide(){
+  const xc = +document.getElementById('s_contr').value/100, xa = +document.getElementById('s_alive').value/100;
+  document.getElementById('v_contr').textContent = Math.round(xc*100)+'%';
+  document.getElementById('v_alive').textContent = Math.round(xa*100)+'%';
+  document.getElementById('readout').firstChild.nodeValue = pct(peVal(xc, xa));
+  const el = document.getElementById('c_decide');
+  if (el && el.data) Plotly.restyle(el, {x:[[xc]], y:[[xa]]}, [2]);
+}
+function scorecard(){
+  document.getElementById('scoreBody').innerHTML = SCORE.map(r =>
+    '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td class="num">'+r[3]+'</td><td class="'+(r[4]?'held':'failed')+'">'+(r[4]?'held':'failed')+'</td></tr>').join('');
+}
+
+function start(){
+  scorecard();
+  if (typeof Plotly === 'undefined'){
+    document.querySelectorAll('.chart').forEach(el => el.textContent = 'Charts need the Plotly library, which did not load.');
+    return;
+  }
+  renderAll();
+  document.getElementById('s_contr').addEventListener('input', updateDecide);
+  document.getElementById('s_alive').addEventListener('input', updateDecide);
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', renderAll);
+  new MutationObserver(renderAll).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(renderAll, 250); });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
+</body>
+</html>
