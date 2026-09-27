@@ -20,3 +20,7 @@ spark.sql(f"DROP TABLE {t}"); print("HIVE CREATE OK")
 
 
 loc = [r[1] for r in spark.sql(f"DESCRIBE DATABASE {DB}").collect() if r[0] == "Location"][0]
+
+
+!hdfs dfs -touchz {DSI}/_wtest_pk36814 && hdfs dfs -rm -skipTrash {DSI}/_wtest_pk36814 && echo "WRITE OK dsi" || echo "NO WRITE dsi"
+!hdfs dfs -rm -r -skipTrash {TM}/pk36814_write_test
