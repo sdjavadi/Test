@@ -17,3 +17,6 @@ t = f"{DB}.pk36814_write_test"
 spark.sql(f"CREATE EXTERNAL TABLE {t} (x INT) STORED AS PARQUET LOCATION '{loc}/pk36814_write_test'")
 spark.sql(f"DROP TABLE {t}"); print("HIVE CREATE OK")
 !hdfs dfs -rm -r -skipTrash -q {TM}/pk36814_write_test
+
+
+loc = [r[1] for r in spark.sql(f"DESCRIBE DATABASE {DB}").collect() if r[0] == "Location"][0]
