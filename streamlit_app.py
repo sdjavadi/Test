@@ -1,5 +1,5 @@
 """Deposit attrition early warning — RM prototype.  Run:  streamlit run streamlit_app.py"""
-import datetime, pathlib
+import datetime, pathlib, re
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -96,6 +96,16 @@ def counterparties(mode, mdm_ids, end_month):
 # ── helpers ──────────────────────────────────────────────────────────
 def label(b, f):
     return LB.plain(f, b.get("labels", {}).get(f))
+
+
+def md2html(t):
+    t = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
+    return re.sub(r"\*(.+?)\*", r"<i>\1</i>", t)
+
+
+def display_name(r):
+    n = getattr(r, "customer_name", None)
+    return n if isinstance(n, str) and n.strip() else f"Client {str(r.cust_pwr_id).lstrip('0')}"
 
 
 def select_customer(cust):
@@ -207,7 +217,7 @@ with tabs[0]:
     for i, r in enumerate(chunk.itertuples()):
         s = r.story
         with cols[i % 3].container(border=True):
-            st.markdown(f"<div class='card-name'>#{r.rank} · {r.customer_name or r.cust_pwr_id}</div>"
+            st.markdown(f"<div class='card-name'>#{r.rank} · {display_name(r)}</div>"
                         f"<div class='card-sub'>{r.segment_desc if isinstance(getattr(r, 'segment_desc', None), str) else ''} · "
                         f"{r.naics_desc if isinstance(getattr(r, 'naics_desc', None), str) else ''} · ref {r.cust_pwr_id[-8:]}</div>",
                         unsafe_allow_html=True)
@@ -221,14 +231,14 @@ with tabs[0]:
                 st.badge(LB.PLAYS[s["theme"]][0], color="violet")
             c1, c2, c3 = st.columns(3)
             c1.metric("Chance (6 mo)", f"{r.p:.0%}")
-            c2.metric("At stake", LB.money(r.capped))
+            c2.metric("At stake", LB.money(r.capped, 0))
             c3.metric("vs normal", f"{s['pct_norm']:.0%}" if pd.notna(s["pct_norm"]) else "—")
             h = H[H.cust_pwr_id == r.cust_pwr_id].tail(12) if len(H) else H
             if len(h): st.plotly_chart(spark(h), config={"displayModeBar": False}, key=f"sp_{r.cust_pwr_id}")
             why = "".join(f"<li>{'▲' if (LB.to_display(f, x) or 0) > 0 else '▼'} {label(B, f)}: <b>{LB.fmt_value(f, x)}</b></li>"
                           for f, _, x in s["reasons"][:3])
             st.markdown(f"<b>Why</b><ul class='why'>{why}</ul>", unsafe_allow_html=True)
-            st.markdown("<div class='next'>" + "<br>".join(s["next"]) + "</div>", unsafe_allow_html=True)
+            st.markdown("<div class='next'>" + "<br>".join(md2html(x) for x in s["next"]) + "</div>", unsafe_allow_html=True)
             st.button("Prepare the call →", key=f"go_{r.cust_pwr_id}", on_click=select_customer, args=(r.cust_pwr_id,),
                       type="primary", width="stretch")
     if not len(view):
@@ -241,16 +251,16 @@ with tabs[1]:
     opts = list(L.sort_values("rank").cust_pwr_id)
     if not opts:
         st.info("The list is empty."); st.stop()
-    names = dict(zip(L.cust_pwr_id, L.customer_name.fillna("")))
+    names = {c: display_name(x) for c, x in zip(L.cust_pwr_id, L.itertuples())}
     ranks = dict(zip(L.cust_pwr_id, L["rank"]))
     if st.session_state.get("sel") not in opts: st.session_state.sel = opts[0]
-    cust = st.selectbox("Client", opts, key="sel", format_func=lambda c: f"#{ranks[c]} · {names.get(c) or c} · ref {c[-8:]}")
+    cust = st.selectbox("Client", opts, key="sel", format_func=lambda c: f"#{ranks[c]} · {names.get(c)} · ref {c[-8:]}")
     r = L[L.cust_pwr_id == cust].iloc[0]; s = r.story
     df, X, p_hist, C, FM = customer_detail(MODE, cust)
     h = history(MODE, (cust,))
     feats = B["feats"]
 
-    st.subheader(r.customer_name or cust)
+    st.subheader(display_name(r))
     st.caption(" · ".join(x for x in [str(getattr(r, "segment_desc", "") or ""), str(getattr(r, "naics_desc", "") or ""),
                                        f"client ref {cust}", f"relationship {r.rltn_pwr_id}" if isinstance(r.rltn_pwr_id, str) else ""] if x))
     k1, k2, k3, k4, k5, k6 = st.columns(6)
@@ -303,6 +313,10 @@ with tabs[1]:
         st.dataframe(sig.sort_values(["firing now", "months fired"], ascending=[True, False]), hide_index=True, width="stretch")
 
     st.markdown("#### Payment behavior")
+    _pay = [c for c in ("amt_all_in", "amt_all_out", "ntxn_all_in") if c in h]
+    if not _pay or h[_pay].fillna(0).abs().sum().sum() == 0:
+        st.info("No payment activity recorded for this client in the payment data (it may bank its payments through another "
+                "entity of the relationship, or only hold deposits here).")
     pc = st.columns(3)
     panels = [("Dollars in and out ($m)", [("amt_all_in", "in", TEAL), ("amt_all_out", "out", ORANGE)], 1e6),
               ("Payments and receiving days", [("ntxn_all_in", "incoming payments", TEAL), ("active_days_in", "days with receipts", BLUE)], 1),
@@ -323,7 +337,8 @@ with tabs[1]:
         if len(oth):
             fig = go.Figure()
             for c_, g_ in oth.groupby("cust_pwr_id"):
-                fig.add_scatter(x=g_.month, y=g_.bal / 1e6, mode="lines", name=(g_.customer_name.iloc[0] or c_)[:30])
+                nm_ = g_.customer_name.iloc[0]
+                fig.add_scatter(x=g_.month, y=g_.bal / 1e6, mode="lines", name=(nm_ if isinstance(nm_, str) and nm_ else f"Client {str(c_).lstrip('0')}")[:30])
             st.plotly_chart(base_fig(fig, 280, "Balances of other entities ($m)"), key="rel")
         else:
             st.caption("No other entities in this relationship.")
@@ -336,31 +351,36 @@ with tabs[1]:
         else:
             inn, out = counterparties(MODE, tuple(mdm), LATEST)
             ms = sorted(set(inn.month) | set(out.month)); rec, pri = ms[-3:], ms[:-3]
-            def change(d):
-                g = d.groupby(["cpty_id", "name", "bank"], dropna=False).apply(
-                    lambda x: pd.Series({"prior 3 mo": x[x.month.isin(pri)].amount.sum(), "last 3 mo": x[x.month.isin(rec)].amount.sum()}),
-                    include_groups=False).reset_index()
+            def change(d, keys=("cpty_id", "name", "bank")):
+                cols = list(keys) + ["prior 3 mo", "last 3 mo", "change"]
+                if d is None or not len(d): return pd.DataFrame(columns=cols)
+                d = d.assign(name=d.get("name", pd.Series(index=d.index, dtype=object)).fillna(d.cpty_id.astype(str)),
+                             bank=d.get("bank", pd.Series(index=d.index, dtype=object)).fillna("unknown bank"),
+                             amount=pd.to_numeric(d.amount, errors="coerce").fillna(0.0),
+                             period=np.where(d.month.isin(rec), "last 3 mo", "prior 3 mo"))
+                g = d.pivot_table(index=list(keys), columns="period", values="amount", aggfunc="sum", fill_value=0.0).reset_index()
+                for c in ("prior 3 mo", "last 3 mo"):
+                    if c not in g: g[c] = 0.0
                 g["change"] = g["last 3 mo"] - g["prior 3 mo"]
-                return g
+                return g[cols]
             ci = change(inn)
             a1, a2 = st.columns(2)
             with a1:
                 st.markdown("**Payers that stopped or cut back** (money in)")
+                if not len(ci): st.caption("No incoming payments in the last 6 months.")
                 lost = ci[ci["prior 3 mo"] > 0].sort_values("change").head(8)
                 st.dataframe(lost.assign(**{c: lost[c].map(LB.money) for c in ["prior 3 mo", "last 3 mo", "change"]})[
                              ["name", "bank", "prior 3 mo", "last 3 mo", "change"]], hide_index=True, width="stretch")
             with a2:
                 st.markdown("**Where outgoing money goes, by bank**")
-                ob = out.assign(own=out.is_self.astype(bool)).groupby(["bank", "own"], dropna=False).apply(
-                    lambda x: pd.Series({"prior 3 mo": x[x.month.isin(pri)].amount.sum(), "last 3 mo": x[x.month.isin(rec)].amount.sum()}),
-                    include_groups=False).reset_index().sort_values("last 3 mo", ascending=False).head(8)
-                ob["own"] = ob.own.map({True: "own account", False: ""})
-                st.dataframe(ob.assign(**{c: ob[c].map(LB.money) for c in ["prior 3 mo", "last 3 mo"]}), hide_index=True, width="stretch")
+                out2 = out.assign(own=np.where(out.get("is_self", False).astype(bool), "own account", "")) if len(out) else out
+                ob = change(out2, keys=("bank", "own")).sort_values("last 3 mo", ascending=False).head(8)
+                st.dataframe(ob.assign(**{c: ob[c].map(LB.money) for c in ["prior 3 mo", "last 3 mo", "change"]}), hide_index=True, width="stretch")
 
     st.markdown("#### Call brief")
     reasons_txt = "\n".join(f"- {label(B, f)}: {LB.fmt_value(f, x)}" for f, _, x in s["reasons"][:5])
     fired_txt = "\n".join(f"- {label(B, f)}" for f in s["early"] + s["late"]) or "- none beyond the stayers' threshold"
-    brief = (f"# Call brief — {r.customer_name or cust}\n\nClient ref {cust} · scored {LATEST} · rank #{r['rank']}\n\n"
+    brief = (f"# Call brief — {display_name(r)}\n\nClient ref {cust} · scored {LATEST} · rank #{r['rank']}\n\n"
              f"- Chance the money leaves within 6 months: {r.p:.0%}\n- Money at stake: {LB.money(r.capped)} "
              f"(balance {LB.money(r.bal)}, normal {LB.money(r.bal_norm)})\n- Months on the list: {r.months_on_list}\n\n"
              f"## Why the model flagged it\n{reasons_txt}\n\n## Signals firing\n{fired_txt}\n\n## Suggested conversation\n**{t_name}.** {t_text}\n")

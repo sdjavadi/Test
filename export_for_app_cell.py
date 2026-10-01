@@ -26,11 +26,20 @@ joblib.dump(bundle, OUT / "attr_model_bundle.joblib")
 # ── 2 · app features: money-still-here clients × last APP_MONTHS months ──
 t_min = END_T - APP_MONTHS + 1
 ym_expr = F.format_string("%04d-%02d", F.floor((F.col("t") + F.lit(M0)) / 12).cast("int"), ((F.col("t") + F.lit(M0)) % 12 + 1).cast("int"))
-idn = (spark.table(MET_TABLE).filter(F.col("month") >= ym_of(t_min))
-            .select(pk_expr("customer_pwr_id", KEY).alias("pwr"), "mdm_id", "customer_name", "naics_desc", "master_pwr_id")
-            .filter("pwr is not null").groupBy("pwr")
-            .agg(F.concat_ws(",", F.collect_set("mdm_id")).alias("mdm_ids"), F.first("customer_name", True).alias("customer_name"),
-                 F.first("naics_desc", True).alias("naics_desc"), F.first("master_pwr_id", True).alias("master_pwr_id")))
+# names, industry and payment entities from the customer dimension (every mdm_id with a power id, active or not);
+# clients with no payment entity fall back to the name on the deposit records when that column exists
+cd = spark.table(f"{TGT_DB}.pkg_cust_dim")
+idn = (cd.select(pk_expr("customer_pwr_id", KEY).alias("pwr"), "mdm_id", "customer_name",
+                 *[c for c in ["naics_desc", "master_pwr_id"] if c in cd.columns])
+         .filter("pwr is not null").groupBy("pwr")
+         .agg(F.concat_ws(",", F.collect_set("mdm_id")).alias("mdm_ids"), F.first("customer_name", True).alias("customer_name"),
+              *[F.first(c, True).alias(c) for c in ["naics_desc", "master_pwr_id"] if c in cd.columns]))
+_dname = next((c for c in ["cust_name", "customer_name", "rltn_name"] if c in spark.table(DEP_TABLE).columns), None)
+if _dname:
+    dn = (spark.table(DEP_TABLE).filter(F.col("edw_tda_load_dt") >= F.lit(f"{ym_of(END_T)}-01"))
+               .select(pk_expr("cust_pwr_id", KEY).alias("pwr"), F.col(_dname).alias("dep_name")).filter("dep_name is not null")
+               .groupBy("pwr").agg(F.max("dep_name").alias("dep_name")))
+    idn = (idn.join(dn, "pwr", "full").withColumn("customer_name", F.coalesce("customer_name", "dep_name")).drop("dep_name"))
 APPF = (MF.filter(F.col("t") >= t_min)
           .select("cust_pwr_id", "pwr", "rltn_pwr_id", ym_expr.alias("month"), "bal", "bal_norm", "bal_eom", "capped",
                   *[F.col(f).cast("float").alias(f) for f in FEATS])

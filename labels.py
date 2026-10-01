@@ -65,6 +65,7 @@ def fmt_value(var, v):
     if base.startswith("net_flow") or base in ("dep_siblings", "dep_n_accts", "dep_n_live", "dep_tenure", "dep_at_start", "dep_live_d6"):
         return f"{x:+.2f}" if base.startswith(("net_flow", "dep_live")) else f"{x:.0f}"
     if is_ratio(base): return f"{x:+.0f} pts" if "__" in str(var) else f"{x:.0f}%"
+    if x > 999: return "> +999% (from a near-zero base)"
     return f"{x:+.0f}%"
 
 
