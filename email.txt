@@ -1,0 +1,32 @@
+Subject: TPPP look-alikes and prospects: pre-read and questions for Thursday
+
+Hi all,
+
+Ahead of Thursday, here’s a short summary of what we found in the payment graph and a few questions I’d like your input on. It’s a 5-minute read.
+
+What we did
+Using eight months of payment data (January–August 2026), we described every TM business client and every outside company our clients transact with by how their money moves: number of payers and payees, how regular they are, money in versus money out, and how many banks sit on the other side. We then compared them with the ~100 clients registered as Third-Party Payment/Payroll Processors.
+
+How reliable it is
+We hid registered TPPPs from the method and checked whether it found them again. Of 72 registered TPPPs, 32 came back in the top 1% of about 70,000 business clients. Random review would find fewer than one. For outside companies, the hidden processor accounts came back in the top 1% about 20 times more often than random.
+
+What came out
+
+Clients behaving like TPPPs but not registered. Ranked by similarity. Each name shows which registered TPPPs it resembles (for example payroll processors, collection agencies, or benefits and claims administrators).
+Outside processors we could win. Companies that behave like processors, bank elsewhere today, and already move money with our clients. Examples include Clio Payments, Vanco, Actum Processing and Intuit Payroll. Each comes with the TM clients who already pay them, as warm introductions.
+Registered TPPPs’ business at other banks. Several large registered TPPPs receive most of what our own clients pay them into accounts at other banks.
+
+These are patterns worth checking, not conclusions about any company.
+
+Questions for Thursday
+
+Which kinds of TPPP matter most to you? For example payroll processors, merchant/payment processors, collection agencies, or benefits and claims administrators.
+What makes a prospect worth pursuing? For example size of the flows with our clients, number of our clients involved, or new to bank only.
+Who would review the lists, and how many names can you realistically review per month?
+For clients that declare a payment-processing industry code but aren’t registered as TPPPs, who should look at them?
+Do you have other sources we could use to confirm candidates? For example KYC questionnaires, ACH originator data, or a business-information subscription.
+
+On Thursday I’ll walk through the top names on each list and show a prototype of a review app.
+
+Thanks,
+Saeed
