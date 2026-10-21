@@ -45,8 +45,7 @@ T_FI_NAMES = f"{DB}.pkg_fi_name_map"            # fi_raw -> fi_canonical
 IMPALA = {"dsn": "DSN=bdpimp04-impala;", "pool": "root.CIB-AMG_Impala", "conn_options": {"SocketTimeout": 0}}
 
 FIRST_MONTH, LAST_MONTH = "2024-01", "2026-08"
-DEFAULT_END, DEFAULT_LEN = "2026-06", 6     # Jul-Aug 2026 carry a dollar jump in the source; amounts stable to June
-PERIOD_LENGTHS = [3, 6, 12]
+DEFAULT_START, DEFAULT_END = "2026-01", LAST_MONTH   # Jul-Aug 2026 carry a dollar jump in the source (open check)
 UNIVERSE_MIN_CLIENTS = 3                    # loaded once per period; every other size filter runs in pandas
 CLASSES = ("business", "unknown")           # typer v2 name classes kept
 MAX_ROWS = 400_000                          # safety cap on the universe pull (largest by PNC clients kept)
@@ -129,8 +128,9 @@ def month_range(a: str, b: str) -> list[str]:
     return out
 
 
-def period(end: str, n: int) -> tuple[str, ...]:
-    return tuple(month_range(max(FIRST_MONTH, add_months(end, 1 - n)), end))
+def period(start: str, end: str) -> tuple[str, ...]:
+    """Months from start to end; a start after the end gives the end month alone."""
+    return tuple(month_range(max(FIRST_MONTH, min(start, end)), end))
 
 
 def mask_account(cpty_id: str) -> str:

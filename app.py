@@ -53,7 +53,7 @@ html, body, .stApp, .stMarkdown, button, input, textarea, select,
 
 # ------------------------------------------------------------------ state: filters survive a visit to a counterparty
 FKEYS = {f"f_{k}": v for k, v in pc.FILTER_DEFAULTS.items()}
-FKEYS.update({"f_end": pc.DEFAULT_END, "f_len": pc.DEFAULT_LEN, "preset": "None"})
+FKEYS.update({"f_start": pc.DEFAULT_START, "f_end": pc.DEFAULT_END, "preset": "None"})
 for k, v in FKEYS.items():
     if k in st.session_state:
         st.session_state[k] = st.session_state[k]       # keeps widget values while their page is not shown
@@ -83,7 +83,7 @@ def apply_preset():
     for k, v in pc.FILTER_DEFAULTS.items():
         st.session_state[f"f_{k}"] = list(v) if isinstance(v, list) else v
     for k, v in p["set"].items():
-        st.session_state[f"f_{k}"] = st.session_state["f_len"] if v == "all" else v
+        st.session_state[f"f_{k}"] = len(pc.period(st.session_state.f_start, st.session_state.f_end)) if v == "all" else v
 
 
 def viewer() -> str:
@@ -332,12 +332,13 @@ def render_list(U: pd.DataFrame, per, n: int):
     st.write("")
     months = pc.month_range(pc.FIRST_MONTH, pc.LAST_MONTH)[::-1]
     with st.expander("Filters", expanded=True):
-        r = st.columns([1.5, 0.9, 0.7, 1.2])
+        r = st.columns([1.5, 0.85, 0.85, 1.2])
         r[0].selectbox("Preset", list(pc.PRESETS), key="preset", on_change=apply_preset,
                        help="Sets the filters below to a predefined combination; you can change them afterwards.")
-        r[1].selectbox("Period ends", months, key="f_end",
-                       help="Amounts jump in Jul-Aug 2026 in the source data; June 2026 is the last stable month.")
-        r[2].selectbox("Months", pc.PERIOD_LENGTHS, key="f_len")
+        r[1].selectbox("Period starts", months, key="f_start")
+        r[2].selectbox("Period ends", months, key="f_end",
+                       help="Amounts jump in Jul-Aug 2026 in the source data (open check); June 2026 is the last "
+                            "month before the jump.")
         r[3].selectbox("Sort by", list(pc.SORTS), key="f_sort")
         st.markdown(f'<p class="pf-desc">{html.escape(pc.PRESETS[st.session_state.preset]["desc"])}</p>',
                     unsafe_allow_html=True)
@@ -634,8 +635,8 @@ def render_cpty(eid: str, U: pd.DataFrame, per, n: int):
         else:
             st.info("No monthly data for this counterparty.")
 
-N_MONTHS = st.session_state.f_len
-PER = pc.period(st.session_state.f_end, N_MONTHS)
+PER = pc.period(st.session_state.f_start, st.session_state.f_end)
+N_MONTHS = len(PER)
 UNIV = get_universe(PER)
 eid = current_cpty()
 if eid:
