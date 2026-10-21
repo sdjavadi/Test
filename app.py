@@ -116,6 +116,46 @@ def pct(x) -> str:
     return "new" if np.isinf(x) else f"{100 * x:+.0f}%"
 
 
+def table(df: pd.DataFrame, where=None, one_dec=(), skip=(), **kw):
+    """st.dataframe with thousands separators. Formatting is display only: column sorting still uses the numbers."""
+    df = df.reset_index(drop=True)
+    fmt = {c: ("{:,.1f}" if c in one_dec else "{:,.0f}") for c in df.columns
+           if c not in skip and pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])}
+    return (where or st).dataframe(df.style.format(fmt, na_rep=""), hide_index=True, **WIDE, **kw)
+
+
+def search_bar(where, U: pd.DataFrame, per) -> None:
+    """Find a counterparty by name from any page; the matches open its page."""
+    nav = st.session_state.nav
+    q = where.text_input("Find a counterparty by name", key=f"q_{nav}", placeholder="Type part of its name",
+                         help=f"Searches every counterparty with at least {pc.UNIVERSE_MIN_CLIENTS} PNC clients a "
+                              f"month in {per[0]} to {per[-1]}, whatever the filters.")
+    if not q.strip():
+        return
+    R = pc.search_names(U, q)
+    if not len(R):
+        st.info(f'No counterparty name contains "{q.strip()}" in {per[0]} to {per[-1]}.')
+        return
+    V = pd.DataFrame({"counterparty": R.ent_name, "bank today": R.fi_dom, "PNC clients / mo": R.clients.round(1),
+                      "$K in / mo": (R.amt_in / 1e3).round(0), "$K out / mo": (R.amt_out / 1e3).round(0),
+                      "first seen": R.first_month, "ent_id": R.ent_id})
+    st.markdown(f"**Matches for \"{html.escape(q.strip())}\"** ({len(V)} shown)")
+    if SELECTABLE:
+        ev = table(V, one_dec=["PNC clients / mo"], height=min(38 + 35 * len(V), 320), on_select="rerun",
+                   selection_mode="single-row", key=f"search_{nav}", column_config={"ent_id": None})
+        rows = list(getattr(getattr(ev, "selection", None), "rows", None) or [])
+        st.caption("Tick a row to open the counterparty.")
+        if rows and rows[0] < len(V):
+            go_to(V.ent_id.iloc[rows[0]])
+    else:
+        names = dict(zip(V.ent_id, V.counterparty))
+        pick = st.selectbox("Open", [""] + list(V.ent_id), key=f"spick_{nav}",
+                            format_func=lambda e: "Choose …" if not e else names[e])
+        if pick:
+            go_to(pick)
+    st.divider()
+
+
 # ------------------------------------------------------------------ cached reads
 @st.cache_data(ttl=TTL, show_spinner=False)
 def cols_of(table: str):
@@ -133,8 +173,8 @@ def load_universe(per: tuple) -> pd.DataFrame:
 
 @st.cache_data(ttl=TTL, show_spinner=False)
 def load_trend(eid: str, months: tuple) -> pd.DataFrame:
-    return pc._num(pc.run_sql(pc.cpty_trend_sql(eid, months), "trend"),
-                   ["amt_in", "amt_out", "n_cust_in", "n_cust_out", "n_cust_all"])
+    cols = cols_of(pc.T_CPTY_MET) or set()
+    return pc._num(pc.run_sql(pc.cpty_trend_sql(eid, months, cols), "trend"), pc.trend_columns(cols))
 
 
 @st.cache_data(ttl=TTL, show_spinner=False)
@@ -279,11 +319,16 @@ def list_view(T: pd.DataFrame) -> pd.DataFrame:
     return v
 
 
-def render_list():
-    st.markdown('<div class="pf-title">Prospect Finder</div><p class="pf-sub">Outside companies our clients pay or '
+LIST_DEC = ["PNC clients / mo", "TM clients paying it / mo", "TM clients it pays / mo"]
+
+
+def render_list(U: pd.DataFrame, per, n: int):
+    h1, h2 = st.columns([2.3, 1])
+    h1.markdown('<div class="pf-title">Prospect Finder</div><p class="pf-sub">Outside companies our clients pay or '
                 'are paid by. Filter the list, then open a counterparty for its accounts, banks, clients and '
                 'network.</p><span class="pf-note">Internal working draft · shows client names · prospecting use '
                 'pending the permissible-use review</span>', unsafe_allow_html=True)
+    search_bar(h2, U, per)
     st.write("")
     months = pc.month_range(pc.FIRST_MONTH, pc.LAST_MONTH)[::-1]
     with st.expander("Filters", expanded=True):
@@ -296,10 +341,6 @@ def render_list():
         r[3].selectbox("Sort by", list(pc.SORTS), key="f_sort")
         st.markdown(f'<p class="pf-desc">{html.escape(pc.PRESETS[st.session_state.preset]["desc"])}</p>',
                     unsafe_allow_html=True)
-        n = st.session_state.f_len
-        per = pc.period(st.session_state.f_end, n)
-        U = get_universe(per)
-
         bank_n = U.fi_dom.fillna("(unknown)").value_counts()
         bank_opts = list(bank_n.index[:400])
         for k in ("f_banks", "f_exclude_banks"):
@@ -360,9 +401,8 @@ def render_list():
         top_n = l1.selectbox("Show top", [100, 250, 500, 1000], index=1)
         V = list_view(D.head(top_n))
         num = st.column_config.NumberColumn
-        cfg = {"banks": num(format="%.0f"), "PNC clients / mo": num(format="%.1f"),
-               "$K in / mo": num(format="%.0f", help="Money it received from PNC clients, per active month"),
-               "$K out / mo": num(format="%.0f", help="Money it paid to PNC clients, per active month"),
+        cfg = {"$K in / mo": num(help="Money it received from PNC clients, per active month"),
+               "$K out / mo": num(help="Money it paid to PNC clients, per active month"),
                "PNC clients, change": st.column_config.TextColumn(
                    help="Last 3 months of the period vs the 3 before"),
                "counterparty": st.column_config.TextColumn(width="medium"), "ent_id": None}
@@ -370,15 +410,15 @@ def render_list():
                            file_name=f"prospects_{per[-1]}.csv", mime="text/csv", on_click=pc.log_event,
                            args=(viewer(), "export", " | ".join(x for x in filter_chips(f, n) if x), len(V)))
         if SELECTABLE:
-            ev = st.dataframe(V, hide_index=True, **WIDE, height=560, column_config=cfg, on_select="rerun",
-                              selection_mode="single-row", key=f"list_{nav}")
+            ev = table(V, one_dec=LIST_DEC, height=560, column_config=cfg, on_select="rerun",
+                       selection_mode="single-row", key=f"list_{nav}")
             rows = list(getattr(getattr(ev, "selection", None), "rows", None) or [])
             st.caption("Tick a row to open the counterparty. Per-month figures are averages over the months it was "
                        "active in the period.")
             if rows and rows[0] < len(V):
                 go_to(V.ent_id.iloc[rows[0]])
         else:
-            st.dataframe(V, hide_index=True, **WIDE, height=560, column_config=cfg)
+            table(V, one_dec=LIST_DEC, height=560, column_config=cfg)
             names = dict(zip(V.ent_id, V["rank"].astype(str) + "  " + V.counterparty))
             pick = st.selectbox("Open a counterparty", [""] + list(V.ent_id), key=f"pick_{nav}",
                                 format_func=lambda e: "Choose …" if not e else f"#{names[e]}")
@@ -399,6 +439,8 @@ def render_list():
                                      "fi_dom": "bank today", "flow": "money flow", "pnc_account": "PNC account"},
                              template="plotly_white", height=580, opacity=0.75)
             fig.update_traces(marker={"size": 7, "line": {"width": 0}})
+            fig.update_xaxes(tickformat=",")
+            fig.update_yaxes(tickformat=",")
             fig.update_layout(font_family=FONT, margin={"l": 10, "r": 10, "t": 30, "b": 10},
                               legend={"orientation": "h", "y": 1.06, "title": {"text": "PNC account "}})
             if SELECTABLE:
@@ -414,12 +456,11 @@ def render_list():
 
 
 # ------------------------------------------------------------------ counterparty page
-def render_cpty(eid: str):
-    n = st.session_state.f_len
-    per = pc.period(st.session_state.f_end, n)
-    if st.button("← Back to the list"):
+def render_cpty(eid: str, U: pd.DataFrame, per, n: int):
+    b1, _, b3 = st.columns([1, 1.3, 1])
+    if b1.button("← Back to the list"):
         go_to(None)
-    U = get_universe(per)
+    search_bar(b3, U, per)
     row = U[U.ent_id == eid]
     if not len(row):
         st.warning("This counterparty has no activity with PNC clients in the selected period.")
@@ -487,11 +528,12 @@ def render_cpty(eid: str):
             c2.metric("Other PNC clients", f"{len(other):,}" + (" +" if len(CL) >= 2000 else ""))
             c3.metric("Money with TM clients, $K in the period", k_usd(tm.total.sum()))
             h1, h2 = st.columns([1.55, 1])
-            ct = pd.DataFrame({"client": tm.customer_name, "power id": tm.customer_pwr_id, "industry": tm.industry,
+            ct = pd.DataFrame({"client": tm.customer_name, "mdm_id": tm.mdm_id, "power id": tm.customer_pwr_id,
+                               "industry": tm.industry,
                                "$K it received": (tm.paid_to_it / 1e3).round(1),
                                "$K it paid": (tm.received_from_it / 1e3).round(1),
                                "payments": (tm.n_paid + tm.n_received).round(0), "months": tm.months})
-            h1.dataframe(ct.head(300), hide_index=True, **WIDE, height=460)
+            table(ct.head(300), where=h1, one_dec=["$K it received", "$K it paid"], height=460)
             h1.caption("TM clients by money with this counterparty in the period (window totals). "
                        "'It received' = the client paid it.")
             sec = (tm.assign(side=np.select([tm.paid_to_it > 0, tm.received_from_it > 0],
@@ -503,6 +545,7 @@ def render_cpty(eid: str):
             f3 = px.bar(agg[agg.sector.isin(order)], x="TM clients", y="sector", color="side", orientation="h",
                         barmode="group", category_orders={"sector": order[::-1]}, template="plotly_white",
                         height=460, color_discrete_map={"Clients paying it": ORANGE, "Clients it pays": BLUE})
+            f3.update_xaxes(tickformat=",")
             f3.update_layout(font_family=FONT, title="Industries of its TM clients", yaxis_title="",
                              legend={"orientation": "h", "y": -0.15, "title": None},
                              margin={"l": 10, "r": 10, "t": 40, "b": 10})
@@ -532,10 +575,11 @@ def render_cpty(eid: str):
             nm = pd.DataFrame({"name on the payments": nm.cpty_name, "accounts": nm.accounts, "banks": nm.banks,
                                "$K in the period": (nm.amt / 1e3).round(0)})
             ac = (ACC.groupby(["cpty_id", "account", "bank"])
-                     .agg(names=("cpty_name", lambda s: "; ".join(sorted(set(s))[:3])), amt=("amt", "sum"),
+                     .agg(names=("cpty_name", lambda s: "; ".join(sorted(set(s)))),
+                          n_names=("cpty_name", "nunique"), amt=("amt", "sum"),
                           n_txn=("n_txn", "sum"), first=("first_month", "min"), last=("last_month", "max"))
                      .sort_values("amt", ascending=False).reset_index())
-            ac = pd.DataFrame({"account": ac.account, "bank": ac.bank, "names": ac.names,
+            ac = pd.DataFrame({"account": ac.account, "bank": ac.bank, "names": ac.n_names, "names used": ac.names,
                                "$K in the period": (ac.amt / 1e3).round(0), "payments": ac.n_txn.round(0),
                                "first month": ac["first"], "last month": ac["last"]})
             c1, c2, c3 = st.columns(3)
@@ -544,12 +588,12 @@ def render_cpty(eid: str):
             c3.metric("Names it appeared under", f"{len(nm):,}")
             s1, s2 = st.columns(2)
             s1.markdown("**Banks holding its accounts**")
-            s1.dataframe(bk, hide_index=True, **WIDE, height=260, column_config={
+            table(bk, where=s1, skip=["share"], height=260, column_config={
                 "share": st.column_config.ProgressColumn("share %", min_value=0, max_value=100, format="%.0f")})
             s2.markdown("**Names it appeared under (merged into this counterparty)**")
-            s2.dataframe(nm, hide_index=True, **WIDE, height=260)
+            table(nm, where=s2, height=260)
             st.markdown("**Accounts**")
-            st.dataframe(ac.head(500), hide_index=True, **WIDE, height=320)
+            table(ac.head(500), height=320, column_config={"names used": st.column_config.TextColumn(width="large")})
             st.caption("Accounts active with PNC clients in the period. Account numbers are masked to the routing "
                        "number and the last 4 digits. Names are merged by cleaned business name across accounts and "
                        "banks; a wrong merge shows up here as an unrelated name.")
@@ -557,32 +601,44 @@ def render_cpty(eid: str):
             st.info("No accounts found for this counterparty in the period.")
 
     with t_mon:
-        months = tuple(pc.month_range(pc.FIRST_MONTH, per[-1])[-max(12, n):])
+        months = tuple(pc.month_range(max(pc.FIRST_MONTH, pc.add_months(per[0], -6)), pc.LAST_MONTH))
         try:
             TR = load_trend(eid, months)
         except Exception as e:
             fail("its months", e)
             TR = pd.DataFrame()
-        if len(TR):
-            t1 = TR.melt(id_vars="mon", value_vars=["n_cust_in", "n_cust_out"], var_name="side", value_name="v")
-            t1["side"] = t1.side.map({"n_cust_in": "PNC clients paying it", "n_cust_out": "PNC clients it pays"})
-            t2 = TR.assign(**{"$K in": TR.amt_in / 1e3, "$K out": TR.amt_out / 1e3}).melt(
-                id_vars="mon", value_vars=["$K in", "$K out"], var_name="side", value_name="v")
-            g1, g2 = st.columns(2)
-            for tgt, data, ttl in ((g1, t1, "PNC clients a month"), (g2, t2, "Money with PNC clients, $K a month")):
-                fg = px.line(data, x="mon", y="v", color="side", markers=True, template="plotly_white", height=330,
-                             color_discrete_sequence=[ORANGE, BLUE])
-                fg.update_layout(font_family=FONT, title=ttl, legend_title_text="", xaxis_title="", yaxis_title="",
-                                 margin={"l": 10, "r": 10, "t": 40, "b": 10}, legend={"orientation": "h", "y": -0.2})
-                fg.add_vrect(x0=per[0], x1=per[-1], fillcolor="#EEF2F6", opacity=0.6, line_width=0, layer="below")
-                tgt.plotly_chart(fg, **WIDE)
-            st.caption("Shaded: the selected period.")
+        panels = [(t, u, [(c, lab) for c, lab in ser if c in TR], d) for t, u, ser, d in pc.TREND_PANELS]
+        panels = [p for p in panels if p[2] and TR[[c for c, _ in p[2]]].notna().any().any()]
+        if len(TR) and panels:
+            st.caption(f"{months[0]} to {months[-1]}; shaded: the selected period. Amounts jump in Jul-Aug 2026 in "
+                       "the source data. The note under each chart says what it measures.")
+            colors = [ORANGE, BLUE, "#2E8B57", "#8E6CC0", "#C9A227", GREY]
+            for i in range(0, len(panels), 2):
+                cols = st.columns(2)
+                for tgt, (title, unit, ser, desc) in zip(cols, panels[i:i + 2]):
+                    scale = {"pct": 100.0, "usd_k": 1e-3}.get(unit, 1.0)
+                    data = TR[["mon"] + [c for c, _ in ser]].melt(id_vars="mon", var_name="s", value_name="v")
+                    data["s"] = data.s.map(dict(ser))
+                    data["v"] = data.v * scale
+                    fg = px.line(data, x="mon", y="v", color="s", markers=True, template="plotly_white", height=290,
+                                 color_discrete_sequence=colors)
+                    fg.update_traces(hovertemplate="%{x}: %{y:,.1f}" if unit == "pct" else "%{x}: %{y:,.0f}")
+                    fg.update_yaxes(tickformat=",", rangemode="tozero", title=None)
+                    fg.update_layout(font_family=FONT, title={"text": title, "font": {"size": 14}}, xaxis_title="",
+                                     legend={"orientation": "h", "y": -0.25, "title": None},
+                                     margin={"l": 10, "r": 10, "t": 40, "b": 10})
+                    fg.add_vrect(x0=per[0], x1=per[-1], fillcolor="#EEF2F6", opacity=0.6, line_width=0,
+                                 layer="below")
+                    tgt.plotly_chart(fg, **WIDE)
+                    tgt.caption(desc)
         else:
             st.info("No monthly data for this counterparty.")
 
-
+N_MONTHS = st.session_state.f_len
+PER = pc.period(st.session_state.f_end, N_MONTHS)
+UNIV = get_universe(PER)
 eid = current_cpty()
 if eid:
-    render_cpty(eid)
+    render_cpty(eid, UNIV, PER, N_MONTHS)
 else:
-    render_list()
+    render_list(UNIV, PER, N_MONTHS)

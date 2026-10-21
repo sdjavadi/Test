@@ -326,11 +326,62 @@ def sort_frame(df: pd.DataFrame, sort: str) -> pd.DataFrame:
 
 
 # ================================================================== one counterparty
-def cpty_trend_sql(ent_id: str, months) -> str:
+RAILS = [("ach", "ACH"), ("wire", "Wire"), ("rtp_prt", "RTP"), ("rtp_p2p", "RTP P2P"), ("check", "Check"),
+         ("pcard", "Card")]
+# Month-by-month charts: (title, unit, [(column, series label)], what it means). A chart shows the columns that exist.
+TREND_PANELS = [
+    ("PNC clients", "count", [("n_cust_in", "paying it"), ("n_cust_out", "it pays")],
+     "Distinct PNC clients in the month."),
+    ("TM clients", "count", [("n_cust_tm_in", "paying it"), ("n_cust_tm_out", "it pays")],
+     "Distinct TM clients in the month."),
+    ("Money with PNC clients, $K", "usd_k", [("amt_in", "in"), ("amt_out", "out")],
+     "Money it received from and paid to PNC clients."),
+    ("Average payment, $", "usd", [("avg_ticket_in", "in"), ("avg_ticket_out", "out")],
+     "Money divided by the number of payments."),
+    ("Days with payments", "count", [("active_days_in", "in"), ("active_days_out", "out")],
+     "Days in the month with at least one payment: daily payers look like processors or billers."),
+    ("Recurring clients", "count", [("rec_standing_in", "paying it"), ("rec_standing_out", "it pays")],
+     "Clients seen in at least 4 of the previous 6 months: the steady base of the relationship."),
+    ("Client retention, %", "pct", [("retention_in", "paying it"), ("retention_out", "it pays")],
+     "Share of last month's clients still there this month."),
+    ("Money from new clients, %", "pct", [("new_amt_share_in", "in"), ("new_amt_share_out", "out")],
+     "Share of the month's money with clients not seen in the previous 12 months: high means it is winning clients."),
+    ("Largest client's share, %", "pct", [("top1_share_in", "in"), ("top1_share_out", "out")],
+     "Share of the month's money with its single largest PNC client: high means it depends on one client."),
+    ("Its weight for its clients, %", "pct", [("dep_wavg_in", "clients paying it"), ("dep_wavg_out", "clients it pays")],
+     "For its PNC clients, its share of their outside payments, weighted by money: high means they rely on it."),
+    ("Money with organisations, %", "pct", [("org_share_in", "in"), ("org_share_out", "out")],
+     "Share of its money with organisations rather than individuals."),
+    ("Payment rails, money in, %", "pct", [(f"share_{r}_in", lab) for r, lab in RAILS],
+     "How PNC clients pay it."),
+    ("Payment rails, money out, %", "pct", [(f"share_{r}_out", lab) for r, lab in RAILS],
+     "How it pays PNC clients."),
+    ("Banks and account ids", "count", [("n_fi", "banks"), ("n_ids_active", "active account ids")],
+     "Banks holding its accounts, and its account ids active in the month."),
+]
+
+
+def trend_columns(cols: set[str]) -> list[str]:
+    return [c for _, _, series, _ in TREND_PANELS for c, _ in series if c in cols]
+
+
+def cpty_trend_sql(ent_id: str, months, cols: set[str]) -> str:
     M = Q["month"]
-    return (f"SELECT {M} AS mon, CAST(amt_in AS DOUBLE) AS amt_in, CAST(amt_out AS DOUBLE) AS amt_out, "
-            f"n_cust_in, n_cust_out, n_cust_all FROM {T_CPTY_MET} "
+    sel = ", ".join(f"CAST({c} AS DOUBLE) AS {c}" for c in trend_columns(cols))
+    return (f"SELECT {M} AS mon, {sel} FROM {T_CPTY_MET} "
             f"WHERE {M} BETWEEN '{months[0]}' AND '{months[-1]}' AND ent_id = '{_check_id(ent_id)}' ORDER BY {M}")
+
+
+def search_names(U: pd.DataFrame, q: str, limit: int = 20) -> pd.DataFrame:
+    """Counterparties whose name contains every word typed (any order); names starting with it first."""
+    words = re.sub(r"[^A-Z0-9&]+", " ", str(q).upper()).split()
+    if not words or sum(map(len, words)) < 2:
+        return U.iloc[0:0]
+    m = pd.Series(True, index=U.index)
+    for w in words:
+        m &= U.ent_name.str.contains(re.escape(w), regex=True)
+    R = U[m].assign(_starts=lambda d: d.ent_name.str.startswith(" ".join(words)))
+    return R.sort_values(["_starts", "amt"], ascending=False).drop(columns="_starts").head(limit)
 
 
 def cpty_clients_sql(ent_id: str, per, limit: int = 2000) -> str:
