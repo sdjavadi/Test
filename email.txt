@@ -1,0 +1,53 @@
+Subject: neo4j_payments: duplicated inbound RTP transactions (5C/6C) and a few data questions
+
+Hi team,
+
+While building Payment Knowledge Graph metrics from dsihd01p_dsi.neo4j_payments, we found inbound RTP payments recorded twice. We also have a few questions about fields and semantics.
+
+1) Duplicate inbound RTP payments (5C / 6C)
+Every month from 2024-01 to 2026-08, about 1.05–1.75M rows in 6C.RTP_P2P_CPTY_PAYS (~21% of 6C) duplicate a row in 5C.RTP_PRT_CPTY_PAYS. Receiving account, amount, date and counterparty name all match (names agree on 99.9% of matches). The two copies differ in trans_id, unq_cpty_acct_id, cpty_type (CPTY vs P2P_CPTY) and src_syst (PRT vs RTP), so the same counterparty becomes two different nodes in the graph. 6C never carries cpty_fin_entity_name; 5C does.
+
+2) One-day date shift that follows daylight saving time
+Some 6C copies are dated one day after their 5C twin. This happens only during DST: about 22–46K pairs a month from mid-March to early November, and near zero from December to February, every year 2024–2026. It looks like one feed converts timestamps with a fixed UTC offset, so late-evening payments land on the next day.
+
+Example queries (Impala):
+
+-- a) same-day duplicates on one date
+SELECT a.trans_dt, a.pnc_dep_acct_receives, a.trans_amt, a.cpty_name,
+       a.trans_id AS trans_id_5c, b.trans_id AS trans_id_6c,
+       a.unq_cpty_acct_id AS cpty_acct_5c, b.unq_cpty_acct_id AS cpty_acct_6c,
+       a.cpty_fin_entity_name AS fi_5c, b.cpty_fin_entity_name AS fi_6c,
+       a.cpty_type AS type_5c, b.cpty_type AS type_6c,
+       a.src_syst AS src_5c, b.src_syst AS src_6c
+FROM dsihd01p_dsi.neo4j_payments a
+JOIN dsihd01p_dsi.neo4j_payments b
+  ON  b.pnc_dep_acct_receives = a.pnc_dep_acct_receives
+  AND b.trans_amt = a.trans_amt
+  AND upper(trim(b.cpty_name)) = upper(trim(a.cpty_name))
+WHERE a.category = '5C.RTP_PRT_CPTY_PAYS' AND a.trans_dt = '2025-01-15'
+  AND b.category = '6C.RTP_P2P_CPTY_PAYS' AND b.trans_dt = '2025-01-15'
+LIMIT 20;
+
+-- b) DST shift: 6C dated one day after 5C (a summer date)
+-- Same query, with only the two date filters changed:
+--   a.trans_dt = '2025-07-15' AND b.trans_dt = '2025-07-16'
+
+3) Other gaps
+- cpty_name is 100% null in 7C.CHECK_CPTY_PAYS.
+- src_syst is empty for all ACH, check and PCARD categories.
+
+Questions
+1. Do the PRT and P2P feeds capture the same RTP payments? If so, which is the system of record, and can the duplicate be removed upstream or in the Neo4j ingestion?
+2. Which feed has the DST date shift, and what time zone should trans_dt reflect?
+3. Is there a source that links the P2P counterparty tokens in 6C to the account ids used in 5C?
+4. How is unq_cpty_id constructed? It appears to include the counterparty name.
+5. What do np_key and mdm_id_pays_orig / mdm_id_receives_orig represent (id at transaction time vs. after MDM merges)?
+6. Is trans_amt converted to USD for rows where trans_currency is not USD?
+7. How are returns and reversals (ACH returns, returned checks, wire recalls) represented, if at all?
+8. For outbound checks (7B), is the bank-of-first-deposit routing number available from the presentment data, so cpty_fin_entity_name could be populated?
+9. Is history in neo4j_payments retained permanently, or are older partitions purged?
+
+We have a pairing table (each duplicate 6C trans_id matched to its 5C trans_id, 2024-01 → 2026-08) in bdahd01p_dlcdi1_cdi_tm.pkg_dedup_5c6c if it helps you validate.
+
+Thanks,
+Saeed
