@@ -1,4 +1,0 @@
-loc = "hdfs://nameservice1/bdpp/bda/01/str/pub/dlgcdi01pii/bdahd01p_dlcdi1_cdi_tm"
-for t in ("pkg_cpty_attr_month", "pkg_tpo_month"):
-    spark.sql(f"DROP TABLE IF EXISTS bdahd01p_dlcdi1_cdi_tm.{t}")
-    !hdfs dfs -rm -r -f -skipTrash {loc}/{t}
