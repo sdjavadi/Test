@@ -1,1 +1,0 @@
-        n_on = int((on_l["tm"] >= ta).sum()); span = int(((sc_["tm"] >= ta) & (sc_["tm"] < e)).sum())
