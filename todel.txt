@@ -1,0 +1,5 @@
+loc = "/bdpp/bda/01/str/pub/dlgcdi01pii/bdahd01p_dlcdi1_cdi_tm"
+!hdfs dfs -count -q -h {loc}
+!hdfs dfs -du -s -h {loc}/pkg_edge_daily {loc}/pkg_edge_monthly {loc}/pkg_cpty_month {loc}/pkg_dedup_5c6c
+!hdfs lsSnapshottableDir 2>/dev/null | grep -i cdi_tm
+!hdfs dfs -du -s -h /user/$USER/.Trash
