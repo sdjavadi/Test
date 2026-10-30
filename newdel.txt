@@ -1,0 +1,5 @@
+loc = "/bdpp/bda/01/str/pub/dlgcdi01pii/bdahd01p_dlcdi1_cdi_tm"
+for t in ("pkg_edge_daily", "pkg_edge_monthly", "pkg_cpty_month", "pkg_dedup_5c6c"):
+    print(f"--- {t}")
+    !hdfs dfs -du -h {loc}/{t} | grep -v -E "month=20(24|25|26)-[0-9]{{2}}$"
+    !hdfs dfs -ls {loc}/{t}/month=2024-01 | head -5
