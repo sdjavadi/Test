@@ -1,0 +1,3706 @@
+node_id,name,party_type,sector_code,sector,region,size_band
+B0001,Tristate Market Corp,O,44,Retail trade,Multi-state,large
+B0002,Larkspur Retail Group Inc,O,44,Retail trade,Multi-state,mid
+B0003,Harbor Kitchen Corp,O,72,Food services,IL,large
+B0004,Bridgeway Property Management Corp,O,53,Real estate,PA-East,mid
+B0005,Clearwater Machine Works Co,O,33,Machinery and parts manufacturing,OH,large
+B0006,Creek Precision Parts Partners,O,33,Machinery and parts manufacturing,OH,large
+B0007,Hollow Capital Partners,O,52,Finance and insurance,Multi-state,large
+B0008,Larkspur Construction Inc,O,23,Construction,PA-East,mid
+B0009,Larkspur Supply Corp,O,42,Wholesale trade,IL,mid
+B0010,Crestview Machine Works LLC,O,33,Machinery and parts manufacturing,OH,mid
+B0011,Meridian Concrete Corp,O,23,Construction,MD-DC,large
+B0012,Fairview Supply Corp,O,42,Wholesale trade,IL,large
+B0013,Stonegate Outfitters Inc,O,44,Retail trade,Multi-state,mid
+B0014,Foxhall Trading Group,O,42,Wholesale trade,IN-IA,mid
+B0015,Halcyon Wholesale LLC,O,42,Wholesale trade,IN-IA,large
+B0016,Vantage Properties LLC,O,53,Real estate,MD-DC,large
+B0017,Foxhall Imaging Co,O,62,Health care,PA-West,mid
+B0018,Tristate Distributors Partners,O,42,Wholesale trade,Multi-state,mid
+B0019,Liberty Wholesale Partners,O,42,Wholesale trade,PA-West,mid
+B0020,Bridgeway Distributors LLC,O,42,Wholesale trade,Multi-state,mid
+B0021,Highpoint Analytics LLC,O,54,Professional services,Multi-state,large
+B0022,Pioneer Real Estate Inc,O,53,Real estate,MD-DC,large
+B0023,Highpoint Consulting LLC,O,54,Professional services,Multi-state,mid
+B0024,Heritage Freight Inc,O,48,Transportation,KY,mid
+B0025,Stonegate Grain Co-op LLC,O,11,Agriculture,IN-IA,mid
+B0026,Bluegrass Construction Co,O,23,Construction,MD-DC,mid
+B0027,Oakmont Freight Inc,O,48,Transportation,KY,mid
+B0028,Ashford Pharma Labs Inc,O,32,Chemical and pharma manufacturing,NJ,mid
+B0029,Beacon Accounting Corp,O,54,Professional services,NJ,mid
+B0030,Meridian Trading Group,O,42,Wholesale trade,IL,mid
+B0031,Stonegate Supply Group,O,42,Wholesale trade,OH,mid
+B0032,Lantern Auto Components Group,O,33,Machinery and parts manufacturing,OH,large
+B0033,Cedar Property Management Inc,O,53,Real estate,MD-DC,mid
+B0034,Tristate Retail Group Corp,O,44,Retail trade,Multi-state,mid
+B0035,Union Kitchen Partners,O,72,Food services,IL,large
+B0036,Stonegate Retail Group Inc,O,44,Retail trade,Multi-state,small
+B0037,Frontier Analytics Corp,O,54,Professional services,MI,small
+B0038,Lantern Wholesale LLC,O,42,Wholesale trade,NJ,small
+B0039,Ironbridge Bakery Supply Co,O,31,Food manufacturing,IN-IA,mid
+B0040,Granite Logistics Group,O,48,Transportation,KY,mid
+B0041,Brookside Logistics LLC,O,48,Transportation,KY,large
+B0042,Frontier Machine Works Inc,O,33,Machinery and parts manufacturing,MI,mid
+B0043,Elmhurst Realty Co,O,53,Real estate,MD-DC,mid
+B0044,Prairie Growers Corp,O,11,Agriculture,IN-IA,mid
+B0045,Ironbridge Wholesale Inc,O,42,Wholesale trade,Multi-state,mid
+B0046,Redstone Wholesale Corp,O,42,Wholesale trade,PA-West,mid
+B0047,Granite Supply Inc,O,42,Wholesale trade,IN-IA,large
+B0048,Pioneer Concrete Corp,O,23,Construction,PA-East,small
+B0049,Stonegate Advisors Group,O,54,Professional services,PA-East,large
+B0050,Tristate Farms LLC,O,11,Agriculture,IN-IA,mid
+B0051,Heritage Wholesale Inc,O,42,Wholesale trade,IL,small
+B0052,Harbor Castings Co,O,33,Machinery and parts manufacturing,MI,mid
+B0053,Tristate Trucking Corp,O,48,Transportation,KY,mid
+B0054,Halcyon Pharma Labs Partners,O,32,Chemical and pharma manufacturing,NJ,large
+B0055,Wexford Advisors Corp,O,54,Professional services,Multi-state,mid
+B0056,Elmhurst Farms Partners,O,11,Agriculture,IN-IA,mid
+B0057,Vantage Supply LLC,O,42,Wholesale trade,IL,large
+B0058,Cedar Freight Partners,O,48,Transportation,IL,large
+B0059,Summit Tooling Inc,O,33,Machinery and parts manufacturing,OH,mid
+B0060,Lakeside Analytics LLC,O,54,Professional services,OH,large
+B0061,Riverbend Castings Partners,O,33,Machinery and parts manufacturing,OH,mid
+B0062,Oakmont Properties Inc,O,53,Real estate,PA-East,small
+B0063,Ironbridge Grain Co-op Partners,O,11,Agriculture,IN-IA,mid
+B0064,Hollow Biologics Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B0065,Pioneer Advisors Co,O,54,Professional services,PA-West,large
+B0066,Oakmont Transport Co,O,48,Transportation,OH,mid
+B0067,Oakmont Janitorial Inc,O,56,Admin and support services,IN-IA,small
+B0068,Heritage Trading Inc,O,42,Wholesale trade,VA-OH,large
+B0069,Oakmont Laundry LLC,O,81,Other services,IL,small
+B0070,Meridian Trucking Corp,O,48,Transportation,OH,mid
+B0071,Prairie Construction Co,O,23,Construction,PA-East,large
+B0072,Tristate Consulting Co,O,54,Professional services,NJ,mid
+B0073,Eastgate Wholesale Corp,O,42,Wholesale trade,PA-East,large
+B0074,Fairview Property Management Group,O,53,Real estate,PA-West,mid
+B0075,Foxhall Foods Group,O,31,Food manufacturing,IN-IA,mid
+B0076,Keystone Auto Components Partners,O,33,Machinery and parts manufacturing,MI,mid
+B0077,Brookside Tooling Corp,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0078,Oakmont Freight Partners,O,48,Transportation,KY,mid
+B0079,Allegheny Staffing Inc,O,56,Admin and support services,MD-DC,mid
+B0080,Summit Castings Co,O,33,Machinery and parts manufacturing,OH,mid
+B0081,Elmhurst Market Inc,O,44,Retail trade,Multi-state,mid
+B0082,Allegheny Imaging Inc,O,62,Health care,PA-West,mid
+B0083,Sycamore Transport Co,O,48,Transportation,IL,large
+B0084,Silverlake Freight Corp,O,48,Transportation,KY,mid
+B0085,Creek Concrete Inc,O,23,Construction,PA-East,mid
+B0086,Keystone Kitchen Inc,O,72,Food services,IL,large
+B0087,Copperline Machine Works Partners,O,33,Machinery and parts manufacturing,OH,large
+B0088,Ironbridge Machine Works Partners,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0089,Lantern Machine Works LLC,O,33,Machinery and parts manufacturing,MI,mid
+B0090,Copperline Mechanical Inc,O,23,Construction,PA-East,large
+B0091,Redstone Grill Corp,O,72,Food services,IL,mid
+B0092,Ridgeline Trading Co,O,42,Wholesale trade,Multi-state,large
+B0093,Sterling Supply LLC,O,42,Wholesale trade,NJ,small
+B0094,Fairview Transport Group,O,48,Transportation,OH,small
+B0095,Summit Advisors Inc,O,54,Professional services,Multi-state,large
+B0096,Frontier Castings Corp,O,33,Machinery and parts manufacturing,OH,large
+B0097,Bluegrass Distributors LLC,O,42,Wholesale trade,Multi-state,mid
+B0098,Ashford Mechanical Inc,O,23,Construction,VA-OH,large
+B0099,Westfield Logistics Inc,O,48,Transportation,OH,large
+B0100,Bluegrass Foods Group,O,31,Food manufacturing,IN-IA,mid
+B0101,Larkspur Biologics Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B0102,Harbor Trading LLC,O,42,Wholesale trade,IN-IA,mid
+B0103,Juniper Distributors Corp,O,42,Wholesale trade,KY,mid
+B0104,Oakmont Electrical Contractors Group,O,23,Construction,MD-DC,small
+B0105,Redstone Wholesale Inc,O,42,Wholesale trade,MI,large
+B0106,Lakeside Advisors Group,O,54,Professional services,PA-East,mid
+B0107,Ashford Precision Parts Inc,O,33,Machinery and parts manufacturing,OH,mid
+B0108,Sycamore Pharma Labs Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B0109,Larkspur Concrete Partners,O,23,Construction,MD-DC,large
+B0110,Granite Home Store Corp,O,44,Retail trade,Multi-state,mid
+B0111,Granite Castings LLC,O,33,Machinery and parts manufacturing,VA-OH,large
+B0112,Clearwater Wholesale LLC,O,42,Wholesale trade,PA-East,mid
+B0113,Elmhurst Supply Co,O,42,Wholesale trade,NJ,mid
+B0114,Crestview Foods Corp,O,31,Food manufacturing,IL,small
+B0115,Wexford Logistics Corp,O,48,Transportation,IL,mid
+B0116,Granite Trading Corp,O,42,Wholesale trade,PA-West,small
+B0117,Beacon Retail Group Corp,O,44,Retail trade,Multi-state,mid
+B0118,Ridgeline Health Partners Co,O,62,Health care,PA-West,large
+B0119,Stonegate Farms Partners,O,11,Agriculture,IN-IA,mid
+B0120,Juniper Market Corp,O,44,Retail trade,Multi-state,large
+B0121,Highpoint Realty Partners,O,53,Real estate,PA-East,mid
+B0122,Wexford Castings Co,O,33,Machinery and parts manufacturing,MI,mid
+B0123,Meridian Orchards Partners,O,11,Agriculture,IN-IA,mid
+B0124,Eastgate Builders Corp,O,23,Construction,VA-OH,mid
+B0125,Silverlake Mechanical LLC,O,23,Construction,PA-East,mid
+B0126,Oakmont Distributors Inc,O,42,Wholesale trade,MI,mid
+B0127,Union Supply Inc,O,42,Wholesale trade,IL,mid
+B0128,Larkspur Capital Inc,O,52,Finance and insurance,Multi-state,mid
+B0129,Fairview Accounting Partners,O,54,Professional services,MI,large
+B0130,Maplewood Engineering Inc,O,54,Professional services,OH,large
+B0131,Allegheny Castings Partners,O,33,Machinery and parts manufacturing,MI,mid
+B0132,Lantern Advisors LLC,O,54,Professional services,PA-East,small
+B0133,Pioneer Surgical Center Inc,O,62,Health care,PA-West,mid
+B0134,Larkspur Trucking Partners,O,48,Transportation,KY,small
+B0135,Crestview Trading Inc,O,42,Wholesale trade,IN-IA,mid
+B0136,Foxhall Builders LLC,O,23,Construction,VA-OH,mid
+B0137,Larkspur Supply Inc,O,42,Wholesale trade,OH,mid
+B0138,Halcyon Transport LLC,O,48,Transportation,KY,large
+B0139,Monarch Trading Corp,O,42,Wholesale trade,Multi-state,mid
+B0140,Highpoint Trading Corp,O,42,Wholesale trade,IL,mid
+B0141,Summit Growers Inc,O,11,Agriculture,IN-IA,large
+B0142,Vantage Catering Partners,O,72,Food services,IL,mid
+B0143,Foxhall Trading Co,O,42,Wholesale trade,Multi-state,mid
+B0144,Redstone Insurance Agency Partners,O,52,Finance and insurance,Multi-state,mid
+B0145,Granite Concrete Partners,O,23,Construction,PA-East,mid
+B0146,Lantern Biologics Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B0147,Creek Trading Inc,O,42,Wholesale trade,VA-OH,large
+B0148,Meridian Property Management Co,O,53,Real estate,PA-East,small
+B0149,Granite Properties LLC,O,53,Real estate,MD-DC,mid
+B0150,Wexford Machine Works Co,O,33,Machinery and parts manufacturing,OH,mid
+B0151,Maplewood Facility Services Inc,O,56,Admin and support services,PA-West,small
+B0152,Redstone Construction Co,O,23,Construction,PA-East,large
+B0153,Liberty Wholesale Co,O,42,Wholesale trade,OH,large
+B0154,Fairview Freight Inc,O,48,Transportation,KY,mid
+B0155,Frontier Surgical Center Co,O,62,Health care,PA-West,mid
+B0156,Elmhurst Trading Corp,O,42,Wholesale trade,VA-OH,mid
+B0157,Heritage Supply Group,O,42,Wholesale trade,IL,mid
+B0158,Allegheny Builders LLC,O,23,Construction,MD-DC,large
+B0159,Tristate Electrical Contractors Partners,O,23,Construction,PA-East,large
+B0160,Bluegrass Staffing Inc,O,56,Admin and support services,PA-West,mid
+B0161,Copperline Construction Partners,O,23,Construction,PA-East,mid
+B0162,Midland Supply Inc,O,42,Wholesale trade,Multi-state,mid
+B0163,Union Staffing Partners,O,56,Admin and support services,MD-DC,mid
+B0164,Allegheny Trading Inc,O,42,Wholesale trade,OH,small
+B0165,Frontier Trading LLC,O,42,Wholesale trade,IL,mid
+B0166,Copperline Janitorial LLC,O,56,Admin and support services,NJ,mid
+B0167,Creek Clinic LLC,O,62,Health care,PA-West,mid
+B0168,Granite Machine Works LLC,O,33,Machinery and parts manufacturing,MI,mid
+B0169,Ashford Properties Corp,O,53,Real estate,PA-East,mid
+B0170,Sycamore Precision Parts Co,O,33,Machinery and parts manufacturing,OH,mid
+B0171,Eastgate Group Corp,O,55,Holding companies,Multi-state,small
+B0172,Summit Transport Group,O,48,Transportation,KY,large
+B0173,Hollow Engineering Corp,O,54,Professional services,PA-East,mid
+B0174,Hollow Logistics Partners,O,48,Transportation,IL,mid
+B0175,Silverlake Analytics Corp,O,54,Professional services,PA-West,large
+B0176,Foxhall Freight Co,O,48,Transportation,IL,large
+B0177,Clearwater Auto Components Co,O,33,Machinery and parts manufacturing,OH,mid
+B0178,Hollow Farms LLC,O,11,Agriculture,IN-IA,mid
+B0179,Creek Facility Services Inc,O,56,Admin and support services,PA-West,mid
+B0180,Vantage Logistics Co,O,48,Transportation,KY,mid
+B0181,Halcyon Supply LLC,O,42,Wholesale trade,PA-East,mid
+B0182,Allegheny Logistics Inc,O,48,Transportation,Multi-state,large
+B0183,Keystone Auto Components Group,O,33,Machinery and parts manufacturing,MI,mid
+B0184,Ridgeline Clinic LLC,O,62,Health care,PA-West,mid
+B0185,Northgate Market Inc,O,44,Retail trade,Multi-state,large
+B0186,Wexford Consulting Group,O,54,Professional services,MI,mid
+B0187,Frontier Compounding LLC,O,32,Chemical and pharma manufacturing,NJ,mid
+B0188,Beacon Construction Co,O,23,Construction,VA-OH,mid
+B0189,Brookside Advisors Inc,O,54,Professional services,MI,large
+B0190,Heritage Machine Works Co,O,33,Machinery and parts manufacturing,OH,mid
+B0191,Larkspur Trading Group,O,42,Wholesale trade,PA-West,mid
+B0192,Northgate Staffing Partners,O,56,Admin and support services,MD-DC,mid
+B0193,Vantage Transport Corp,O,48,Transportation,Multi-state,large
+B0194,Midland Grill Group,O,72,Food services,IL,mid
+B0195,Creek Engineering Group,O,54,Professional services,Multi-state,mid
+B0196,Lantern Builders Partners,O,23,Construction,MD-DC,mid
+B0197,Cedar Staffing LLC,O,56,Admin and support services,Multi-state,mid
+B0198,Foxhall Consulting Co,O,54,Professional services,NJ,mid
+B0199,Halcyon Growers Group,O,11,Agriculture,IN-IA,large
+B0200,Stonegate Castings Co,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0201,Silverlake Kitchen Corp,O,72,Food services,IL,mid
+B0202,Bluegrass Electrical Contractors Inc,O,23,Construction,PA-East,mid
+B0203,Larkspur Trading Corp,O,42,Wholesale trade,OH,large
+B0204,Meridian Realty Group,O,53,Real estate,MD-DC,mid
+B0205,Liberty Dairy Corp,O,31,Food manufacturing,IL,large
+B0206,Stonegate Castings Corp,O,33,Machinery and parts manufacturing,MI,large
+B0207,Pioneer Wholesale Group,O,42,Wholesale trade,OH,mid
+B0208,Stonegate Distributors Group,O,42,Wholesale trade,OH,large
+B0209,Union Freight Group,O,48,Transportation,OH,small
+B0210,Crestview Distributors LLC,O,42,Wholesale trade,NJ,mid
+B0211,Monarch Property Management Co,O,53,Real estate,MD-DC,large
+B0212,Westfield Freight Corp,O,48,Transportation,Multi-state,large
+B0213,Fairview Transport Partners,O,48,Transportation,KY,small
+B0214,Crestview Retail Group Group,O,44,Retail trade,Multi-state,mid
+B0215,Harbor Imaging Corp,O,62,Health care,PA-West,mid
+B0216,Granite Supply Partners,O,42,Wholesale trade,IL,small
+B0217,Hollow Concrete Inc,O,23,Construction,PA-East,mid
+B0218,Monarch Trading Group,O,42,Wholesale trade,MI,mid
+B0219,Sterling Transport Partners,O,48,Transportation,KY,large
+B0220,Elmhurst Analytics Corp,O,54,Professional services,MI,large
+B0221,Larkspur Engineering Partners,O,54,Professional services,Multi-state,large
+B0222,Midland Machine Works Inc,O,33,Machinery and parts manufacturing,OH,mid
+B0223,Riverbend Mechanical Partners,O,23,Construction,MD-DC,mid
+B0224,Bridgeway Advisors Co,O,54,Professional services,PA-East,mid
+B0225,Keystone Analytics Group,O,54,Professional services,MD-DC,mid
+B0226,Brookside Machine Works Co,O,33,Machinery and parts manufacturing,OH,mid
+B0227,Ridgeline Electrical Contractors Co,O,23,Construction,MD-DC,mid
+B0228,Ironbridge Engineering LLC,O,54,Professional services,Multi-state,large
+B0229,Cedar Engineering Co,O,54,Professional services,PA-West,mid
+B0230,Wexford Castings Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0231,Oakmont Real Estate Group,O,53,Real estate,MD-DC,large
+B0232,Redstone Clinic Corp,O,62,Health care,PA-West,mid
+B0233,Frontier Freight Co,O,48,Transportation,Multi-state,small
+B0234,Copperline Orchards Co,O,11,Agriculture,IN-IA,large
+B0235,Stonegate Catering Co,O,72,Food services,IL,mid
+B0236,Meridian Advisors Inc,O,54,Professional services,PA-West,mid
+B0237,Frontier Freight LLC,O,48,Transportation,IL,mid
+B0238,Crestview Restaurant Group Group,O,72,Food services,IL,large
+B0239,Hollow Freight Partners,O,48,Transportation,OH,mid
+B0240,Highpoint Surgical Center Inc,O,62,Health care,PA-West,large
+B0241,Midland Trucking LLC,O,48,Transportation,OH,mid
+B0242,Lantern Property Management Group,O,53,Real estate,MD-DC,mid
+B0243,Halcyon Kitchen Group,O,72,Food services,IL,large
+B0244,Cedar Capital Group,O,52,Finance and insurance,Multi-state,mid
+B0245,Kingsley Outfitters Group,O,44,Retail trade,Multi-state,mid
+B0246,Bluegrass Properties Inc,O,53,Real estate,MD-DC,large
+B0247,Bluegrass Castings Inc,O,33,Machinery and parts manufacturing,MI,mid
+B0248,Tristate Supply Inc,O,42,Wholesale trade,NJ,mid
+B0249,Lakeside Staffing Partners,O,56,Admin and support services,Multi-state,mid
+B0250,Harbor Facility Services LLC,O,56,Admin and support services,PA-West,large
+B0251,Beacon Supply Co,O,42,Wholesale trade,Multi-state,mid
+B0252,Foxhall Repair Partners,O,81,Other services,KY,mid
+B0253,Maplewood Imaging Inc,O,62,Health care,PA-West,large
+B0254,Keystone Packing Group,O,31,Food manufacturing,IN-IA,large
+B0255,Bluegrass Machine Works Inc,O,33,Machinery and parts manufacturing,OH,large
+B0256,Sycamore Auto Components Co,O,33,Machinery and parts manufacturing,OH,large
+B0257,Stonegate Grain Co-op Partners,O,11,Agriculture,IN-IA,mid
+B0258,Brookside Staffing Inc,O,56,Admin and support services,MD-DC,mid
+B0259,Riverbend Transport Co,O,48,Transportation,KY,mid
+B0260,Oakmont Distributors Corp,O,42,Wholesale trade,IL,mid
+B0261,Brookside Analytics Corp,O,54,Professional services,Multi-state,small
+B0262,Sycamore Analytics LLC,O,54,Professional services,Multi-state,mid
+B0263,Juniper Machine Works Group,O,33,Machinery and parts manufacturing,OH,mid
+B0264,Larkspur Analytics Partners,O,54,Professional services,PA-West,mid
+B0265,Ridgeline Engineering Partners,O,54,Professional services,MD-DC,small
+B0266,Monarch Castings LLC,O,33,Machinery and parts manufacturing,MI,mid
+B0267,Westfield Supply LLC,O,42,Wholesale trade,IN-IA,mid
+B0268,Bridgeway Clinic Co,O,62,Health care,PA-West,large
+B0269,Larkspur Distributors Co,O,42,Wholesale trade,NJ,small
+B0270,Crestview Engineering Partners,O,54,Professional services,NJ,mid
+B0271,Oakmont Freight Corp,O,48,Transportation,KY,mid
+B0272,Wexford Compounding LLC,O,32,Chemical and pharma manufacturing,NJ,mid
+B0273,Ashford Real Estate Co,O,53,Real estate,MD-DC,mid
+B0274,Larkspur Grill Corp,O,72,Food services,IL,mid
+B0275,Keystone Health Partners Co,O,62,Health care,PA-West,large
+B0276,Meridian Construction LLC,O,23,Construction,PA-East,mid
+B0277,Bluegrass Distributors Corp,O,42,Wholesale trade,IL,small
+B0278,Fairview Wholesale Group,O,42,Wholesale trade,OH,large
+B0279,Sycamore Supply LLC,O,42,Wholesale trade,OH,mid
+B0280,Allegheny Staffing Corp,O,56,Admin and support services,MD-DC,mid
+B0281,Hollow Real Estate Inc,O,53,Real estate,MD-DC,mid
+B0282,Riverbend Bakery Supply Co,O,31,Food manufacturing,IN-IA,mid
+B0283,Foxhall Supply Inc,O,42,Wholesale trade,Multi-state,large
+B0284,Foxhall Analytics Co,O,54,Professional services,PA-West,mid
+B0285,Wexford Real Estate Inc,O,53,Real estate,MD-DC,large
+B0286,Frontier Trading Partners,O,42,Wholesale trade,IN-IA,mid
+B0287,Ridgeline Logistics Group,O,48,Transportation,IL,large
+B0288,Westfield Engineering Inc,O,54,Professional services,MD-DC,small
+B0289,Allegheny Real Estate Co,O,53,Real estate,PA-West,large
+B0290,Frontier Machine Works Group,O,33,Machinery and parts manufacturing,OH,mid
+B0291,Fairview Trading Group,O,42,Wholesale trade,IL,large
+B0292,Northgate Catering Group,O,72,Food services,IL,mid
+B0293,Eastgate Mechanical Partners,O,23,Construction,PA-East,mid
+B0294,Granite Imaging Group,O,62,Health care,PA-West,mid
+B0295,Pioneer Advisors Group,O,54,Professional services,MI,large
+B0296,Tristate Realty Partners,O,53,Real estate,PA-West,small
+B0297,Allegheny Realty Inc,O,53,Real estate,PA-East,large
+B0298,Highpoint Wholesale Inc,O,42,Wholesale trade,Multi-state,large
+B0299,Beacon Medical Group Co,O,62,Health care,PA-West,small
+B0300,Brookside Laundry Group,O,81,Other services,PA-East,small
+B0301,Bluegrass Trading Inc,O,42,Wholesale trade,PA-East,mid
+B0302,Redstone Energy Services Inc,O,22,Utilities,VA-OH,small
+B0303,Monarch Wholesale Partners,O,42,Wholesale trade,KY,mid
+B0304,Foxhall Staffing Group,O,56,Admin and support services,NJ,large
+B0305,Elmhurst Electrical Contractors Group,O,23,Construction,VA-OH,mid
+B0306,Harbor Distributors Inc,O,42,Wholesale trade,IL,large
+B0307,Tristate Group Inc,O,55,Holding companies,Multi-state,large
+B0308,Vantage Analytics Co,O,54,Professional services,Multi-state,mid
+B0309,Granite Precision Parts Corp,O,33,Machinery and parts manufacturing,KY,mid
+B0310,Stonegate Security Services Corp,O,56,Admin and support services,NJ,large
+B0311,Stonegate Restaurant Group LLC,O,72,Food services,IL,mid
+B0312,Allegheny Wholesale Co,O,42,Wholesale trade,OH,mid
+B0313,Westfield Real Estate Co,O,53,Real estate,MD-DC,large
+B0314,Hollow Builders Co,O,23,Construction,PA-East,mid
+B0315,Union Growers Corp,O,11,Agriculture,IN-IA,small
+B0316,Vantage Trading LLC,O,42,Wholesale trade,IL,mid
+B0317,Liberty Wholesale Corp,O,42,Wholesale trade,KY,small
+B0318,Union Engineering Group,O,54,Professional services,MD-DC,mid
+B0319,Larkspur Wholesale Corp,O,42,Wholesale trade,PA-East,large
+B0320,Westfield Health Partners Group,O,62,Health care,PA-West,mid
+B0321,Fairview Concrete Corp,O,23,Construction,VA-OH,large
+B0322,Kingsley Wholesale Partners,O,42,Wholesale trade,KY,mid
+B0323,Elmhurst Energy Services Corp,O,22,Utilities,VA-OH,small
+B0324,Stonegate Imaging LLC,O,62,Health care,PA-West,large
+B0325,Ashford Trucking LLC,O,48,Transportation,OH,mid
+B0326,Wexford Group Inc,O,55,Holding companies,Multi-state,mid
+B0327,Eastgate Clinic Co,O,62,Health care,PA-West,small
+B0328,Granite Wholesale LLC,O,42,Wholesale trade,MI,large
+B0329,Harbor Pharma Labs Inc,O,32,Chemical and pharma manufacturing,NJ,mid
+B0330,Granite Growers Partners,O,11,Agriculture,IN-IA,large
+B0331,Lakeside Tooling Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0332,Kingsley Advisors LLC,O,54,Professional services,NJ,large
+B0333,Redstone Staffing LLC,O,56,Admin and support services,Multi-state,small
+B0334,Keystone Supply Corp,O,42,Wholesale trade,IN-IA,large
+B0335,Highpoint Farms Inc,O,11,Agriculture,IN-IA,mid
+B0336,Fairview Engineering Co,O,54,Professional services,OH,mid
+B0337,Maplewood Logistics Group,O,48,Transportation,KY,small
+B0338,Hollow Supply LLC,O,42,Wholesale trade,PA-East,mid
+B0339,Juniper Accounting LLC,O,54,Professional services,OH,small
+B0340,Clearwater Trading Corp,O,42,Wholesale trade,Multi-state,large
+B0341,Copperline Wholesale Partners,O,42,Wholesale trade,MI,mid
+B0342,Union Consulting Co,O,54,Professional services,NJ,mid
+B0343,Clearwater Freight Partners,O,48,Transportation,Multi-state,mid
+B0344,Silverlake Health Partners Corp,O,62,Health care,PA-West,mid
+B0345,Frontier Logistics Co,O,48,Transportation,KY,large
+B0346,Keystone Wholesale Group,O,42,Wholesale trade,PA-West,mid
+B0347,Creek Transport Co,O,48,Transportation,OH,mid
+B0348,Fairview Market Corp,O,44,Retail trade,Multi-state,mid
+B0349,Ashford Supply Group,O,42,Wholesale trade,MI,large
+B0350,Clearwater Advisors Group,O,54,Professional services,Multi-state,large
+B0351,Liberty Distributors Group,O,42,Wholesale trade,Multi-state,large
+B0352,Monarch Concrete Group,O,23,Construction,PA-East,mid
+B0353,Clearwater Growers Inc,O,11,Agriculture,IN-IA,mid
+B0354,Redstone Construction LLC,O,23,Construction,MD-DC,mid
+B0355,Monarch Trading Co,O,42,Wholesale trade,PA-West,mid
+B0356,Sterling Retail Group Co,O,44,Retail trade,Multi-state,large
+B0357,Bluegrass Pharma Labs Group,O,32,Chemical and pharma manufacturing,NJ,large
+B0358,Kingsley Facility Services Corp,O,56,Admin and support services,Multi-state,mid
+B0359,Northgate Surgical Center Partners,O,62,Health care,PA-West,large
+B0360,Tristate Catering Inc,O,72,Food services,IL,large
+B0361,Kingsley Catering Inc,O,72,Food services,IL,mid
+B0362,Heritage Tooling LLC,O,33,Machinery and parts manufacturing,MI,large
+B0363,Clearwater Wholesale Corp,O,42,Wholesale trade,OH,large
+B0364,Keystone Janitorial LLC,O,56,Admin and support services,Multi-state,mid
+B0365,Juniper Supply Corp,O,42,Wholesale trade,VA-OH,mid
+B0366,Pioneer Dairy LLC,O,31,Food manufacturing,IN-IA,large
+B0367,Halcyon Financial Inc,O,52,Finance and insurance,Multi-state,large
+B0368,Kingsley Analytics Partners,O,54,Professional services,Multi-state,large
+B0369,Lakeside Builders Corp,O,23,Construction,VA-OH,large
+B0370,Larkspur Builders LLC,O,23,Construction,PA-East,mid
+B0371,Tri-State Power and Light,O,22,Utilities,Multi-state,large
+B0372,Prairie Foods Partners,O,31,Food manufacturing,IN-IA,small
+B0373,Allegheny Freight Co,O,48,Transportation,KY,small
+B0374,Ashford Bakery Supply LLC,O,31,Food manufacturing,IN-IA,small
+B0375,Bridgeway Auto Components Inc,O,33,Machinery and parts manufacturing,OH,mid
+B0376,Summit Realty Partners,O,53,Real estate,PA-East,large
+B0377,Heritage Property Management Inc,O,53,Real estate,MD-DC,mid
+B0378,Foxhall Supply Partners,O,42,Wholesale trade,Multi-state,mid
+B0379,Lantern Real Estate Co,O,53,Real estate,PA-East,mid
+B0380,Frontier Distributors Group,O,42,Wholesale trade,KY,small
+B0381,Crestview Analytics Co,O,54,Professional services,NJ,large
+B0382,Liberty Logistics Group,O,48,Transportation,KY,large
+B0383,Vantage Foods LLC,O,31,Food manufacturing,IN-IA,mid
+B0384,Heritage Janitorial Partners,O,56,Admin and support services,Multi-state,mid
+B0385,Cedar Services Co,O,81,Other services,KY,small
+B0386,Wexford Logistics Inc,O,48,Transportation,OH,mid
+B0387,Elmhurst Precision Parts Co,O,33,Machinery and parts manufacturing,VA-OH,small
+B0388,Silverlake Analytics Group,O,54,Professional services,NJ,large
+B0389,Keystone Builders Group,O,23,Construction,VA-OH,mid
+B0390,Clearwater Construction Partners,O,23,Construction,VA-OH,mid
+B0391,Sycamore Tooling Corp,O,33,Machinery and parts manufacturing,MI,mid
+B0392,Meridian Insurance Agency LLC,O,52,Finance and insurance,Multi-state,mid
+B0393,Maplewood Builders LLC,O,23,Construction,PA-East,mid
+B0394,Highpoint Property Management Partners,O,53,Real estate,PA-West,small
+B0395,Ironbridge Capital Inc,O,52,Finance and insurance,Multi-state,large
+B0396,Lantern Trading Co,O,42,Wholesale trade,IL,mid
+B0397,Allegheny Precision Parts Inc,O,33,Machinery and parts manufacturing,OH,mid
+B0398,Tristate Trucking LLC,O,48,Transportation,Multi-state,large
+B0399,Brookside Realty Partners,O,53,Real estate,MD-DC,mid
+B0400,Vantage Freight Partners,O,48,Transportation,OH,mid
+B0401,Monarch Janitorial Co,O,56,Admin and support services,Multi-state,large
+B0402,Bluegrass Janitorial Corp,O,56,Admin and support services,PA-West,large
+B0403,Crestview Trading Group,O,42,Wholesale trade,MD-DC,mid
+B0404,Summit Freight Group,O,48,Transportation,KY,mid
+B0405,Lantern Foods Co,O,31,Food manufacturing,IN-IA,mid
+B0406,Maplewood Real Estate Partners,O,53,Real estate,MD-DC,small
+B0407,Oakmont Consulting Corp,O,54,Professional services,Multi-state,large
+B0408,Riverbend Precision Parts Co,O,33,Machinery and parts manufacturing,MI,mid
+B0409,Riverbend Compounding LLC,O,32,Chemical and pharma manufacturing,NJ,mid
+B0410,Tristate Chemical Partners,O,32,Chemical and pharma manufacturing,NJ,small
+B0411,Union Biologics Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B0412,Ironbridge Precision Parts LLC,O,33,Machinery and parts manufacturing,OH,small
+B0413,Cedar Grain Co-op Group,O,11,Agriculture,IN-IA,mid
+B0414,Westfield Trading Group,O,42,Wholesale trade,NJ,mid
+B0415,Bluegrass Supply Corp,O,42,Wholesale trade,IL,mid
+B0416,Frontier Supply LLC,O,42,Wholesale trade,Multi-state,mid
+B0417,Monarch Transport Co,O,48,Transportation,KY,small
+B0418,Sycamore Insurance Agency Group,O,52,Finance and insurance,Multi-state,large
+B0419,Westfield Catering Co,O,72,Food services,IL,mid
+B0420,Ridgeline Auto Components Partners,O,33,Machinery and parts manufacturing,OH,mid
+B0421,Fairview Electrical Contractors Inc,O,23,Construction,PA-East,mid
+B0422,Hollow Janitorial Partners,O,56,Admin and support services,Multi-state,mid
+B0423,Larkspur Auto Components LLC,O,33,Machinery and parts manufacturing,OH,large
+B0424,Tristate Engineering LLC,O,54,Professional services,Multi-state,mid
+B0425,Redstone Transport Inc,O,48,Transportation,KY,mid
+B0426,Ironbridge Freight Partners,O,48,Transportation,Multi-state,mid
+B0427,Midland Construction Corp,O,23,Construction,VA-OH,mid
+B0428,Heritage Supply Co,O,42,Wholesale trade,OH,large
+B0429,Halcyon Properties Co,O,53,Real estate,MD-DC,mid
+B0430,Eastgate Machine Works Inc,O,33,Machinery and parts manufacturing,OH,large
+B0431,Stonegate Wholesale Co,O,42,Wholesale trade,OH,large
+B0432,Tristate Real Estate LLC,O,53,Real estate,MD-DC,small
+B0433,Ironbridge Orchards Group,O,11,Agriculture,IN-IA,small
+B0434,Brookside Trading Partners,O,42,Wholesale trade,IL,small
+B0435,Redstone Clinic LLC,O,62,Health care,PA-West,large
+B0436,Allegheny Tooling Inc,O,33,Machinery and parts manufacturing,OH,mid
+B0437,Ashford Transport LLC,O,48,Transportation,IL,mid
+B0438,Hollow Clinic Inc,O,62,Health care,PA-West,mid
+B0439,Sycamore Distributors LLC,O,42,Wholesale trade,MI,large
+B0440,Midland Accounting Group,O,54,Professional services,MD-DC,large
+B0441,Liberty Distributors Inc,O,42,Wholesale trade,Multi-state,mid
+B0442,Beacon Repair Co,O,81,Other services,KY,large
+B0443,Beacon Trading Co,O,42,Wholesale trade,IL,large
+B0444,Stonegate Analytics Co,O,54,Professional services,NJ,mid
+B0445,Maplewood Supply Co,O,42,Wholesale trade,IN-IA,mid
+B0446,Clearwater Outfitters Co,O,44,Retail trade,Multi-state,small
+B0447,Bluegrass Property Management Inc,O,53,Real estate,MD-DC,large
+B0448,Brookside Transport Group,O,48,Transportation,Multi-state,mid
+B0449,Granite Services Corp,O,81,Other services,KY,large
+B0450,Heritage Bakery Supply Corp,O,31,Food manufacturing,IL,large
+B0451,Ridgeline Logistics Co,O,48,Transportation,KY,large
+B0452,Highpoint Builders LLC,O,23,Construction,PA-East,mid
+B0453,Fairview Freight LLC,O,48,Transportation,IL,mid
+B0454,Highpoint Trading Group,O,42,Wholesale trade,PA-West,mid
+B0455,Crestview Pharma Labs Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B0456,Lakeside Laundry LLC,O,81,Other services,KY,mid
+B0457,Beacon Distributors Corp,O,42,Wholesale trade,MI,mid
+B0458,Oakmont Trading LLC,O,42,Wholesale trade,NJ,small
+B0459,Midland Wholesale Co,O,42,Wholesale trade,Multi-state,small
+B0460,Maplewood Capital Corp,O,52,Finance and insurance,Multi-state,mid
+B0461,Eastgate Accounting Co,O,54,Professional services,NJ,small
+B0462,Meridian Construction Partners,O,23,Construction,VA-OH,mid
+B0463,Northgate Advisors Inc,O,54,Professional services,Multi-state,large
+B0464,Meridian Supply Corp,O,42,Wholesale trade,Multi-state,mid
+B0465,Granite Advisors Partners,O,54,Professional services,Multi-state,large
+B0466,Creek Market Inc,O,44,Retail trade,Multi-state,small
+B0467,Westfield Security Services Group,O,56,Admin and support services,MD-DC,large
+B0468,Ridgeline Freight Corp,O,48,Transportation,Multi-state,mid
+B0469,Cedar Supply Inc,O,42,Wholesale trade,IL,large
+B0470,Union Castings Partners,O,33,Machinery and parts manufacturing,MI,small
+B0471,Highpoint Grain Co-op LLC,O,11,Agriculture,IN-IA,mid
+B0472,Kingsley Property Management Group,O,53,Real estate,MD-DC,mid
+B0473,Bluegrass Advisors Corp,O,54,Professional services,MI,mid
+B0474,Hollow Freight LLC,O,48,Transportation,OH,large
+B0475,Ridgeline Supply Inc,O,42,Wholesale trade,VA-OH,large
+B0476,Foxhall Distributors Corp,O,42,Wholesale trade,PA-West,small
+B0477,Riverbend Medical Group Corp,O,62,Health care,PA-West,large
+B0478,Eastgate Transport Partners,O,48,Transportation,Multi-state,mid
+B0479,Sycamore Outfitters Inc,O,44,Retail trade,Multi-state,mid
+B0480,Brookside Facility Services LLC,O,56,Admin and support services,NJ,mid
+B0481,Juniper Distributors Co,O,42,Wholesale trade,IL,mid
+B0482,Beacon Tooling Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0483,Crestview Clinic Partners,O,62,Health care,PA-West,mid
+B0484,Granite Wholesale Corp,O,42,Wholesale trade,IL,mid
+B0485,Frontier Property Management Partners,O,53,Real estate,MD-DC,mid
+B0486,Ashford Supply LLC,O,42,Wholesale trade,IL,large
+B0487,Keystone Castings Partners,O,33,Machinery and parts manufacturing,OH,mid
+B0488,Hollow Dairy Inc,O,31,Food manufacturing,IN-IA,mid
+B0489,Granite Construction Partners,O,23,Construction,VA-OH,mid
+B0490,Bluegrass Trading Corp,O,42,Wholesale trade,IL,small
+B0491,Elmhurst Biologics LLC,O,32,Chemical and pharma manufacturing,NJ,large
+B0492,Meridian Mechanical LLC,O,23,Construction,PA-East,mid
+B0493,Riverbend Properties Group,O,53,Real estate,PA-East,mid
+B0494,Beacon Real Estate Inc,O,53,Real estate,MD-DC,large
+B0495,Heritage Surgical Center LLC,O,62,Health care,PA-West,mid
+B0496,Creek Surgical Center Corp,O,62,Health care,PA-West,small
+B0497,Halcyon Auto Components Inc,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0498,Kingsley Trucking Corp,O,48,Transportation,KY,mid
+B0499,Foxhall Construction Partners,O,23,Construction,PA-East,small
+B0500,Juniper Trading Inc,O,42,Wholesale trade,PA-West,large
+B0501,Copperline Properties LLC,O,53,Real estate,PA-East,large
+B0502,Hollow Pharma Labs Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B0503,Westfield Advisors Inc,O,54,Professional services,PA-East,large
+B0504,Maplewood Distributors Inc,O,42,Wholesale trade,Multi-state,mid
+B0505,Westfield Supply Co,O,42,Wholesale trade,Multi-state,small
+B0506,Riverbend Properties Corp,O,53,Real estate,PA-West,mid
+B0507,Creek Castings LLC,O,33,Machinery and parts manufacturing,OH,large
+B0508,Northgate Wholesale Group,O,42,Wholesale trade,IL,small
+B0509,Meridian Repair Group,O,81,Other services,KY,small
+B0510,Harbor Restaurant Group Partners,O,72,Food services,IL,large
+B0511,Sycamore Trading LLC,O,42,Wholesale trade,IL,mid
+B0512,Eastgate Distributors Inc,O,42,Wholesale trade,OH,mid
+B0513,Liberty Trucking Partners,O,48,Transportation,OH,large
+B0514,Union Transport LLC,O,48,Transportation,KY,mid
+B0515,Granite Construction Corp,O,23,Construction,VA-OH,small
+B0516,Sterling Holdings Partners,O,55,Holding companies,Multi-state,large
+B0517,Copperline Surgical Center Inc,O,62,Health care,PA-West,large
+B0518,Keystone Wholesale Inc,O,42,Wholesale trade,IL,mid
+B0519,Bluegrass Supply Inc,O,42,Wholesale trade,IN-IA,mid
+B0520,Cedar Tooling Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0521,Ashford Services Partners,O,81,Other services,KY,large
+B0522,Heritage Advisors Group,O,54,Professional services,Multi-state,mid
+B0523,Northgate Pharma Labs Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B0524,Halcyon Packing LLC,O,31,Food manufacturing,IN-IA,mid
+B0525,Eastgate Analytics Corp,O,54,Professional services,Multi-state,large
+B0526,Prairie Distributors LLC,O,42,Wholesale trade,Multi-state,small
+B0527,Riverbend Construction Inc,O,23,Construction,PA-East,mid
+B0528,Northgate Insurance Agency Group,O,52,Finance and insurance,Multi-state,large
+B0529,Summit Transport Corp,O,48,Transportation,KY,large
+B0530,Pioneer Builders Inc,O,23,Construction,MD-DC,large
+B0531,Wexford Medical Group LLC,O,62,Health care,PA-West,mid
+B0532,Sterling Analytics Inc,O,54,Professional services,NJ,large
+B0533,Bridgeway Janitorial Corp,O,56,Admin and support services,NJ,large
+B0534,Clearwater Compounding Co,O,32,Chemical and pharma manufacturing,NJ,large
+B0535,Westfield Wholesale Inc,O,42,Wholesale trade,IL,large
+B0536,Beacon Castings Partners,O,33,Machinery and parts manufacturing,MI,small
+B0537,Halcyon Tooling Group,O,33,Machinery and parts manufacturing,OH,small
+B0538,Union Orchards Inc,O,11,Agriculture,IN-IA,large
+B0539,Liberty Janitorial Group,O,56,Admin and support services,Multi-state,mid
+B0540,Fairview Compounding Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B0541,Allegheny Tooling LLC,O,33,Machinery and parts manufacturing,OH,mid
+B0542,Elmhurst Castings LLC,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0543,Harbor Transport Group,O,48,Transportation,Multi-state,mid
+B0544,Ashford Insurance Agency Partners,O,52,Finance and insurance,Multi-state,mid
+B0545,Redstone Real Estate LLC,O,53,Real estate,MD-DC,large
+B0546,Lakeside Electrical Contractors Inc,O,23,Construction,VA-OH,mid
+B0547,Monarch Supply Inc,O,42,Wholesale trade,NJ,mid
+B0548,Clearwater Compounding LLC,O,32,Chemical and pharma manufacturing,NJ,large
+B0549,Sycamore Supply Inc,O,42,Wholesale trade,IL,mid
+B0550,Redstone Facility Services Co,O,56,Admin and support services,PA-West,small
+B0551,Elmhurst Facility Services Corp,O,56,Admin and support services,MD-DC,mid
+B0552,Allegheny Advisors Partners,O,54,Professional services,MD-DC,small
+B0553,Bluegrass Market Corp,O,44,Retail trade,Multi-state,mid
+B0554,Bluegrass Dairy LLC,O,31,Food manufacturing,IN-IA,large
+B0555,Lantern Compounding Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B0556,Ironbridge Consulting Inc,O,54,Professional services,Multi-state,mid
+B0557,Wexford Property Management Partners,O,53,Real estate,MD-DC,large
+B0558,Sycamore Facility Services Partners,O,56,Admin and support services,NJ,mid
+B0559,Redstone Trading Group,O,42,Wholesale trade,PA-West,small
+B0560,Harbor Staffing Group,O,56,Admin and support services,PA-West,large
+B0561,Crestview Wholesale Corp,O,42,Wholesale trade,IL,large
+B0562,Brookside Medical Group Co,O,62,Health care,PA-West,mid
+B0563,Kingsley Trading Partners,O,42,Wholesale trade,Multi-state,mid
+B0564,Creek Precision Parts LLC,O,33,Machinery and parts manufacturing,KY,mid
+B0565,Ridgeline Distributors Inc,O,42,Wholesale trade,MI,mid
+B0566,Keystone Machine Works Partners,O,33,Machinery and parts manufacturing,MI,large
+B0567,Ironbridge Retail Group Partners,O,44,Retail trade,Multi-state,mid
+B0568,Meridian Trucking LLC,O,48,Transportation,IL,large
+B0569,Liberty Logistics LLC,O,48,Transportation,KY,mid
+B0570,Prairie Orchards Partners,O,11,Agriculture,IN-IA,mid
+B0571,Bluegrass Retail Group Inc,O,44,Retail trade,Multi-state,small
+B0572,Northgate Accounting Co,O,54,Professional services,OH,mid
+B0573,Ridgeline Wholesale Inc,O,42,Wholesale trade,KY,large
+B0574,Halcyon Distributors LLC,O,42,Wholesale trade,Multi-state,large
+B0575,Silverlake Machine Works LLC,O,33,Machinery and parts manufacturing,MI,small
+B0576,Tristate Growers Corp,O,11,Agriculture,IN-IA,large
+B0577,Allegheny Outfitters Group,O,44,Retail trade,Multi-state,small
+B0578,Silverlake Distributors Partners,O,42,Wholesale trade,IN-IA,mid
+B0579,Brookside Distributors Corp,O,42,Wholesale trade,OH,large
+B0580,Hollow Consulting Group,O,54,Professional services,PA-East,mid
+B0581,Maplewood Retail Group Partners,O,44,Retail trade,Multi-state,small
+B0582,Lakeside Market Co,O,44,Retail trade,Multi-state,mid
+B0583,Prairie Distributors Group,O,42,Wholesale trade,OH,mid
+B0584,Ashford Advisors Partners,O,54,Professional services,Multi-state,mid
+B0585,Union Grain Co-op LLC,O,11,Agriculture,IN-IA,large
+B0586,Beacon Farms Group,O,11,Agriculture,IN-IA,small
+B0587,Wexford Auto Components Corp,O,33,Machinery and parts manufacturing,MI,large
+B0588,Beacon Analytics Co,O,54,Professional services,MI,mid
+B0589,Harbor Wholesale LLC,O,42,Wholesale trade,OH,mid
+B0590,Bridgeway Distributors Partners,O,42,Wholesale trade,PA-West,mid
+B0591,Midland Distributors Co,O,42,Wholesale trade,MI,small
+B0592,Hollow Bakery Supply Group,O,31,Food manufacturing,IL,large
+B0593,Sycamore Properties LLC,O,53,Real estate,MD-DC,mid
+B0594,Keystone Foods Inc,O,31,Food manufacturing,IL,mid
+B0595,Pioneer Restaurant Group Co,O,72,Food services,IL,mid
+B0596,Liberty Grain Co-op Inc,O,11,Agriculture,IN-IA,mid
+B0597,Elmhurst Wholesale Inc,O,42,Wholesale trade,MI,mid
+B0598,Keystone Outfitters Partners,O,44,Retail trade,Multi-state,mid
+B0599,Ashford Home Store Partners,O,44,Retail trade,Multi-state,mid
+B0600,Granite Grain Co-op LLC,O,11,Agriculture,IN-IA,large
+B0601,Brookside Supply Group,O,42,Wholesale trade,OH,large
+B0602,Copperline Trucking LLC,O,48,Transportation,OH,large
+B0603,Sycamore Distributors Co,O,42,Wholesale trade,VA-OH,large
+B0604,Oakmont Electrical Contractors Inc,O,23,Construction,PA-East,small
+B0605,Riverbend Engineering Corp,O,54,Professional services,NJ,large
+B0606,Hollow Trading Group,O,42,Wholesale trade,OH,mid
+B0607,Redstone Transport Group,O,48,Transportation,KY,mid
+B0608,Summit Distributors Co,O,42,Wholesale trade,PA-East,mid
+B0609,Juniper Precision Parts Corp,O,33,Machinery and parts manufacturing,OH,large
+B0610,Hollow Properties Partners,O,53,Real estate,PA-West,small
+B0611,Crestview Restaurant Group Partners,O,72,Food services,IL,small
+B0612,Granite Distributors Partners,O,42,Wholesale trade,IN-IA,mid
+B0613,Keystone Logistics Corp,O,48,Transportation,KY,large
+B0614,Hollow Real Estate Corp,O,53,Real estate,PA-West,mid
+B0615,Heritage Wholesale Group,O,42,Wholesale trade,IL,mid
+B0616,Westfield Analytics Partners,O,54,Professional services,PA-West,mid
+B0617,Ridgeline Wholesale LLC,O,42,Wholesale trade,OH,mid
+B0618,Ridgeline Orchards Inc,O,11,Agriculture,IN-IA,mid
+B0619,Northgate Pharma Labs Inc,O,32,Chemical and pharma manufacturing,NJ,large
+B0620,Bluegrass Advisors Co,O,54,Professional services,MI,small
+B0621,Sycamore Distributors Partners,O,42,Wholesale trade,OH,large
+B0622,Vantage Builders Corp,O,23,Construction,MD-DC,mid
+B0623,Oakmont Farms Corp,O,11,Agriculture,IN-IA,mid
+B0624,Ironbridge Home Store LLC,O,44,Retail trade,Multi-state,large
+B0625,Sycamore Freight Corp,O,48,Transportation,KY,large
+B0626,Halcyon Staffing Group,O,56,Admin and support services,PA-West,small
+B0627,Creek Supply LLC,O,42,Wholesale trade,OH,mid
+B0628,Tristate Realty Group,O,53,Real estate,MD-DC,small
+B0629,Redstone Concrete LLC,O,23,Construction,MD-DC,large
+B0630,Summit Castings LLC,O,33,Machinery and parts manufacturing,MI,small
+B0631,Kingsley Packing Corp,O,31,Food manufacturing,IL,large
+B0632,Brookside Auto Components Inc,O,33,Machinery and parts manufacturing,VA-OH,large
+B0633,Allegheny Supply Group,O,42,Wholesale trade,KY,small
+B0634,Creek Wholesale Group,O,42,Wholesale trade,KY,mid
+B0635,Brookside Security Services LLC,O,56,Admin and support services,Multi-state,large
+B0636,Oakmont Concrete LLC,O,23,Construction,MD-DC,mid
+B0637,Beacon Grill Corp,O,72,Food services,IL,mid
+B0638,Heritage Logistics Corp,O,48,Transportation,KY,mid
+B0639,Beacon Dairy Inc,O,31,Food manufacturing,IL,large
+B0640,Beacon Holdings Corp,O,55,Holding companies,Multi-state,large
+B0641,Summit Property Management Corp,O,53,Real estate,MD-DC,mid
+B0642,Prairie Builders Inc,O,23,Construction,PA-East,mid
+B0643,Cedar Catering Co,O,72,Food services,IL,mid
+B0644,Juniper Trading Corp,O,42,Wholesale trade,Multi-state,small
+B0645,Elmhurst Wholesale Corp,O,42,Wholesale trade,IL,large
+B0646,Harbor Builders Co,O,23,Construction,PA-East,mid
+B0647,Monarch Packing Corp,O,31,Food manufacturing,IN-IA,mid
+B0648,Oakmont Construction Partners,O,23,Construction,PA-East,mid
+B0649,Silverlake Medical Group Group,O,62,Health care,PA-West,large
+B0650,Midland Electrical Contractors Corp,O,23,Construction,PA-East,large
+B0651,Beacon Advisors Co,O,54,Professional services,Multi-state,small
+B0652,Keystone Accounting Co,O,54,Professional services,Multi-state,large
+B0653,Liberty Analytics Group,O,54,Professional services,MI,large
+B0654,Heritage Clinic Co,O,62,Health care,PA-West,mid
+B0655,Kingsley Distributors Partners,O,42,Wholesale trade,Multi-state,mid
+B0656,Westfield Capital Group,O,52,Finance and insurance,Multi-state,large
+B0657,Prairie Retail Group Co,O,44,Retail trade,Multi-state,small
+B0658,Ashford Group Inc,O,55,Holding companies,Multi-state,mid
+B0659,Harbor Advisors Inc,O,54,Professional services,Multi-state,mid
+B0660,Heritage Auto Components Corp,O,33,Machinery and parts manufacturing,OH,large
+B0661,Wexford Catering LLC,O,72,Food services,IL,mid
+B0662,Vantage Freight Co,O,48,Transportation,OH,mid
+B0663,Larkspur Electrical Contractors Inc,O,23,Construction,PA-East,mid
+B0664,Lantern Construction Partners,O,23,Construction,PA-East,mid
+B0665,Sycamore Clinic Partners,O,62,Health care,PA-West,mid
+B0666,Wexford Wholesale Inc,O,42,Wholesale trade,IL,large
+B0667,Liberty Real Estate Partners,O,53,Real estate,MD-DC,mid
+B0668,Tristate Auto Components Corp,O,33,Machinery and parts manufacturing,OH,large
+B0669,Ridgeline Dairy Inc,O,31,Food manufacturing,IN-IA,mid
+B0670,Beacon Mechanical Group,O,23,Construction,VA-OH,mid
+B0671,Silverlake Tooling Corp,O,33,Machinery and parts manufacturing,OH,small
+B0672,Oakmont Chemical Co,O,32,Chemical and pharma manufacturing,NJ,large
+B0673,Frontier Supply Co,O,42,Wholesale trade,KY,large
+B0674,Clearwater Advisors Corp,O,54,Professional services,PA-West,large
+B0675,Prairie Compounding Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B0676,Fairview Consulting Partners,O,54,Professional services,OH,small
+B0677,Foxhall Tooling Group,O,33,Machinery and parts manufacturing,MI,mid
+B0678,Kingsley Advisors Co,O,54,Professional services,Multi-state,mid
+B0679,Monarch Transport Partners,O,48,Transportation,KY,small
+B0680,Prairie Holdings LLC,O,55,Holding companies,Multi-state,small
+B0681,Union Distributors Inc,O,42,Wholesale trade,OH,mid
+B0682,Vantage Financial Co,O,52,Finance and insurance,Multi-state,mid
+B0683,Riverbend Trucking LLC,O,48,Transportation,KY,mid
+B0684,Clearwater Bakery Supply Corp,O,31,Food manufacturing,IN-IA,large
+B0685,Keystone Market LLC,O,44,Retail trade,Multi-state,large
+B0686,Copperline Supply Inc,O,42,Wholesale trade,IL,mid
+B0687,Halcyon Medical Group Partners,O,62,Health care,PA-West,mid
+B0688,Crestview Consulting Group,O,54,Professional services,MD-DC,mid
+B0689,Summit Property Management Co,O,53,Real estate,MD-DC,mid
+B0690,Ironbridge Capital Partners,O,52,Finance and insurance,Multi-state,mid
+B0691,Liberty Properties Inc,O,53,Real estate,PA-West,mid
+B0692,Bridgeway Distributors Co,O,42,Wholesale trade,IL,large
+B0693,Summit Surgical Center Inc,O,62,Health care,PA-West,mid
+B0694,Stonegate Accounting Partners,O,54,Professional services,PA-West,large
+B0695,Kingsley Bakery Supply LLC,O,31,Food manufacturing,IN-IA,small
+B0696,Meridian Consulting Corp,O,54,Professional services,MI,mid
+B0697,Wexford Farms LLC,O,11,Agriculture,IN-IA,large
+B0698,Ironbridge Facility Services LLC,O,56,Admin and support services,PA-West,large
+B0699,Foxhall Imaging LLC,O,62,Health care,PA-West,mid
+B0700,Ashford Concrete Co,O,23,Construction,PA-East,mid
+B0701,Heritage Services Partners,O,81,Other services,KY,small
+B0702,Summit Property Management Inc,O,53,Real estate,PA-West,mid
+B0703,Larkspur Machine Works Co,O,33,Machinery and parts manufacturing,OH,large
+B0704,Bluegrass Home Store Inc,O,44,Retail trade,Multi-state,large
+B0705,Allegheny Janitorial Co,O,56,Admin and support services,MD-DC,small
+B0706,Eastgate Staffing Partners,O,56,Admin and support services,MD-DC,mid
+B0707,Redstone Properties LLC,O,53,Real estate,PA-East,large
+B0708,Union Trading Partners,O,42,Wholesale trade,MI,large
+B0709,Pioneer Market Group,O,44,Retail trade,Multi-state,small
+B0710,Northgate Grill Inc,O,72,Food services,IL,large
+B0711,Hollow Tooling Group,O,33,Machinery and parts manufacturing,MI,mid
+B0712,Monarch Machine Works LLC,O,33,Machinery and parts manufacturing,KY,small
+B0713,Halcyon Trading Inc,O,42,Wholesale trade,NJ,mid
+B0714,Halcyon Property Management Corp,O,53,Real estate,PA-West,mid
+B0715,Juniper Mechanical LLC,O,23,Construction,PA-East,small
+B0716,Redstone Trading Corp,O,42,Wholesale trade,OH,small
+B0717,Kingsley Builders Corp,O,23,Construction,VA-OH,small
+B0718,Tristate Mechanical Corp,O,23,Construction,PA-East,large
+B0719,Wexford Precision Parts Group,O,33,Machinery and parts manufacturing,MI,mid
+B0720,Halcyon Trucking Group,O,48,Transportation,Multi-state,large
+B0721,Cedar Financial Corp,O,52,Finance and insurance,Multi-state,small
+B0722,Brookside Advisors Group,O,54,Professional services,NJ,small
+B0723,Redstone Mechanical LLC,O,23,Construction,VA-OH,mid
+B0724,Creek Properties Inc,O,53,Real estate,PA-East,mid
+B0725,Beacon Accounting LLC,O,54,Professional services,PA-East,mid
+B0726,Tristate Castings Partners,O,33,Machinery and parts manufacturing,OH,small
+B0727,Keystone Restaurant Group Corp,O,72,Food services,IL,mid
+B0728,Allegheny Auto Components Inc,O,33,Machinery and parts manufacturing,MI,small
+B0729,Silverlake Precision Parts Corp,O,33,Machinery and parts manufacturing,MI,small
+B0730,Copperline Trucking Inc,O,48,Transportation,KY,large
+B0731,Meridian Distributors Group,O,42,Wholesale trade,PA-West,large
+B0732,Union Accounting Co,O,54,Professional services,MI,large
+B0733,Eastgate Properties Partners,O,53,Real estate,MD-DC,mid
+B0734,Frontier Distributors LLC,O,42,Wholesale trade,IN-IA,mid
+B0735,Meridian Property Management Partners,O,53,Real estate,MD-DC,mid
+B0736,Tristate Supply Group,O,42,Wholesale trade,OH,large
+B0737,Silverlake Engineering Corp,O,54,Professional services,PA-West,large
+B0738,Creek Transport Inc,O,48,Transportation,KY,large
+B0739,Sterling Logistics LLC,O,48,Transportation,KY,large
+B0740,Bridgeway Growers Group,O,11,Agriculture,IN-IA,large
+B0741,Halcyon Home Store Corp,O,44,Retail trade,Multi-state,mid
+B0742,Kingsley Chemical Corp,O,32,Chemical and pharma manufacturing,NJ,mid
+B0743,Elmhurst Castings Partners,O,33,Machinery and parts manufacturing,VA-OH,large
+B0744,Harbor Analytics Partners,O,54,Professional services,MI,small
+B0745,Heritage Wholesale Corp,O,42,Wholesale trade,MI,mid
+B0746,Keystone Payroll Services,O,54,Professional services,Multi-state,large
+B0747,Prairie Logistics Corp,O,48,Transportation,KY,large
+B0748,Clearwater Distributors LLC,O,42,Wholesale trade,PA-East,large
+B0749,Sterling Analytics Group,O,54,Professional services,Multi-state,small
+B0750,Northgate Transport Partners,O,48,Transportation,Multi-state,mid
+B0751,Sterling Insurance Agency Corp,O,52,Finance and insurance,Multi-state,mid
+B0752,Sycamore Facility Services Group,O,56,Admin and support services,PA-East,small
+B0753,Crestview Construction Inc,O,23,Construction,VA-OH,mid
+B0754,Redstone Realty Inc,O,53,Real estate,MD-DC,mid
+B0755,Clearwater Packing Co,O,31,Food manufacturing,IN-IA,mid
+B0756,Wexford Trucking Co,O,48,Transportation,KY,mid
+B0757,Tristate Engineering Inc,O,54,Professional services,MI,large
+B0758,Ashford Trading Partners,O,42,Wholesale trade,PA-East,mid
+B0759,Maplewood Auto Components Partners,O,33,Machinery and parts manufacturing,VA-OH,small
+B0760,Silverlake Engineering Co,O,54,Professional services,Multi-state,mid
+B0761,Frontier Compounding Partners,O,32,Chemical and pharma manufacturing,NJ,large
+B0762,Westfield Real Estate Inc,O,53,Real estate,MD-DC,large
+B0763,Redstone Property Management Corp,O,53,Real estate,MD-DC,mid
+B0764,Pioneer Mechanical Group,O,23,Construction,MD-DC,large
+B0765,Copperline Janitorial Partners,O,56,Admin and support services,PA-West,mid
+B0766,Riverbend Engineering Group,O,54,Professional services,Multi-state,mid
+B0767,Monarch Bakery Supply LLC,O,31,Food manufacturing,IN-IA,large
+B0768,Ironbridge Foods Group,O,31,Food manufacturing,IN-IA,mid
+B0769,Sycamore Wholesale Corp,O,42,Wholesale trade,MI,large
+B0770,Vantage Growers Corp,O,11,Agriculture,IN-IA,mid
+B0771,Elmhurst Catering Corp,O,72,Food services,IL,mid
+B0772,Monarch Castings Partners,O,33,Machinery and parts manufacturing,OH,large
+B0773,Vantage Machine Works LLC,O,33,Machinery and parts manufacturing,OH,mid
+B0774,Northgate Trading Co,O,42,Wholesale trade,MI,small
+B0775,Riverbend Distributors LLC,O,42,Wholesale trade,KY,mid
+B0776,Fairview Mechanical Co,O,23,Construction,MD-DC,large
+B0777,Sterling Facility Services Group,O,56,Admin and support services,PA-West,small
+B0778,Frontier Wholesale Group,O,42,Wholesale trade,PA-East,mid
+B0779,Kingsley Mechanical Partners,O,23,Construction,PA-East,mid
+B0780,Sycamore Logistics Inc,O,48,Transportation,KY,mid
+B0781,Highpoint Retail Group Inc,O,44,Retail trade,Multi-state,mid
+B0782,Harbor Supply Corp,O,42,Wholesale trade,KY,large
+B0783,Crestview Advisors Corp,O,54,Professional services,PA-West,small
+B0784,Lakeside Restaurant Group LLC,O,72,Food services,IL,mid
+B0785,Elmhurst Surgical Center Group,O,62,Health care,PA-West,small
+B0786,Frontier Real Estate Partners,O,53,Real estate,PA-East,mid
+B0787,Ridgeline Advisors LLC,O,54,Professional services,MI,mid
+B0788,Prairie Surgical Center Corp,O,62,Health care,PA-West,mid
+B0789,Beacon Auto Components Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0790,Silverlake Castings Group,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0791,Lakeside Distributors Group,O,42,Wholesale trade,NJ,mid
+B0792,Bluegrass Distributors Inc,O,42,Wholesale trade,IL,small
+B0793,Sterling Precision Parts Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0794,Kingsley Medical Group Inc,O,62,Health care,PA-West,small
+B0795,Meridian Distributors LLC,O,42,Wholesale trade,Multi-state,mid
+B0796,Brookside Logistics Inc,O,48,Transportation,OH,large
+B0797,Ridgeline Castings Corp,O,33,Machinery and parts manufacturing,OH,large
+B0798,Liberty Freight Partners,O,48,Transportation,Multi-state,mid
+B0799,Wexford Mechanical Inc,O,23,Construction,PA-East,large
+B0800,Lantern Castings Group,O,33,Machinery and parts manufacturing,OH,mid
+B0801,Commonwealth Tax Authority,O,92,Public administration,Multi-state,large
+B0802,Bluegrass Catering Corp,O,72,Food services,IL,mid
+B0803,Union Electrical Contractors Group,O,23,Construction,VA-OH,large
+B0804,Keystone Compounding Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B0805,Juniper Realty Partners,O,53,Real estate,PA-East,large
+B0806,Ironbridge Biologics LLC,O,32,Chemical and pharma manufacturing,NJ,mid
+B0807,Copperline Freight Co,O,48,Transportation,KY,large
+B0808,Monarch Logistics Corp,O,48,Transportation,KY,mid
+B0809,Beacon Concrete Group,O,23,Construction,VA-OH,mid
+B0810,Bridgeway Transport Corp,O,48,Transportation,KY,mid
+B0811,Bridgeway Concrete Co,O,23,Construction,PA-East,mid
+B0812,Highpoint Wholesale LLC,O,42,Wholesale trade,MI,mid
+B0813,Creek Pharma Labs Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B0814,Lantern Transport LLC,O,48,Transportation,IL,mid
+B0815,Bluegrass Trucking Group,O,48,Transportation,KY,mid
+B0816,Frontier Distributors Co,O,42,Wholesale trade,PA-East,small
+B0817,Clearwater Property Management Group,O,53,Real estate,PA-West,large
+B0818,Crestview Tooling Co,O,33,Machinery and parts manufacturing,VA-OH,small
+B0819,Juniper Wholesale Corp,O,42,Wholesale trade,IL,mid
+B0820,Summit Trading Partners,O,42,Wholesale trade,IL,mid
+B0821,Monarch Foods LLC,O,31,Food manufacturing,IL,mid
+B0822,Ashford Accounting Group,O,54,Professional services,NJ,mid
+B0823,Sycamore Engineering Co,O,54,Professional services,Multi-state,mid
+B0824,Allegheny Supply Partners,O,42,Wholesale trade,VA-OH,large
+B0825,Larkspur Analytics Group,O,54,Professional services,PA-East,small
+B0826,Monarch Distributors Corp,O,42,Wholesale trade,IL,mid
+B0827,Bridgeway Trucking Partners,O,48,Transportation,KY,large
+B0828,Silverlake Mechanical Partners,O,23,Construction,PA-East,mid
+B0829,Crestview Energy Services Group,O,22,Utilities,VA-OH,large
+B0830,Fairview Castings Inc,O,33,Machinery and parts manufacturing,MI,large
+B0831,Summit Trading Group,O,42,Wholesale trade,NJ,large
+B0832,Monarch Medical Group Group,O,62,Health care,PA-West,mid
+B0833,Union Engineering Corp,O,54,Professional services,MD-DC,mid
+B0834,Sterling Financial Group,O,52,Finance and insurance,Multi-state,mid
+B0835,Monarch Distributors LLC,O,42,Wholesale trade,OH,large
+B0836,Cedar Medical Group Corp,O,62,Health care,PA-West,large
+B0837,Ashford Analytics Partners,O,54,Professional services,NJ,large
+B0838,Keystone Security Services LLC,O,56,Admin and support services,PA-West,mid
+B0839,Riverbend Realty Group,O,53,Real estate,PA-West,mid
+B0840,Midland Imaging Group,O,62,Health care,PA-West,large
+B0841,Maplewood Builders Partners,O,23,Construction,PA-East,large
+B0842,Meridian Freight Corp,O,48,Transportation,Multi-state,large
+B0843,Juniper Distributors LLC,O,42,Wholesale trade,IL,large
+B0844,Heritage Distributors Corp,O,42,Wholesale trade,PA-West,mid
+B0845,Ironbridge Supply Group,O,42,Wholesale trade,IL,large
+B0846,Cedar Freight LLC,O,48,Transportation,Multi-state,mid
+B0847,Bridgeway Builders Inc,O,23,Construction,PA-East,large
+B0848,Hollow Supply Inc,O,42,Wholesale trade,OH,mid
+B0849,Crestview Security Services LLC,O,56,Admin and support services,PA-West,small
+B0850,Westfield Freight Co,O,48,Transportation,IL,large
+B0851,Pioneer Distributors Co,O,42,Wholesale trade,IN-IA,mid
+B0852,Lakeside Auto Components Group,O,33,Machinery and parts manufacturing,VA-OH,mid
+B0853,Westfield Properties Inc,O,53,Real estate,PA-East,mid
+B0854,Granite Restaurant Group LLC,O,72,Food services,IL,small
+B0855,Westfield Janitorial Corp,O,56,Admin and support services,NJ,mid
+B0856,Allegheny Distributors LLC,O,42,Wholesale trade,MI,mid
+B0857,Summit Distributors LLC,O,42,Wholesale trade,PA-West,mid
+B0858,Northgate Property Management Co,O,53,Real estate,PA-West,small
+B0859,Ridgeline Construction Partners,O,23,Construction,MD-DC,large
+B0860,Union Properties Partners,O,53,Real estate,MD-DC,mid
+B0861,Ironbridge Auto Components Co,O,33,Machinery and parts manufacturing,OH,mid
+B0862,Oakmont Transport Inc,O,48,Transportation,KY,mid
+B0863,Kingsley Electrical Contractors Partners,O,23,Construction,MD-DC,mid
+B0864,Prairie Machine Works Group,O,33,Machinery and parts manufacturing,KY,large
+B0865,Copperline Farms Partners,O,11,Agriculture,IN-IA,mid
+B0866,Summit Capital Partners,O,52,Finance and insurance,Multi-state,mid
+B0867,Kingsley Freight Co,O,48,Transportation,KY,small
+B0868,Allegheny Freight Group,O,48,Transportation,OH,mid
+B0869,Beacon Builders Inc,O,23,Construction,VA-OH,mid
+B0870,Stonegate Concrete Group,O,23,Construction,PA-East,large
+B0871,Monarch Retail Group Corp,O,44,Retail trade,Multi-state,small
+B0872,Elmhurst Distributors Inc,O,42,Wholesale trade,KY,small
+B0873,Clearwater Castings Co,O,33,Machinery and parts manufacturing,OH,mid
+B0874,Fairview Machine Works Group,O,33,Machinery and parts manufacturing,OH,large
+B0875,Eastgate Facility Services Co,O,56,Admin and support services,MD-DC,mid
+B0876,Northgate Castings Partners,O,33,Machinery and parts manufacturing,MI,small
+B0877,Brookside Catering Group,O,72,Food services,IL,large
+B0878,Bridgeway Machine Works Group,O,33,Machinery and parts manufacturing,OH,mid
+B0879,Lakeside Retail Group Corp,O,44,Retail trade,Multi-state,mid
+B0880,Vantage Wholesale Group,O,42,Wholesale trade,VA-OH,mid
+B0881,Crestview Home Store Corp,O,44,Retail trade,Multi-state,small
+B0882,Brookside Transport Inc,O,48,Transportation,IL,large
+B0883,Redstone Distributors LLC,O,42,Wholesale trade,IN-IA,mid
+B0884,Maplewood Builders Inc,O,23,Construction,MD-DC,large
+B0885,Eastgate Distributors Co,O,42,Wholesale trade,IL,large
+B0886,Pioneer Staffing Inc,O,56,Admin and support services,PA-West,large
+B0887,Heritage Packing Corp,O,31,Food manufacturing,IN-IA,mid
+B0888,Juniper Services Corp,O,81,Other services,KY,mid
+B0889,Lantern Supply Co,O,42,Wholesale trade,NJ,mid
+B0890,Harbor Builders Partners,O,23,Construction,PA-East,large
+B0891,Sycamore Auto Components LLC,O,33,Machinery and parts manufacturing,OH,mid
+B0892,Ridgeline Logistics Partners,O,48,Transportation,KY,small
+B0893,Granite Engineering Inc,O,54,Professional services,PA-East,mid
+B0894,Granite Electrical Contractors Co,O,23,Construction,MD-DC,mid
+B0895,Creek Trading Co,O,42,Wholesale trade,PA-East,mid
+B0896,Foxhall Freight Corp,O,48,Transportation,KY,mid
+B0897,Bridgeway Analytics Inc,O,54,Professional services,PA-West,small
+B0898,Union Distributors Corp,O,42,Wholesale trade,IL,mid
+B0899,Eastgate Wholesale Co,O,42,Wholesale trade,IL,large
+B0900,Wexford Real Estate Corp,O,53,Real estate,MD-DC,large
+B0901,Cedar Wholesale Co,O,42,Wholesale trade,IN-IA,mid
+B0902,Eastgate Electrical Contractors Co,O,23,Construction,PA-East,mid
+B0903,Lakeside Wholesale Inc,O,42,Wholesale trade,PA-West,mid
+B0904,Kingsley Trading Co,O,42,Wholesale trade,PA-East,large
+B0905,Tristate Transport Partners,O,48,Transportation,KY,large
+B0906,Highpoint Trucking Group,O,48,Transportation,IL,large
+B0907,Ridgeline Medical Group Inc,O,62,Health care,PA-West,mid
+B0908,Heritage Properties Co,O,53,Real estate,MD-DC,mid
+B0909,Vantage Accounting Inc,O,54,Professional services,OH,large
+B0910,Westfield Restaurant Group Partners,O,72,Food services,IL,mid
+B0911,Creek Wholesale Inc,O,42,Wholesale trade,PA-West,mid
+B0912,Maplewood Construction Partners,O,23,Construction,PA-East,small
+B0913,Wexford Grill Group,O,72,Food services,IL,mid
+B0914,Hollow Packing Group,O,31,Food manufacturing,IL,large
+B0915,Meridian Distributors Co,O,42,Wholesale trade,PA-East,large
+B0916,Kingsley Properties Partners,O,53,Real estate,PA-East,large
+B0917,Lakeside Concrete LLC,O,23,Construction,PA-East,large
+B0918,Copperline Advisors Corp,O,54,Professional services,OH,mid
+B0919,Prairie Machine Works LLC,O,33,Machinery and parts manufacturing,KY,mid
+B0920,Silverlake Wholesale Co,O,42,Wholesale trade,OH,large
+B0921,Crestview Distributors Partners,O,42,Wholesale trade,IL,large
+B0922,Redstone Distributors Partners,O,42,Wholesale trade,MI,mid
+B0923,Crestview Supply Group,O,42,Wholesale trade,MI,mid
+B0924,Granite Trading Co,O,42,Wholesale trade,PA-West,mid
+B0925,Pioneer Trading Partners,O,42,Wholesale trade,OH,mid
+B0926,Halcyon Machine Works Group,O,33,Machinery and parts manufacturing,MI,mid
+B0927,Elmhurst Accounting Inc,O,54,Professional services,Multi-state,mid
+B0928,Crestview Wholesale Partners,O,42,Wholesale trade,OH,large
+B0929,Granite Packing LLC,O,31,Food manufacturing,IL,mid
+B0930,Maplewood Logistics Inc,O,48,Transportation,KY,mid
+B0931,Ashford Mechanical Co,O,23,Construction,MD-DC,mid
+B0932,Oakmont Distributors Co,O,42,Wholesale trade,PA-West,mid
+B0933,Elmhurst Trading Partners,O,42,Wholesale trade,PA-West,mid
+B0934,Harbor Imaging LLC,O,62,Health care,PA-West,mid
+B0935,Foxhall Freight LLC,O,48,Transportation,IL,large
+B0936,Copperline Trading Co,O,42,Wholesale trade,PA-West,small
+B0937,Lakeside Orchards LLC,O,11,Agriculture,IN-IA,mid
+B0938,Oakmont Health Partners Corp,O,62,Health care,PA-West,mid
+B0939,Hollow Consulting LLC,O,54,Professional services,Multi-state,mid
+B0940,Eastgate Consulting Group,O,54,Professional services,NJ,large
+B0941,Clearwater Real Estate Partners,O,53,Real estate,MD-DC,mid
+B0942,Clearwater Trucking Co,O,48,Transportation,IL,mid
+B0943,Redstone Trucking Co,O,48,Transportation,Multi-state,small
+B0944,Larkspur Outfitters Inc,O,44,Retail trade,Multi-state,large
+B0945,Oakmont Farms LLC,O,11,Agriculture,IN-IA,mid
+B0946,Hollow Builders LLC,O,23,Construction,VA-OH,large
+B0947,Monarch Engineering Corp,O,54,Professional services,NJ,mid
+B0948,Ashford Outfitters Partners,O,44,Retail trade,Multi-state,mid
+B0949,Lakeside Security Services LLC,O,56,Admin and support services,Multi-state,large
+B0950,Union Pharma Labs Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B0951,Keystone Energy Services Co,O,22,Utilities,VA-OH,mid
+B0952,Hollow Precision Parts Partners,O,33,Machinery and parts manufacturing,OH,large
+B0953,Bluegrass Catering Group,O,72,Food services,IL,large
+B0954,Tristate Accounting Group,O,54,Professional services,Multi-state,mid
+B0955,Lantern Catering Group,O,72,Food services,IL,large
+B0956,Harbor Tooling LLC,O,33,Machinery and parts manufacturing,VA-OH,small
+B0957,Silverlake Machine Works Co,O,33,Machinery and parts manufacturing,OH,mid
+B0958,Oakmont Property Management LLC,O,53,Real estate,PA-East,mid
+B0959,Brookside Facility Services Group,O,56,Admin and support services,NJ,mid
+B0960,Ashford Analytics LLC,O,54,Professional services,Multi-state,mid
+B0961,Meridian Biologics Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B0962,Copperline Analytics Inc,O,54,Professional services,Multi-state,mid
+B0963,Stonegate Trading Co,O,42,Wholesale trade,Multi-state,mid
+B0964,Cedar Freight Corp,O,48,Transportation,KY,small
+B0965,Monarch Construction Co,O,23,Construction,PA-East,mid
+B0966,Creek Builders Partners,O,23,Construction,PA-East,mid
+B0967,Clearwater Builders Corp,O,23,Construction,PA-East,mid
+B0968,Tristate Retail Group Inc,O,44,Retail trade,Multi-state,mid
+B0969,Pioneer Supply Group,O,42,Wholesale trade,MI,large
+B0970,Midland Clinic Inc,O,62,Health care,PA-West,mid
+B0971,Silverlake Consulting Inc,O,54,Professional services,MD-DC,large
+B0972,Clearwater Energy Services Partners,O,22,Utilities,VA-OH,large
+B0973,Prairie Transport Inc,O,48,Transportation,KY,mid
+B0974,Sterling Distributors Inc,O,42,Wholesale trade,IN-IA,mid
+B0975,Cedar Real Estate Corp,O,53,Real estate,PA-East,large
+B0976,Allegheny Transport LLC,O,48,Transportation,IL,mid
+B0977,Cedar Engineering Group,O,54,Professional services,OH,small
+B0978,Stonegate Wholesale Group,O,42,Wholesale trade,VA-OH,mid
+B0979,Lakeside Supply Group,O,42,Wholesale trade,PA-East,small
+B0980,Ironbridge Compounding Inc,O,32,Chemical and pharma manufacturing,NJ,large
+B0981,Bridgeway Supply LLC,O,42,Wholesale trade,PA-West,mid
+B0982,Clearwater Properties Inc,O,53,Real estate,MD-DC,mid
+B0983,Crestview Castings Group,O,33,Machinery and parts manufacturing,OH,small
+B0984,Tristate Wholesale Group,O,42,Wholesale trade,Multi-state,mid
+B0985,Kingsley Supply LLC,O,42,Wholesale trade,IN-IA,small
+B0986,Cedar Distributors Co,O,42,Wholesale trade,Multi-state,large
+B0987,Wexford Realty Co,O,53,Real estate,MD-DC,mid
+B0988,Midland Precision Parts LLC,O,33,Machinery and parts manufacturing,OH,mid
+B0989,Foxhall Wholesale Partners,O,42,Wholesale trade,IL,small
+B0990,Sycamore Wholesale Partners,O,42,Wholesale trade,MI,small
+B0991,Heritage Supply Corp,O,42,Wholesale trade,PA-East,mid
+B0992,Clearwater Precision Parts Corp,O,33,Machinery and parts manufacturing,MI,mid
+B0993,Clearwater Chemical Inc,O,32,Chemical and pharma manufacturing,NJ,small
+B0994,Keystone Trading LLC,O,42,Wholesale trade,PA-West,large
+B0995,Stonegate Concrete Co,O,23,Construction,PA-East,mid
+B0996,Silverlake Distributors Corp,O,42,Wholesale trade,IL,large
+B0997,Kingsley Medical Group Partners,O,62,Health care,PA-West,mid
+B0998,Lantern Tooling Corp,O,33,Machinery and parts manufacturing,OH,mid
+B0999,Hollow Distributors Partners,O,42,Wholesale trade,PA-East,mid
+B1000,Ridgeline Concrete Inc,O,23,Construction,PA-East,mid
+B1001,Ironbridge Freight Co,O,48,Transportation,Multi-state,large
+B1002,Granite Trading Inc,O,42,Wholesale trade,PA-East,mid
+B1003,Brookside Clinic Inc,O,62,Health care,PA-West,large
+B1004,Eastgate Auto Components Inc,O,33,Machinery and parts manufacturing,OH,mid
+B1005,Oakmont Machine Works Partners,O,33,Machinery and parts manufacturing,MI,mid
+B1006,Union Holdings Group,O,55,Holding companies,Multi-state,mid
+B1007,Brookside Orchards Partners,O,11,Agriculture,IN-IA,mid
+B1008,Summit Real Estate Corp,O,53,Real estate,MD-DC,mid
+B1009,Bridgeway Wholesale Co,O,42,Wholesale trade,IN-IA,large
+B1010,Brookside Supply Co,O,42,Wholesale trade,PA-West,mid
+B1011,Eastgate Concrete LLC,O,23,Construction,PA-East,mid
+B1012,Beacon Distributors Co,O,42,Wholesale trade,PA-West,mid
+B1013,Copperline Trading Inc,O,42,Wholesale trade,KY,large
+B1014,Ironbridge Medical Group Co,O,62,Health care,PA-West,mid
+B1015,Copperline Auto Components Co,O,33,Machinery and parts manufacturing,MI,mid
+B1016,Heritage Distributors LLC,O,42,Wholesale trade,NJ,large
+B1017,Kingsley Facility Services Co,O,56,Admin and support services,MD-DC,mid
+B1018,Elmhurst Engineering Inc,O,54,Professional services,PA-West,small
+B1019,Eastgate Foods Partners,O,31,Food manufacturing,IL,mid
+B1020,Keystone Farms Inc,O,11,Agriculture,IN-IA,large
+B1021,Northgate Castings Group,O,33,Machinery and parts manufacturing,OH,large
+B1022,Heritage Mechanical Partners,O,23,Construction,VA-OH,mid
+B1023,Halcyon Properties Partners,O,53,Real estate,PA-East,mid
+B1024,Pioneer Grain Co-op Partners,O,11,Agriculture,IN-IA,mid
+B1025,Bluegrass Auto Components LLC,O,33,Machinery and parts manufacturing,OH,mid
+B1026,Creek Auto Components LLC,O,33,Machinery and parts manufacturing,OH,mid
+B1027,Frontier Distributors Partners,O,42,Wholesale trade,PA-East,mid
+B1028,Summit Supply Corp,O,42,Wholesale trade,NJ,mid
+B1029,Granite Logistics Partners,O,48,Transportation,KY,large
+B1030,Stonegate Concrete LLC,O,23,Construction,VA-OH,mid
+B1031,Stonegate Insurance Agency Inc,O,52,Finance and insurance,Multi-state,mid
+B1032,Northgate Auto Components Inc,O,33,Machinery and parts manufacturing,MI,mid
+B1033,Redstone Real Estate Corp,O,53,Real estate,MD-DC,mid
+B1034,Creek Property Management LLC,O,53,Real estate,PA-West,mid
+B1035,Crestview Wholesale Inc,O,42,Wholesale trade,PA-East,small
+B1036,Oakmont Machine Works Inc,O,33,Machinery and parts manufacturing,MI,large
+B1037,Beacon Chemical Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1038,Foxhall Construction LLC,O,23,Construction,PA-East,mid
+B1039,Pioneer Trading Inc,O,42,Wholesale trade,NJ,mid
+B1040,Hollow Transport LLC,O,48,Transportation,OH,large
+B1041,Copperline Trading Partners,O,42,Wholesale trade,PA-West,small
+B1042,Hollow Accounting LLC,O,54,Professional services,OH,mid
+B1043,Silverlake Builders Corp,O,23,Construction,PA-East,large
+B1044,Riverbend Property Management Inc,O,53,Real estate,PA-West,large
+B1045,Halcyon Security Services Inc,O,56,Admin and support services,Multi-state,small
+B1046,Westfield Wholesale LLC,O,42,Wholesale trade,OH,mid
+B1047,Keystone Advisors LLC,O,54,Professional services,NJ,small
+B1048,Meridian Supply Partners,O,42,Wholesale trade,PA-East,mid
+B1049,Meridian Trading Corp,O,42,Wholesale trade,IL,mid
+B1050,Fairview Outfitters Co,O,44,Retail trade,Multi-state,large
+B1051,Kingsley Tooling Group,O,33,Machinery and parts manufacturing,KY,large
+B1052,Summit Security Services Partners,O,56,Admin and support services,PA-West,mid
+B1053,Vantage Packing Inc,O,31,Food manufacturing,IN-IA,large
+B1054,Keystone Group Co,O,55,Holding companies,Multi-state,mid
+B1055,Tristate Clinic Inc,O,62,Health care,PA-West,small
+B1056,Tristate Kitchen Co,O,72,Food services,IL,large
+B1057,Eastgate Advisors Group,O,54,Professional services,PA-East,mid
+B1058,Cedar Compounding Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1059,Wexford Supply Group,O,42,Wholesale trade,IN-IA,mid
+B1060,Juniper Logistics Partners,O,48,Transportation,IL,mid
+B1061,Liberty Machine Works LLC,O,33,Machinery and parts manufacturing,KY,large
+B1062,Summit Card Acquiring,O,52,Finance and insurance,Multi-state,large
+B1063,Keystone Analytics Inc,O,54,Professional services,PA-West,mid
+B1064,Foxhall Grain Co-op Corp,O,11,Agriculture,IN-IA,mid
+B1065,Larkspur Trading Partners,O,42,Wholesale trade,OH,large
+B1066,Sterling Engineering Group,O,54,Professional services,NJ,mid
+B1067,Bridgeway Trucking Group,O,48,Transportation,IL,small
+B1068,Larkspur Security Services LLC,O,56,Admin and support services,MD-DC,large
+B1069,Keystone Analytics LLC,O,54,Professional services,MI,large
+B1070,Keystone Concrete Inc,O,23,Construction,PA-East,mid
+B1071,Tristate Transport Corp,O,48,Transportation,KY,large
+B1072,Vantage Wholesale Corp,O,42,Wholesale trade,PA-West,small
+B1073,Hollow Auto Components LLC,O,33,Machinery and parts manufacturing,MI,large
+B1074,Allegheny Surgical Center Partners,O,62,Health care,PA-West,small
+B1075,Riverbend Auto Components Partners,O,33,Machinery and parts manufacturing,KY,small
+B1076,Sterling Construction Corp,O,23,Construction,PA-East,large
+B1077,Riverbend Machine Works Partners,O,33,Machinery and parts manufacturing,MI,large
+B1078,Hollow Wholesale Co,O,42,Wholesale trade,PA-East,large
+B1079,Larkspur Wholesale Inc,O,42,Wholesale trade,KY,large
+B1080,Eastgate Packing Group,O,31,Food manufacturing,IL,mid
+B1081,Allegheny Distributors Partners,O,42,Wholesale trade,IL,mid
+B1082,Bluegrass Foods Corp,O,31,Food manufacturing,IL,mid
+B1083,Prairie Analytics LLC,O,54,Professional services,PA-East,mid
+B1084,Hollow Trading Partners,O,42,Wholesale trade,PA-East,small
+B1085,Juniper Foods LLC,O,31,Food manufacturing,IL,mid
+B1086,Ashford Imaging LLC,O,62,Health care,PA-West,large
+B1087,Maplewood Power Systems Co,O,22,Utilities,VA-OH,mid
+B1088,Pioneer Trading Co,O,42,Wholesale trade,IL,mid
+B1089,Ironbridge Analytics Co,O,54,Professional services,NJ,mid
+B1090,Eastgate Electrical Contractors Inc,O,23,Construction,MD-DC,small
+B1091,Copperline Engineering Group,O,54,Professional services,Multi-state,mid
+B1092,Lantern Consulting Partners,O,54,Professional services,Multi-state,large
+B1093,Maplewood Pharma Labs Partners,O,32,Chemical and pharma manufacturing,NJ,large
+B1094,Bridgeway Chemical Corp,O,32,Chemical and pharma manufacturing,NJ,mid
+B1095,Meridian Trucking Co,O,48,Transportation,IL,mid
+B1096,Bluegrass Biologics Corp,O,32,Chemical and pharma manufacturing,NJ,mid
+B1097,Bridgeway Packing Inc,O,31,Food manufacturing,IN-IA,mid
+B1098,Riverbend Accounting Group,O,54,Professional services,Multi-state,mid
+B1099,Highpoint Accounting LLC,O,54,Professional services,Multi-state,mid
+B1100,Beacon Mechanical Co,O,23,Construction,PA-East,mid
+B1101,Vantage Mechanical Group,O,23,Construction,PA-East,mid
+B1102,Liberty Engineering LLC,O,54,Professional services,PA-East,large
+B1103,Allegheny Machine Works Partners,O,33,Machinery and parts manufacturing,OH,mid
+B1104,Oakmont Trading Co,O,42,Wholesale trade,IL,mid
+B1105,Pioneer Clinic Inc,O,62,Health care,PA-West,mid
+B1106,Vantage Chemical Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B1107,Beacon Supply LLC,O,42,Wholesale trade,NJ,mid
+B1108,Liberty Trading Co,O,42,Wholesale trade,KY,mid
+B1109,Creek Analytics Group,O,54,Professional services,Multi-state,large
+B1110,Frontier Advisors Inc,O,54,Professional services,Multi-state,large
+B1111,Liberty Foods LLC,O,31,Food manufacturing,IN-IA,mid
+B1112,Copperline Dairy Partners,O,31,Food manufacturing,IL,large
+B1113,Pioneer Precision Parts Group,O,33,Machinery and parts manufacturing,MI,large
+B1114,Halcyon Foods Partners,O,31,Food manufacturing,IN-IA,mid
+B1115,Copperline Castings Inc,O,33,Machinery and parts manufacturing,MI,mid
+B1116,Harbor Concrete Partners,O,23,Construction,MD-DC,mid
+B1117,Eastgate Engineering Group,O,54,Professional services,MD-DC,small
+B1118,Fairview Trucking Partners,O,48,Transportation,KY,mid
+B1119,Bridgeway Janitorial Co,O,56,Admin and support services,Multi-state,mid
+B1120,Sycamore Precision Parts Partners,O,33,Machinery and parts manufacturing,MI,mid
+B1121,Bluegrass Real Estate LLC,O,53,Real estate,MD-DC,mid
+B1122,Halcyon Real Estate LLC,O,53,Real estate,MD-DC,large
+B1123,Creek Engineering Corp,O,54,Professional services,PA-East,mid
+B1124,Midland Consulting Partners,O,54,Professional services,NJ,mid
+B1125,Bridgeway Electrical Contractors Group,O,23,Construction,VA-OH,large
+B1126,Hollow Distributors Group,O,42,Wholesale trade,PA-East,mid
+B1127,Meridian Grain Co-op Inc,O,11,Agriculture,IN-IA,small
+B1128,Creek Advisors Group,O,54,Professional services,Multi-state,mid
+B1129,Clearwater Trading LLC,O,42,Wholesale trade,PA-East,mid
+B1130,Eastgate Concrete Group,O,23,Construction,VA-OH,large
+B1131,Kingsley Accounting Corp,O,54,Professional services,Multi-state,mid
+B1132,Lantern Home Store Inc,O,44,Retail trade,Multi-state,large
+B1133,Prairie Trading Partners,O,42,Wholesale trade,MI,mid
+B1134,Clearwater Accounting LLC,O,54,Professional services,Multi-state,mid
+B1135,Riverbend Transport LLC,O,48,Transportation,KY,mid
+B1136,Oakmont Distributors Partners,O,42,Wholesale trade,VA-OH,mid
+B1137,Larkspur Wholesale Group,O,42,Wholesale trade,IN-IA,mid
+B1138,Vantage Construction Corp,O,23,Construction,PA-East,large
+B1139,Bluegrass Logistics Inc,O,48,Transportation,KY,mid
+B1140,Cedar Builders Inc,O,23,Construction,VA-OH,large
+B1141,Allegheny Accounting Group,O,54,Professional services,Multi-state,mid
+B1142,Northgate Precision Parts Co,O,33,Machinery and parts manufacturing,OH,mid
+B1143,Vantage Market LLC,O,44,Retail trade,Multi-state,large
+B1144,Oakmont Pharma Labs Inc,O,32,Chemical and pharma manufacturing,NJ,mid
+B1145,Lantern Advisors Partners,O,54,Professional services,OH,small
+B1146,Pioneer Analytics Co,O,54,Professional services,NJ,large
+B1147,Monarch Trading Partners,O,42,Wholesale trade,OH,large
+B1148,Juniper Machine Works Corp,O,33,Machinery and parts manufacturing,VA-OH,large
+B1149,Midland Distributors Inc,O,42,Wholesale trade,IN-IA,large
+B1150,Cedar Wholesale Group,O,42,Wholesale trade,MI,small
+B1151,Prairie Real Estate Inc,O,53,Real estate,PA-East,large
+B1152,Wexford Trucking Group,O,48,Transportation,KY,large
+B1153,Copperline Financial Inc,O,52,Finance and insurance,Multi-state,large
+B1154,Highpoint Janitorial Partners,O,56,Admin and support services,MD-DC,large
+B1155,Frontier Medical Group Inc,O,62,Health care,PA-West,mid
+B1156,Crestview Supply Partners,O,42,Wholesale trade,OH,small
+B1157,Sterling Builders Group,O,23,Construction,PA-East,mid
+B1158,Ridgeline Grill Group,O,72,Food services,IL,large
+B1159,Summit Advisors Partners,O,54,Professional services,MI,mid
+B1160,Creek Analytics Partners,O,54,Professional services,PA-West,large
+B1161,Halcyon Precision Parts Inc,O,33,Machinery and parts manufacturing,MI,mid
+B1162,Redstone Imaging Corp,O,62,Health care,PA-West,mid
+B1163,Tristate Market LLC,O,44,Retail trade,Multi-state,mid
+B1164,Lantern Engineering LLC,O,54,Professional services,Multi-state,mid
+B1165,Westfield Construction Co,O,23,Construction,PA-East,mid
+B1166,Bridgeway Realty Corp,O,53,Real estate,MD-DC,large
+B1167,Allegheny Tooling Corp,O,33,Machinery and parts manufacturing,OH,large
+B1168,Cedar Wholesale LLC,O,42,Wholesale trade,OH,large
+B1169,Copperline Supply LLC,O,42,Wholesale trade,Multi-state,large
+B1170,Copperline Kitchen Group,O,72,Food services,IL,large
+B1171,Meridian Auto Components Corp,O,33,Machinery and parts manufacturing,OH,mid
+B1172,Crestview Janitorial LLC,O,56,Admin and support services,Multi-state,mid
+B1173,Oakmont Logistics Corp,O,48,Transportation,Multi-state,large
+B1174,Clearwater Consulting Group,O,54,Professional services,MI,mid
+B1175,Highpoint Supply Co,O,42,Wholesale trade,IN-IA,small
+B1176,Cedar Auto Components Group,O,33,Machinery and parts manufacturing,VA-OH,mid
+B1177,Ironbridge Wholesale Corp,O,42,Wholesale trade,PA-West,small
+B1178,Larkspur Accounting LLC,O,54,Professional services,IN-IA,small
+B1179,Creek Distributors Group,O,42,Wholesale trade,Multi-state,mid
+B1180,Ashford Advisors Inc,O,54,Professional services,Multi-state,mid
+B1181,Liberty Realty Partners,O,53,Real estate,PA-East,large
+B1182,Monarch Distributors Partners,O,42,Wholesale trade,IL,mid
+B1183,Larkspur Properties Group,O,53,Real estate,MD-DC,mid
+B1184,Crestview Realty Group,O,53,Real estate,PA-West,mid
+B1185,Allegheny Analytics Co,O,54,Professional services,PA-East,small
+B1186,Stonegate Distributors LLC,O,42,Wholesale trade,IN-IA,mid
+B1187,Eastgate Catering Inc,O,72,Food services,IL,mid
+B1188,Vantage Supply Group,O,42,Wholesale trade,PA-West,large
+B1189,Heritage Clinic Partners,O,62,Health care,PA-West,mid
+B1190,Allegheny Real Estate Inc,O,53,Real estate,MD-DC,large
+B1191,Summit Real Estate LLC,O,53,Real estate,MD-DC,mid
+B1192,Bridgeway Accounting Corp,O,54,Professional services,Multi-state,large
+B1193,Oakmont Realty Inc,O,53,Real estate,PA-East,mid
+B1194,Copperline Tooling Partners,O,33,Machinery and parts manufacturing,OH,large
+B1195,Oakmont Construction Corp,O,23,Construction,VA-OH,large
+B1196,Cedar Dairy Group,O,31,Food manufacturing,IN-IA,mid
+B1197,Fairview Accounting Group,O,54,Professional services,Multi-state,large
+B1198,Crestview Imaging Group,O,62,Health care,PA-West,large
+B1199,Kingsley Insurance Agency Co,O,52,Finance and insurance,Multi-state,mid
+B1200,Pioneer Property Management Co,O,53,Real estate,MD-DC,mid
+B1201,Hollow Concrete Group,O,23,Construction,PA-East,small
+B1202,Redstone Grain Co-op Partners,O,11,Agriculture,IN-IA,mid
+B1203,Beacon Wholesale Corp,O,42,Wholesale trade,NJ,mid
+B1204,Fairview Consulting Co,O,54,Professional services,OH,mid
+B1205,Beacon Grill Partners,O,72,Food services,IL,mid
+B1206,Maplewood Distributors Co,O,42,Wholesale trade,VA-OH,mid
+B1207,Northgate Analytics Group,O,54,Professional services,PA-East,mid
+B1208,Westfield Auto Components Group,O,33,Machinery and parts manufacturing,OH,mid
+B1209,Union Transport Group,O,48,Transportation,Multi-state,mid
+B1210,Midland Wholesale Group,O,42,Wholesale trade,MI,large
+B1211,Highpoint Repair Partners,O,81,Other services,KY,mid
+B1212,Ridgeline Castings Co,O,33,Machinery and parts manufacturing,OH,mid
+B1213,Copperline Trading LLC,O,42,Wholesale trade,OH,mid
+B1214,Fairview Electrical Contractors LLC,O,23,Construction,PA-East,small
+B1215,Copperline Properties Corp,O,53,Real estate,MD-DC,mid
+B1216,Sycamore Janitorial Corp,O,56,Admin and support services,NJ,mid
+B1217,Allegheny Capital Co,O,52,Finance and insurance,Multi-state,large
+B1218,Clearwater Imaging Inc,O,62,Health care,PA-West,small
+B1219,Lantern Supply Corp,O,42,Wholesale trade,MI,mid
+B1220,Juniper Consulting Corp,O,54,Professional services,Multi-state,large
+B1221,Prairie Imaging Partners,O,62,Health care,PA-West,large
+B1222,Beacon Machine Works Inc,O,33,Machinery and parts manufacturing,OH,large
+B1223,Elmhurst Janitorial Co,O,56,Admin and support services,PA-West,large
+B1224,Granite Machine Works Co,O,33,Machinery and parts manufacturing,OH,large
+B1225,Hollow Bakery Supply Partners,O,31,Food manufacturing,IN-IA,mid
+B1226,Meridian Janitorial Inc,O,56,Admin and support services,MD-DC,small
+B1227,Cedar Castings LLC,O,33,Machinery and parts manufacturing,KY,small
+B1228,Westfield Electrical Contractors LLC,O,23,Construction,MD-DC,small
+B1229,Eastgate Trading Inc,O,42,Wholesale trade,IN-IA,mid
+B1230,Cedar Accounting Group,O,54,Professional services,OH,large
+B1231,Sycamore Mechanical Corp,O,23,Construction,PA-East,large
+B1232,Ridgeline Bakery Supply Corp,O,31,Food manufacturing,IN-IA,mid
+B1233,Ironbridge Distributors Inc,O,42,Wholesale trade,OH,large
+B1234,Lakeside Castings Inc,O,33,Machinery and parts manufacturing,OH,large
+B1235,Frontier Trading Co,O,42,Wholesale trade,OH,mid
+B1236,Larkspur Trucking Group,O,48,Transportation,Multi-state,mid
+B1237,Meridian Tooling Partners,O,33,Machinery and parts manufacturing,OH,small
+B1238,Elmhurst Accounting Co,O,54,Professional services,OH,mid
+B1239,Eastgate Staffing LLC,O,56,Admin and support services,PA-West,mid
+B1240,Vantage Trucking Group,O,48,Transportation,KY,mid
+B1241,Kingsley Biologics Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B1242,Midland Auto Components Co,O,33,Machinery and parts manufacturing,OH,mid
+B1243,Beacon Property Management LLC,O,53,Real estate,MD-DC,large
+B1244,Halcyon Market Inc,O,44,Retail trade,Multi-state,large
+B1245,Fairview Builders Partners,O,23,Construction,PA-East,mid
+B1246,Midland Trading LLC,O,42,Wholesale trade,PA-West,large
+B1247,Lantern Home Store Partners,O,44,Retail trade,Multi-state,mid
+B1248,Juniper Supply Inc,O,42,Wholesale trade,IN-IA,large
+B1249,Juniper Mechanical Co,O,23,Construction,MD-DC,large
+B1250,Larkspur Retail Group Co,O,44,Retail trade,Multi-state,mid
+B1251,Union Realty Co,O,53,Real estate,MD-DC,large
+B1252,Monarch Advisors Inc,O,54,Professional services,MI,mid
+B1253,Allegheny Construction LLC,O,23,Construction,PA-East,small
+B1254,Vantage Mechanical Corp,O,23,Construction,PA-East,mid
+B1255,Harbor Supply Inc,O,42,Wholesale trade,PA-West,mid
+B1256,Lakeside Electrical Contractors Co,O,23,Construction,MD-DC,mid
+B1257,Allegheny Farms Inc,O,11,Agriculture,IN-IA,mid
+B1258,Juniper Supply Partners,O,42,Wholesale trade,PA-East,large
+B1259,Lakeside Property Management Corp,O,53,Real estate,MD-DC,mid
+B1260,Harbor Construction Co,O,23,Construction,PA-East,large
+B1261,Cedar Realty Inc,O,53,Real estate,MD-DC,mid
+B1262,Clearwater Group Group,O,55,Holding companies,Multi-state,large
+B1263,Elmhurst Logistics Partners,O,48,Transportation,Multi-state,mid
+B1264,Ironbridge Clinic Group,O,62,Health care,PA-West,large
+B1265,Beacon Trucking Co,O,48,Transportation,KY,mid
+B1266,Crestview Compounding Group,O,32,Chemical and pharma manufacturing,NJ,large
+B1267,Tristate Logistics Partners,O,48,Transportation,OH,small
+B1268,Meridian Bakery Supply Corp,O,31,Food manufacturing,IN-IA,large
+B1269,Vantage Transport Co,O,48,Transportation,Multi-state,mid
+B1270,Crestview Kitchen Group,O,72,Food services,IL,small
+B1271,Crestview Trading Corp,O,42,Wholesale trade,IN-IA,mid
+B1272,Westfield Engineering Group,O,54,Professional services,Multi-state,small
+B1273,Northgate Bakery Supply Group,O,31,Food manufacturing,IN-IA,large
+B1274,Bridgeway Packing Group,O,31,Food manufacturing,IN-IA,mid
+B1275,Halcyon Medical Group LLC,O,62,Health care,PA-West,mid
+B1276,Summit Mechanical Group,O,23,Construction,PA-East,mid
+B1277,Harbor Imaging Co,O,62,Health care,PA-West,large
+B1278,Silverlake Electrical Contractors Corp,O,23,Construction,PA-East,large
+B1279,Granite Capital Inc,O,52,Finance and insurance,Multi-state,mid
+B1280,Ridgeline Supply Partners,O,42,Wholesale trade,Multi-state,mid
+B1281,Redstone Consulting Inc,O,54,Professional services,MI,small
+B1282,Riverbend Analytics Corp,O,54,Professional services,Multi-state,large
+B1283,Meridian Wholesale Group,O,42,Wholesale trade,IL,mid
+B1284,Ironbridge Machine Works Co,O,33,Machinery and parts manufacturing,OH,large
+B1285,Midland Advisors Partners,O,54,Professional services,PA-West,large
+B1286,Maplewood Chemical Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B1287,Granite Wholesale Inc,O,42,Wholesale trade,PA-West,mid
+B1288,Eastgate Advisors LLC,O,54,Professional services,NJ,large
+B1289,Liberty Properties Co,O,53,Real estate,MD-DC,large
+B1290,Sycamore Bakery Supply Partners,O,31,Food manufacturing,IN-IA,mid
+B1291,Creek Services Partners,O,81,Other services,KY,mid
+B1292,Bluegrass Trading Partners,O,42,Wholesale trade,PA-West,mid
+B1293,Kingsley Orchards Partners,O,11,Agriculture,IN-IA,mid
+B1294,Lantern Property Management Corp,O,53,Real estate,PA-East,small
+B1295,Harbor Machine Works Group,O,33,Machinery and parts manufacturing,MI,mid
+B1296,Monarch Realty Partners,O,53,Real estate,MD-DC,large
+B1297,Creek Machine Works Corp,O,33,Machinery and parts manufacturing,MI,large
+B1298,Ironbridge Supply Partners,O,42,Wholesale trade,Multi-state,large
+B1299,Kingsley Market Group,O,44,Retail trade,Multi-state,mid
+B1300,Union Repair Co,O,81,Other services,Multi-state,small
+B1301,Foxhall Precision Parts Co,O,33,Machinery and parts manufacturing,VA-OH,small
+B1302,Liberty Trading Partners,O,42,Wholesale trade,NJ,large
+B1303,Pioneer Freight LLC,O,48,Transportation,Multi-state,mid
+B1304,Kingsley Engineering Partners,O,54,Professional services,Multi-state,large
+B1305,Maplewood Concrete Corp,O,23,Construction,MD-DC,mid
+B1306,Larkspur Distributors Group,O,42,Wholesale trade,Multi-state,large
+B1307,Union Real Estate LLC,O,53,Real estate,MD-DC,small
+B1308,Bluegrass Property Management Partners,O,53,Real estate,PA-East,large
+B1309,Wexford Services LLC,O,81,Other services,KY,large
+B1310,Ridgeline Farms Partners,O,11,Agriculture,IN-IA,large
+B1311,Crestview Home Store LLC,O,44,Retail trade,Multi-state,mid
+B1312,Sterling Property Management Corp,O,53,Real estate,MD-DC,large
+B1313,Crestview Engineering Corp,O,54,Professional services,OH,large
+B1314,Sterling Logistics Inc,O,48,Transportation,OH,mid
+B1315,Oakmont Trucking LLC,O,48,Transportation,KY,mid
+B1316,Granite Electrical Contractors Inc,O,23,Construction,PA-East,mid
+B1317,Sycamore Analytics Inc,O,54,Professional services,NJ,mid
+B1318,Heritage Consulting Co,O,54,Professional services,PA-West,mid
+B1319,Stonegate Construction Inc,O,23,Construction,PA-East,large
+B1320,Lakeside Surgical Center Group,O,62,Health care,PA-West,small
+B1321,Northgate Concrete Partners,O,23,Construction,VA-OH,small
+B1322,Elmhurst Trading Group,O,42,Wholesale trade,Multi-state,mid
+B1323,Prairie Real Estate Partners,O,53,Real estate,MD-DC,small
+B1324,Meridian Distributors Inc,O,42,Wholesale trade,IL,mid
+B1325,Northgate Chemical Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1326,Bridgeway Supply Inc,O,42,Wholesale trade,IN-IA,mid
+B1327,Westfield Grain Co-op Corp,O,11,Agriculture,IN-IA,mid
+B1328,Kingsley Logistics Corp,O,48,Transportation,Multi-state,mid
+B1329,Ashford Compounding Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B1330,Pioneer Auto Components Group,O,33,Machinery and parts manufacturing,OH,mid
+B1331,Stonegate Builders Group,O,23,Construction,VA-OH,large
+B1332,Foxhall Distributors LLC,O,42,Wholesale trade,KY,mid
+B1333,Tristate Machine Works LLC,O,33,Machinery and parts manufacturing,MI,large
+B1334,Kingsley Wholesale LLC,O,42,Wholesale trade,Multi-state,mid
+B1335,Vantage Electrical Contractors Corp,O,23,Construction,PA-East,large
+B1336,Juniper Accounting Corp,O,54,Professional services,Multi-state,mid
+B1337,Copperline Machine Works LLC,O,33,Machinery and parts manufacturing,VA-OH,small
+B1338,Lakeside Real Estate LLC,O,53,Real estate,MD-DC,small
+B1339,Cedar Retail Group Corp,O,44,Retail trade,Multi-state,mid
+B1340,Redstone Accounting LLC,O,54,Professional services,PA-East,mid
+B1341,Pioneer Consulting Inc,O,54,Professional services,PA-East,large
+B1342,Bridgeway Grill Inc,O,72,Food services,IL,mid
+B1343,Ironbridge Distributors Group,O,42,Wholesale trade,IL,large
+B1344,Fairview Energy Services Inc,O,22,Utilities,VA-OH,small
+B1345,Bridgeway Chemical Co,O,32,Chemical and pharma manufacturing,NJ,large
+B1346,Redstone Staffing Co,O,56,Admin and support services,MD-DC,mid
+B1347,Silverlake Staffing Partners,O,56,Admin and support services,MD-DC,mid
+B1348,Foxhall Wholesale Corp,O,42,Wholesale trade,IN-IA,mid
+B1349,Prairie Castings Co,O,33,Machinery and parts manufacturing,OH,large
+B1350,Hollow Distributors Corp,O,42,Wholesale trade,PA-West,large
+B1351,Sterling Financial LLC,O,52,Finance and insurance,Multi-state,mid
+B1352,Maplewood Properties Partners,O,53,Real estate,MD-DC,mid
+B1353,Pioneer Consulting Partners,O,54,Professional services,NJ,mid
+B1354,Fairview Supply Inc,O,42,Wholesale trade,OH,small
+B1355,Tristate Trading LLC,O,42,Wholesale trade,NJ,mid
+B1356,Elmhurst Outfitters LLC,O,44,Retail trade,Multi-state,mid
+B1357,Monarch Properties Co,O,53,Real estate,PA-West,small
+B1358,Ironbridge Kitchen Corp,O,72,Food services,IL,small
+B1359,Wexford Machine Works Group,O,33,Machinery and parts manufacturing,MI,small
+B1360,Liberty Supply Partners,O,42,Wholesale trade,Multi-state,mid
+B1361,Union Wholesale Co,O,42,Wholesale trade,IN-IA,small
+B1362,Pioneer Growers Partners,O,11,Agriculture,IN-IA,mid
+B1363,Creek Engineering Co,O,54,Professional services,PA-East,mid
+B1364,Elmhurst Concrete Partners,O,23,Construction,PA-East,mid
+B1365,Heritage Logistics Inc,O,48,Transportation,KY,mid
+B1366,Prairie Health Partners Group,O,62,Health care,PA-West,small
+B1367,Kingsley Retail Group Group,O,44,Retail trade,Multi-state,small
+B1368,Halcyon Capital LLC,O,52,Finance and insurance,Multi-state,mid
+B1369,Fairview Orchards Partners,O,11,Agriculture,IN-IA,mid
+B1370,Keystone Market Group,O,44,Retail trade,Multi-state,large
+B1371,Liberty Security Services Group,O,56,Admin and support services,PA-West,small
+B1372,Meridian Foods Group,O,31,Food manufacturing,IN-IA,mid
+B1373,Frontier Engineering Inc,O,54,Professional services,MI,large
+B1374,Clearwater Advisors LLC,O,54,Professional services,Multi-state,large
+B1375,Stonegate Packing Co,O,31,Food manufacturing,IN-IA,mid
+B1376,Maplewood Precision Parts Co,O,33,Machinery and parts manufacturing,KY,large
+B1377,Copperline Supply Partners,O,42,Wholesale trade,NJ,large
+B1378,Bridgeway Retail Group Co,O,44,Retail trade,Multi-state,small
+B1379,Westfield Foods LLC,O,31,Food manufacturing,IN-IA,mid
+B1380,Hollow Kitchen Group,O,72,Food services,IL,mid
+B1381,Northgate Consulting Co,O,54,Professional services,NJ,large
+B1382,Cedar Concrete Corp,O,23,Construction,VA-OH,small
+B1383,Riverbend Trading Inc,O,42,Wholesale trade,KY,small
+B1384,Ironbridge Wholesale Co,O,42,Wholesale trade,PA-West,mid
+B1385,Liberty Transport Co,O,48,Transportation,KY,mid
+B1386,Summit Precision Parts LLC,O,33,Machinery and parts manufacturing,MI,mid
+B1387,Frontier Grill Corp,O,72,Food services,IL,mid
+B1388,Cedar Market Partners,O,44,Retail trade,Multi-state,mid
+B1389,Copperline Security Services Group,O,56,Admin and support services,PA-East,small
+B1390,Tristate Supply Co,O,42,Wholesale trade,PA-East,large
+B1391,Wexford Holdings LLC,O,55,Holding companies,Multi-state,large
+B1392,Larkspur Precision Parts Co,O,33,Machinery and parts manufacturing,VA-OH,mid
+B1393,Ironbridge Bakery Supply Group,O,31,Food manufacturing,IN-IA,mid
+B1394,Cedar Construction Co,O,23,Construction,VA-OH,large
+B1395,Sterling Analytics Partners,O,54,Professional services,Multi-state,small
+B1396,Pioneer Distributors Group,O,42,Wholesale trade,PA-West,large
+B1397,Foxhall Electrical Contractors LLC,O,23,Construction,PA-East,mid
+B1398,Brookside Consulting Co,O,54,Professional services,MI,mid
+B1399,Wexford Janitorial Group,O,56,Admin and support services,PA-West,large
+B1400,Sycamore Trucking Corp,O,48,Transportation,KY,mid
+B1401,Silverlake Chemical Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B1402,Beacon Accounting Group,O,54,Professional services,OH,mid
+B1403,Sycamore Real Estate Co,O,53,Real estate,PA-West,mid
+B1404,Beacon Distributors Group,O,42,Wholesale trade,NJ,mid
+B1405,Riverbend Precision Parts LLC,O,33,Machinery and parts manufacturing,OH,large
+B1406,Foxhall Mechanical Partners,O,23,Construction,VA-OH,mid
+B1407,Bridgeway Tooling Corp,O,33,Machinery and parts manufacturing,OH,mid
+B1408,Copperline Property Management Group,O,53,Real estate,MD-DC,mid
+B1409,Maplewood Janitorial Inc,O,56,Admin and support services,NJ,large
+B1410,Halcyon Concrete LLC,O,23,Construction,VA-OH,mid
+B1411,Lantern Distributors Group,O,42,Wholesale trade,IL,mid
+B1412,Riverbend Distributors Inc,O,42,Wholesale trade,KY,mid
+B1413,Crestview Bakery Supply Inc,O,31,Food manufacturing,IL,mid
+B1414,Harbor Freight Group,O,48,Transportation,OH,mid
+B1415,Bluegrass Trading Group,O,42,Wholesale trade,Multi-state,large
+B1416,Ashford Wholesale LLC,O,42,Wholesale trade,VA-OH,mid
+B1417,Sterling Dairy Co,O,31,Food manufacturing,IN-IA,mid
+B1418,Summit Trucking LLC,O,48,Transportation,IL,large
+B1419,Silverlake Machine Works Group,O,33,Machinery and parts manufacturing,MI,large
+B1420,Ashford Advisors Group,O,54,Professional services,MD-DC,large
+B1421,Granite Distributors Corp,O,42,Wholesale trade,Multi-state,mid
+B1422,Pioneer Castings LLC,O,33,Machinery and parts manufacturing,OH,mid
+B1423,Riverbend Compounding Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B1424,Sycamore Analytics Group,O,54,Professional services,NJ,large
+B1425,Silverlake Bakery Supply LLC,O,31,Food manufacturing,IN-IA,large
+B1426,Beacon Logistics LLC,O,48,Transportation,IL,small
+B1427,Cedar Trading Co,O,42,Wholesale trade,MI,large
+B1428,Sterling Electrical Contractors Co,O,23,Construction,VA-OH,mid
+B1429,Brookside Machine Works Group,O,33,Machinery and parts manufacturing,MI,large
+B1430,Lantern Foods Partners,O,31,Food manufacturing,IN-IA,large
+B1431,Elmhurst Freight Group,O,48,Transportation,KY,large
+B1432,Larkspur Dairy Corp,O,31,Food manufacturing,IN-IA,mid
+B1433,Bridgeway Medical Group Group,O,62,Health care,PA-West,mid
+B1434,Meridian Trucking Group,O,48,Transportation,KY,large
+B1435,Pioneer Transport Inc,O,48,Transportation,KY,large
+B1436,Ridgeline Consulting Inc,O,54,Professional services,Multi-state,large
+B1437,Creek Supply Co,O,42,Wholesale trade,PA-West,large
+B1438,Brookside Packing Co,O,31,Food manufacturing,IN-IA,mid
+B1439,Eastgate Machine Works LLC,O,33,Machinery and parts manufacturing,MI,mid
+B1440,Maplewood Staffing Group,O,56,Admin and support services,NJ,mid
+B1441,Prairie Compounding Inc,O,32,Chemical and pharma manufacturing,NJ,small
+B1442,Kingsley Biologics Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1443,Creek Janitorial Corp,O,56,Admin and support services,Multi-state,large
+B1444,Heritage Outfitters Group,O,44,Retail trade,Multi-state,mid
+B1445,Fairview Wholesale Co,O,42,Wholesale trade,MI,mid
+B1446,Prairie Supply Group,O,42,Wholesale trade,VA-OH,large
+B1447,Clearwater Wholesale Group,O,42,Wholesale trade,IL,mid
+B1448,Redstone Precision Parts Corp,O,33,Machinery and parts manufacturing,VA-OH,mid
+B1449,Sycamore Distributors Group,O,42,Wholesale trade,NJ,mid
+B1450,Sterling Consulting LLC,O,54,Professional services,Multi-state,mid
+B1451,Harbor Accounting Partners,O,54,Professional services,MI,mid
+B1452,Oakmont Analytics Co,O,54,Professional services,Multi-state,small
+B1453,Kingsley Logistics Group,O,48,Transportation,KY,mid
+B1454,Prairie Kitchen Inc,O,72,Food services,IL,large
+B1455,Silverlake Supply Co,O,42,Wholesale trade,IL,mid
+B1456,Creek Tooling LLC,O,33,Machinery and parts manufacturing,OH,mid
+B1457,Juniper Construction Inc,O,23,Construction,PA-East,mid
+B1458,Cedar Auto Components Inc,O,33,Machinery and parts manufacturing,OH,large
+B1459,Bridgeway Machine Works Co,O,33,Machinery and parts manufacturing,MI,large
+B1460,Larkspur Tooling Corp,O,33,Machinery and parts manufacturing,VA-OH,small
+B1461,Foxhall Trucking Co,O,48,Transportation,OH,mid
+B1462,Pioneer Builders Corp,O,23,Construction,VA-OH,mid
+B1463,Silverlake Construction Co,O,23,Construction,PA-East,large
+B1464,Allegheny Precision Parts Co,O,33,Machinery and parts manufacturing,OH,large
+B1465,Midland Energy Services Partners,O,22,Utilities,VA-OH,mid
+B1466,Meridian Pharma Labs Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1467,Elmhurst Supply Inc,O,42,Wholesale trade,VA-OH,mid
+B1468,Larkspur Wholesale Co,O,42,Wholesale trade,KY,large
+B1469,Ashford Consulting Corp,O,54,Professional services,OH,large
+B1470,Prairie Supply LLC,O,42,Wholesale trade,IL,mid
+B1471,Oakmont Security Services Inc,O,56,Admin and support services,PA-West,mid
+B1472,Juniper Machine Works Co,O,33,Machinery and parts manufacturing,MI,large
+B1473,Lantern Packing Partners,O,31,Food manufacturing,IN-IA,large
+B1474,Granite Grain Co-op Corp,O,11,Agriculture,IN-IA,small
+B1475,Wexford Electrical Contractors Inc,O,23,Construction,PA-East,mid
+B1476,Monarch Engineering Group,O,54,Professional services,MD-DC,mid
+B1477,Crestview Farms Inc,O,11,Agriculture,IN-IA,mid
+B1478,Riverbend Restaurant Group Inc,O,72,Food services,IL,small
+B1479,Midland Real Estate Group,O,53,Real estate,MD-DC,mid
+B1480,Bluegrass Compounding Co,O,32,Chemical and pharma manufacturing,NJ,large
+B1481,Sycamore Retail Group Inc,O,44,Retail trade,Multi-state,small
+B1482,Monarch Transport Inc,O,48,Transportation,KY,small
+B1483,Ridgeline Distributors Partners,O,42,Wholesale trade,IL,mid
+B1484,Crestview Advisors Partners,O,54,Professional services,NJ,large
+B1485,Ironbridge Packing Co,O,31,Food manufacturing,IN-IA,mid
+B1486,Keystone Properties LLC,O,53,Real estate,MD-DC,large
+B1487,Harbor Advisors Corp,O,54,Professional services,Multi-state,small
+B1488,Copperline Health Partners Corp,O,62,Health care,PA-West,small
+B1489,Hollow Builders Corp,O,23,Construction,PA-East,large
+B1490,Westfield Clinic Partners,O,62,Health care,PA-West,mid
+B1491,Union Transport Partners,O,48,Transportation,KY,mid
+B1492,Prairie Freight Inc,O,48,Transportation,Multi-state,mid
+B1493,Summit Construction LLC,O,23,Construction,VA-OH,mid
+B1494,Oakmont Health Partners Partners,O,62,Health care,PA-West,large
+B1495,Bridgeway Consulting Corp,O,54,Professional services,PA-West,mid
+B1496,Eastgate Mechanical Co,O,23,Construction,PA-East,large
+B1497,Larkspur Trading Inc,O,42,Wholesale trade,Multi-state,large
+B1498,Tristate Engineering Partners,O,54,Professional services,MI,mid
+B1499,Cedar Janitorial Inc,O,56,Admin and support services,MD-DC,large
+B1500,Summit Property Management Group,O,53,Real estate,PA-East,mid
+B1501,Stonegate Precision Parts LLC,O,33,Machinery and parts manufacturing,OH,small
+B1502,Clearwater Accounting Corp,O,54,Professional services,IN-IA,small
+B1503,Lakeside Supply Co,O,42,Wholesale trade,IN-IA,mid
+B1504,Northgate Medical Group Partners,O,62,Health care,PA-West,mid
+B1505,Ashford Tooling Group,O,33,Machinery and parts manufacturing,OH,mid
+B1506,Highpoint Transport Inc,O,48,Transportation,KY,mid
+B1507,Harbor Wholesale Inc,O,42,Wholesale trade,MI,mid
+B1508,Harbor Farms Partners,O,11,Agriculture,IN-IA,large
+B1509,Bridgeway Construction Inc,O,23,Construction,PA-East,mid
+B1510,Riverbend Consulting Group,O,54,Professional services,MI,mid
+B1511,Beacon Trading Corp,O,42,Wholesale trade,MI,large
+B1512,Highpoint Distributors Corp,O,42,Wholesale trade,OH,mid
+B1513,Hollow Analytics Corp,O,54,Professional services,PA-East,small
+B1514,Brookside Analytics Group,O,54,Professional services,Multi-state,large
+B1515,Harbor Auto Components Corp,O,33,Machinery and parts manufacturing,MI,mid
+B1516,Bluegrass Group Partners,O,55,Holding companies,Multi-state,mid
+B1517,Liberty Kitchen Inc,O,72,Food services,IL,mid
+B1518,Elmhurst Properties Corp,O,53,Real estate,MD-DC,large
+B1519,Sycamore Farms Co,O,11,Agriculture,IN-IA,mid
+B1520,Union Chemical Co,O,32,Chemical and pharma manufacturing,NJ,large
+B1521,Liberty Auto Components Inc,O,33,Machinery and parts manufacturing,OH,large
+B1522,Northgate Properties Group,O,53,Real estate,MD-DC,large
+B1523,Keystone Supply Group,O,42,Wholesale trade,IL,small
+B1524,Silverlake Precision Parts Inc,O,33,Machinery and parts manufacturing,OH,mid
+B1525,Kingsley Machine Works Partners,O,33,Machinery and parts manufacturing,OH,small
+B1526,Beacon Wholesale Co,O,42,Wholesale trade,OH,large
+B1527,Redstone Supply Corp,O,42,Wholesale trade,PA-West,mid
+B1528,Copperline Property Management Inc,O,53,Real estate,MD-DC,large
+B1529,Creek Outfitters Partners,O,44,Retail trade,Multi-state,small
+B1530,Creek Properties LLC,O,53,Real estate,PA-West,mid
+B1531,Harbor Engineering Group,O,54,Professional services,OH,large
+B1532,Hollow Foods Partners,O,31,Food manufacturing,IN-IA,mid
+B1533,Hollow Precision Parts Corp,O,33,Machinery and parts manufacturing,VA-OH,mid
+B1534,Cedar Distributors Inc,O,42,Wholesale trade,IL,mid
+B1535,Summit Properties Inc,O,53,Real estate,PA-West,mid
+B1536,Heritage Trading Partners,O,42,Wholesale trade,IL,large
+B1537,Westfield Janitorial Group,O,56,Admin and support services,PA-East,small
+B1538,Beacon Electrical Contractors Inc,O,23,Construction,PA-East,large
+B1539,Larkspur Transport Group,O,48,Transportation,OH,small
+B1540,Westfield Builders Group,O,23,Construction,PA-East,small
+B1541,Sterling Janitorial Group,O,56,Admin and support services,Multi-state,small
+B1542,Heritage Restaurant Group Co,O,72,Food services,IL,mid
+B1543,Cedar Property Management Corp,O,53,Real estate,PA-West,mid
+B1544,Oakmont Transport Corp,O,48,Transportation,OH,mid
+B1545,Westfield Machine Works Group,O,33,Machinery and parts manufacturing,MI,mid
+B1546,Wexford Distributors Corp,O,42,Wholesale trade,PA-East,mid
+B1547,Maplewood Freight Partners,O,48,Transportation,Multi-state,large
+B1548,Heritage Property Management LLC,O,53,Real estate,MD-DC,large
+B1549,Wexford Staffing LLC,O,56,Admin and support services,NJ,mid
+B1550,Halcyon Freight Corp,O,48,Transportation,OH,mid
+B1551,Northgate Supply Group,O,42,Wholesale trade,NJ,mid
+B1552,Harbor Construction Corp,O,23,Construction,MD-DC,small
+B1553,Heritage Clinic Corp,O,62,Health care,PA-West,mid
+B1554,Keystone Supply Partners,O,42,Wholesale trade,NJ,large
+B1555,Vantage Compounding Corp,O,32,Chemical and pharma manufacturing,NJ,large
+B1556,Clearwater Property Management LLC,O,53,Real estate,Multi-state,mid
+B1557,Allegheny Freight LLC,O,48,Transportation,Multi-state,mid
+B1558,Sterling Trading Corp,O,42,Wholesale trade,OH,mid
+B1559,Meridian Electrical Contractors Corp,O,23,Construction,PA-East,large
+B1560,Creek Supply Partners,O,42,Wholesale trade,Multi-state,mid
+B1561,Cedar Trading Partners,O,42,Wholesale trade,OH,large
+B1562,Copperline Catering LLC,O,72,Food services,IL,mid
+B1563,Hollow Builders Group,O,23,Construction,PA-East,large
+B1564,Ashford Wholesale Group,O,42,Wholesale trade,Multi-state,mid
+B1565,Tristate Insurance Agency Co,O,52,Finance and insurance,Multi-state,mid
+B1566,Summit Accounting Co,O,54,Professional services,MI,large
+B1567,Brookside Electrical Contractors LLC,O,23,Construction,PA-East,large
+B1568,Vantage Distributors Inc,O,42,Wholesale trade,PA-West,small
+B1569,Crestview Property Management LLC,O,53,Real estate,MD-DC,mid
+B1570,Ridgeline Supply Group,O,42,Wholesale trade,Multi-state,mid
+B1571,Sterling Advisors Co,O,54,Professional services,Multi-state,mid
+B1572,Allegheny Supply Inc,O,42,Wholesale trade,PA-West,mid
+B1573,Kingsley Janitorial LLC,O,56,Admin and support services,Multi-state,mid
+B1574,Lakeside Trading Corp,O,42,Wholesale trade,IN-IA,mid
+B1575,Lakeside Grill Group,O,72,Food services,IL,mid
+B1576,Lakeside Construction Partners,O,23,Construction,MD-DC,mid
+B1577,Ashford Distributors Group,O,42,Wholesale trade,IL,mid
+B1578,Meridian Freight Group,O,48,Transportation,KY,small
+B1579,Sycamore Trading Partners,O,42,Wholesale trade,PA-East,mid
+B1580,Crestview Accounting Group,O,54,Professional services,MI,mid
+B1581,Silverlake Trading Inc,O,42,Wholesale trade,MI,mid
+B1582,Heritage Castings Corp,O,33,Machinery and parts manufacturing,MI,mid
+B1583,Pioneer Janitorial Corp,O,56,Admin and support services,PA-East,small
+B1584,Riverbend Castings Co,O,33,Machinery and parts manufacturing,MI,mid
+B1585,Pioneer Construction Group,O,23,Construction,PA-East,small
+B1586,Redstone Services Group,O,81,Other services,KY,mid
+B1587,Riverbend Supply Inc,O,42,Wholesale trade,NJ,mid
+B1588,Brookside Precision Parts LLC,O,33,Machinery and parts manufacturing,OH,large
+B1589,Juniper Holdings Group,O,55,Holding companies,Multi-state,mid
+B1590,Summit Accounting Group,O,54,Professional services,NJ,small
+B1591,Kingsley Builders Group,O,23,Construction,PA-East,mid
+B1592,Granite Holdings Inc,O,55,Holding companies,Multi-state,mid
+B1593,Tristate Distributors Group,O,42,Wholesale trade,NJ,mid
+B1594,Lakeside Tooling Partners,O,33,Machinery and parts manufacturing,MI,small
+B1595,Elmhurst Concrete Inc,O,23,Construction,PA-East,mid
+B1596,Harbor Engineering LLC,O,54,Professional services,NJ,mid
+B1597,Meridian Machine Works Co,O,33,Machinery and parts manufacturing,OH,mid
+B1598,Allegheny Biologics Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B1599,Halcyon Surgical Center Corp,O,62,Health care,PA-West,mid
+B1600,Bluegrass Consulting LLC,O,54,Professional services,Multi-state,small
+B1601,Lantern Repair Corp,O,81,Other services,KY,small
+B1602,Sycamore Distributors Inc,O,42,Wholesale trade,MI,small
+B1603,Ironbridge Biologics Corp,O,32,Chemical and pharma manufacturing,NJ,small
+B1604,Ridgeline Construction Group,O,23,Construction,PA-East,mid
+B1605,Midland Advisors Inc,O,54,Professional services,NJ,mid
+B1606,Brookside Engineering Partners,O,54,Professional services,NJ,mid
+B1607,Allied Mutual Insurance,O,52,Finance and insurance,Multi-state,large
+B1608,Beacon Wholesale Group,O,42,Wholesale trade,PA-West,mid
+B1609,Highpoint Builders Co,O,23,Construction,MD-DC,mid
+B1610,Lantern Repair Co,O,81,Other services,KY,large
+B1611,Prairie Trading LLC,O,42,Wholesale trade,VA-OH,mid
+B1612,Ashford Catering Group,O,72,Food services,IL,mid
+B1613,Harbor Wholesale Partners,O,42,Wholesale trade,KY,small
+B1614,Frontier Supply Corp,O,42,Wholesale trade,IL,mid
+B1615,Sycamore Chemical Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1616,Copperline Castings Group,O,33,Machinery and parts manufacturing,OH,large
+B1617,Foxhall Trucking Inc,O,48,Transportation,KY,small
+B1618,Keystone Retail Group Partners,O,44,Retail trade,Multi-state,mid
+B1619,Wexford Builders LLC,O,23,Construction,PA-East,mid
+B1620,Sterling Logistics Partners,O,48,Transportation,OH,large
+B1621,Northgate Distributors Group,O,42,Wholesale trade,IN-IA,mid
+B1622,Ashford Outfitters Corp,O,44,Retail trade,Multi-state,small
+B1623,Summit Health Partners Co,O,62,Health care,PA-West,mid
+B1624,Halcyon Properties LLC,O,53,Real estate,MD-DC,large
+B1625,Fairview Wholesale Inc,O,42,Wholesale trade,PA-West,small
+B1626,Foxhall Consulting LLC,O,54,Professional services,PA-East,large
+B1627,Cedar Facility Services Inc,O,56,Admin and support services,MD-DC,mid
+B1628,Liberty Realty LLC,O,53,Real estate,MD-DC,mid
+B1629,Allegheny Advisors Inc,O,54,Professional services,NJ,small
+B1630,Frontier Engineering Co,O,54,Professional services,OH,mid
+B1631,Midland Laundry LLC,O,81,Other services,KY,mid
+B1632,Union Imaging Group,O,62,Health care,PA-West,mid
+B1633,Cedar Bakery Supply LLC,O,31,Food manufacturing,IN-IA,large
+B1634,Northgate Electrical Contractors LLC,O,23,Construction,PA-East,mid
+B1635,Foxhall Properties Inc,O,53,Real estate,MD-DC,mid
+B1636,Lantern Biologics Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B1637,Pioneer Facility Services Inc,O,56,Admin and support services,Multi-state,large
+B1638,Lantern Trucking Partners,O,48,Transportation,KY,small
+B1639,Prairie Retail Group Corp,O,44,Retail trade,Multi-state,mid
+B1640,Oakmont Financial Corp,O,52,Finance and insurance,Multi-state,large
+B1641,Cedar Consulting Corp,O,54,Professional services,MI,large
+B1642,Hollow Supply Corp,O,42,Wholesale trade,IN-IA,mid
+B1643,Maplewood Analytics Group,O,54,Professional services,PA-West,mid
+B1644,Liberty Castings Group,O,33,Machinery and parts manufacturing,OH,mid
+B1645,Riverbend Clinic Partners,O,62,Health care,PA-West,large
+B1646,Foxhall Engineering Co,O,54,Professional services,Multi-state,mid
+B1647,Ridgeline Wholesale Co,O,42,Wholesale trade,NJ,mid
+B1648,Copperline Facility Services LLC,O,56,Admin and support services,MD-DC,mid
+B1649,Union Construction Corp,O,23,Construction,VA-OH,mid
+B1650,Redstone Janitorial Partners,O,56,Admin and support services,NJ,large
+B1651,Liberty Mechanical Inc,O,23,Construction,VA-OH,mid
+B1652,Brookside Supply LLC,O,42,Wholesale trade,NJ,mid
+B1653,Monarch Bakery Supply Co,O,31,Food manufacturing,IL,large
+B1654,Eastgate Medical Group LLC,O,62,Health care,PA-West,large
+B1655,Ridgeline Electrical Contractors LLC,O,23,Construction,PA-East,small
+B1656,Kingsley Analytics Co,O,54,Professional services,PA-East,small
+B1657,Elmhurst Electrical Contractors Inc,O,23,Construction,VA-OH,large
+B1658,Northgate Surgical Center LLC,O,62,Health care,PA-West,mid
+B1659,Clearwater Castings Group,O,33,Machinery and parts manufacturing,MI,mid
+B1660,Ironbridge Engineering Partners,O,54,Professional services,PA-East,large
+B1661,Sterling Retail Group Group,O,44,Retail trade,Multi-state,large
+B1662,Cedar Concrete Partners,O,23,Construction,MD-DC,mid
+B1663,Tristate Distributors Inc,O,42,Wholesale trade,IL,large
+B1664,Frontier Clinic Co,O,62,Health care,PA-West,mid
+B1665,Hollow Supply Co,O,42,Wholesale trade,PA-East,large
+B1666,Meridian Castings LLC,O,33,Machinery and parts manufacturing,MI,large
+B1667,Stonegate Construction Group,O,23,Construction,PA-East,large
+B1668,Sterling Growers Corp,O,11,Agriculture,IN-IA,large
+B1669,Liberty Foods Partners,O,31,Food manufacturing,IN-IA,large
+B1670,Cedar Capital Co,O,52,Finance and insurance,Multi-state,mid
+B1671,Ironbridge Advisors Group,O,54,Professional services,PA-East,small
+B1672,Hollow Machine Works Corp,O,33,Machinery and parts manufacturing,OH,mid
+B1673,Liberty Distributors Partners,O,42,Wholesale trade,OH,mid
+B1674,Eastgate Consulting Co,O,54,Professional services,Multi-state,large
+B1675,Hollow Staffing LLC,O,56,Admin and support services,PA-East,small
+B1676,Frontier Realty Co,O,53,Real estate,PA-East,mid
+B1677,Harbor Wholesale Corp,O,42,Wholesale trade,PA-West,large
+B1678,Lakeside Home Store Group,O,44,Retail trade,Multi-state,mid
+B1679,Harbor Market LLC,O,44,Retail trade,Multi-state,small
+B1680,Hollow Market LLC,O,44,Retail trade,Multi-state,mid
+B1681,Heritage Accounting LLC,O,54,Professional services,NJ,small
+B1682,Liberty Packing LLC,O,31,Food manufacturing,IN-IA,large
+B1683,Beacon Properties LLC,O,53,Real estate,PA-East,mid
+B1684,Keystone Builders LLC,O,23,Construction,PA-East,mid
+B1685,Tristate Advisors Inc,O,54,Professional services,PA-West,mid
+B1686,Copperline Bakery Supply Group,O,31,Food manufacturing,IN-IA,large
+B1687,Liberty Realty Co,O,53,Real estate,MD-DC,mid
+B1688,Monarch Distributors Inc,O,42,Wholesale trade,IN-IA,mid
+B1689,Halcyon Imaging Group,O,62,Health care,PA-West,large
+B1690,Stonegate Imaging Inc,O,62,Health care,PA-West,mid
+B1691,Elmhurst Logistics Co,O,48,Transportation,Multi-state,mid
+B1692,Crestview Precision Parts Inc,O,33,Machinery and parts manufacturing,MI,mid
+B1693,Ridgeline Market Partners,O,44,Retail trade,Multi-state,large
+B1694,Allegheny Property Management Partners,O,53,Real estate,MD-DC,mid
+B1695,Halcyon Wholesale Partners,O,42,Wholesale trade,VA-OH,mid
+B1696,Wexford Properties Group,O,53,Real estate,PA-East,large
+B1697,Vantage Wholesale Co,O,42,Wholesale trade,Multi-state,small
+B1698,Crestview Castings Co,O,33,Machinery and parts manufacturing,OH,mid
+B1699,Liberty Logistics Co,O,48,Transportation,KY,mid
+B1700,Oakmont Accounting Partners,O,54,Professional services,Multi-state,mid
+B1701,Juniper Machine Works LLC,O,33,Machinery and parts manufacturing,OH,mid
+B1702,Kingsley Advisors Group,O,54,Professional services,NJ,mid
+B1703,Tristate Transport LLC,O,48,Transportation,KY,large
+B1704,Sterling Consulting Co,O,54,Professional services,Multi-state,mid
+B1705,Riverbend Builders Corp,O,23,Construction,PA-East,large
+B1706,Larkspur Consulting LLC,O,54,Professional services,Multi-state,large
+B1707,Vantage Distributors LLC,O,42,Wholesale trade,IL,mid
+B1708,Ashford Janitorial Inc,O,56,Admin and support services,Multi-state,small
+B1709,Granite Distributors LLC,O,42,Wholesale trade,IL,mid
+B1710,Redstone Accounting Corp,O,54,Professional services,Multi-state,small
+B1711,Clearwater Grill LLC,O,72,Food services,IL,mid
+B1712,Juniper Engineering Group,O,54,Professional services,NJ,large
+B1713,Ridgeline Home Store Inc,O,44,Retail trade,Multi-state,mid
+B1714,Crestview Trucking Inc,O,48,Transportation,Multi-state,large
+B1715,Granite Services LLC,O,81,Other services,KY,mid
+B1716,Harbor Tooling Inc,O,33,Machinery and parts manufacturing,OH,mid
+B1717,Northgate Concrete Corp,O,23,Construction,PA-East,mid
+B1718,Redstone Orchards Inc,O,11,Agriculture,IN-IA,large
+B1719,Pioneer Logistics LLC,O,48,Transportation,IL,small
+B1720,Cedar Trucking Inc,O,48,Transportation,OH,mid
+B1721,Pioneer Distributors Inc,O,42,Wholesale trade,PA-West,large
+B1722,Frontier Construction LLC,O,23,Construction,MD-DC,small
+B1723,Riverbend Clinic Group,O,62,Health care,PA-West,large
+B1724,Bridgeway Trading Partners,O,42,Wholesale trade,VA-OH,mid
+B1725,Harbor Mechanical Partners,O,23,Construction,VA-OH,large
+B1726,Northgate Supply Corp,O,42,Wholesale trade,MI,mid
+B1727,Hollow Outfitters LLC,O,44,Retail trade,Multi-state,large
+B1728,Larkspur Facility Services Group,O,56,Admin and support services,NJ,large
+B1729,Ashford Concrete Inc,O,23,Construction,PA-East,mid
+B1730,Stonegate Supply Partners,O,42,Wholesale trade,Multi-state,large
+B1731,Liberty Wholesale LLC,O,42,Wholesale trade,Multi-state,mid
+B1732,Meridian Tooling LLC,O,33,Machinery and parts manufacturing,MI,large
+B1733,Eastgate Properties Co,O,53,Real estate,MD-DC,large
+B1734,Northgate Janitorial Inc,O,56,Admin and support services,MD-DC,mid
+B1735,Larkspur Pharma Labs Partners,O,32,Chemical and pharma manufacturing,NJ,small
+B1736,Cedar Advisors Group,O,54,Professional services,Multi-state,mid
+B1737,Elmhurst Auto Components Inc,O,33,Machinery and parts manufacturing,MI,large
+B1738,Lakeside Catering Inc,O,72,Food services,IL,mid
+B1739,Union Trading Co,O,42,Wholesale trade,IL,small
+B1740,Midland Tooling Group,O,33,Machinery and parts manufacturing,MI,mid
+B1741,Brookside Mechanical Corp,O,23,Construction,MD-DC,small
+B1742,Liberty Trading LLC,O,42,Wholesale trade,NJ,mid
+B1743,Ironbridge Tooling Corp,O,33,Machinery and parts manufacturing,VA-OH,large
+B1744,Foxhall Medical Group Group,O,62,Health care,PA-West,mid
+B1745,Wexford Auto Components Co,O,33,Machinery and parts manufacturing,OH,large
+B1746,Lantern Freight LLC,O,48,Transportation,IL,large
+B1747,Ridgeline Security Services Inc,O,56,Admin and support services,PA-West,mid
+B1748,Vantage Construction Partners,O,23,Construction,VA-OH,large
+B1749,Eastgate Trucking Partners,O,48,Transportation,OH,mid
+B1750,Monarch Farms Co,O,11,Agriculture,IN-IA,small
+B1751,Oakmont Engineering Partners,O,54,Professional services,Multi-state,large
+B1752,Riverbend Concrete Inc,O,23,Construction,VA-OH,mid
+B1753,Hollow Mechanical Group,O,23,Construction,MD-DC,large
+B1754,Foxhall Insurance Agency Inc,O,52,Finance and insurance,Multi-state,large
+B1755,Brookside Trucking Inc,O,48,Transportation,Multi-state,mid
+B1756,Creek Transport LLC,O,48,Transportation,OH,small
+B1757,Frontier Health Partners Partners,O,62,Health care,PA-West,mid
+B1758,Bluegrass Janitorial Partners,O,56,Admin and support services,MD-DC,large
+B1759,Eastgate Trading Group,O,42,Wholesale trade,PA-West,mid
+B1760,Sterling Restaurant Group Inc,O,72,Food services,IL,mid
+B1761,Vantage Transport LLC,O,48,Transportation,KY,mid
+B1762,Meridian Construction Corp,O,23,Construction,PA-East,mid
+B1763,Cedar Insurance Agency Partners,O,52,Finance and insurance,Multi-state,large
+B1764,Stonegate Distributors Co,O,42,Wholesale trade,IL,large
+B1765,Granite Wholesale Partners,O,42,Wholesale trade,PA-East,large
+B1766,Elmhurst Wholesale Group,O,42,Wholesale trade,PA-West,mid
+B1767,Union Trading Inc,O,42,Wholesale trade,KY,large
+B1768,Midland Transport Corp,O,48,Transportation,OH,small
+B1769,Eastgate Power Systems Co,O,22,Utilities,VA-OH,mid
+B1770,Lantern Distributors Inc,O,42,Wholesale trade,IL,mid
+B1771,Wexford Engineering Co,O,54,Professional services,Multi-state,small
+B1772,Lakeside Distributors Partners,O,42,Wholesale trade,IN-IA,mid
+B1773,Monarch Analytics Partners,O,54,Professional services,MD-DC,large
+B1774,Frontier Advisors Group,O,54,Professional services,OH,mid
+B1775,Eastgate Facility Services Group,O,56,Admin and support services,Multi-state,small
+B1776,Meridian Kitchen Inc,O,72,Food services,IL,mid
+B1777,Liberty Machine Works Inc,O,33,Machinery and parts manufacturing,MI,small
+B1778,Prairie Imaging Group,O,62,Health care,PA-West,mid
+B1779,Sterling Properties LLC,O,53,Real estate,MD-DC,large
+B1780,Eastgate Advisors Corp,O,54,Professional services,MI,large
+B1781,Kingsley Electrical Contractors Group,O,23,Construction,PA-East,mid
+B1782,Ashford Trucking Group,O,48,Transportation,OH,large
+B1783,Lakeside Trucking Co,O,48,Transportation,KY,mid
+B1784,Juniper Freight Co,O,48,Transportation,KY,mid
+B1785,Summit Auto Components Group,O,33,Machinery and parts manufacturing,OH,mid
+B1786,Elmhurst Consulting LLC,O,54,Professional services,Multi-state,small
+B1787,Allegheny Tooling Co,O,33,Machinery and parts manufacturing,KY,mid
+B1788,Kingsley Bakery Supply Partners,O,31,Food manufacturing,IN-IA,small
+B1789,Liberty Market LLC,O,44,Retail trade,Multi-state,large
+B1790,Pioneer Janitorial Inc,O,56,Admin and support services,PA-West,large
+B1791,Monarch Trading LLC,O,42,Wholesale trade,KY,mid
+B1792,Union Capital Group,O,52,Finance and insurance,Multi-state,mid
+B1793,Cedar Consulting Group,O,54,Professional services,MI,mid
+B1794,Foxhall Auto Components Partners,O,33,Machinery and parts manufacturing,OH,mid
+B1795,Sycamore Trading Inc,O,42,Wholesale trade,VA-OH,mid
+B1796,Copperline Construction Inc,O,23,Construction,MD-DC,large
+B1797,Harbor Supply Partners,O,42,Wholesale trade,KY,mid
+B1798,Northgate Distributors LLC,O,42,Wholesale trade,Multi-state,mid
+B1799,Ironbridge Trading Inc,O,42,Wholesale trade,IL,large
+B1800,Juniper Janitorial Group,O,56,Admin and support services,MD-DC,mid
+B1801,Vantage Properties Inc,O,53,Real estate,MD-DC,mid
+B1802,Ironbridge Insurance Agency Corp,O,52,Finance and insurance,Multi-state,mid
+B1803,Monarch Insurance Agency Inc,O,52,Finance and insurance,Multi-state,mid
+B1804,Fairview Electrical Contractors Co,O,23,Construction,PA-East,small
+B1805,Beacon Property Management Group,O,53,Real estate,MD-DC,small
+B1806,Halcyon Engineering Corp,O,54,Professional services,NJ,large
+B1807,Cedar Distributors Corp,O,42,Wholesale trade,IN-IA,small
+B1808,Hollow Construction Inc,O,23,Construction,PA-East,mid
+B1809,Eastgate Supply Partners,O,42,Wholesale trade,IL,mid
+B1810,Prairie Trucking Corp,O,48,Transportation,KY,mid
+B1811,Northgate Properties LLC,O,53,Real estate,MD-DC,mid
+B1812,Elmhurst Distributors Group,O,42,Wholesale trade,KY,mid
+B1813,Highpoint Advisors LLC,O,54,Professional services,MD-DC,large
+B1814,Hollow Restaurant Group Group,O,72,Food services,IL,large
+B1815,Ashford Energy Services Partners,O,22,Utilities,VA-OH,mid
+B1816,Liberty Builders Corp,O,23,Construction,PA-East,large
+B1817,Vantage Trucking Corp,O,48,Transportation,KY,mid
+B1818,Monarch Laundry Co,O,81,Other services,KY,large
+B1819,Redstone Tooling Co,O,33,Machinery and parts manufacturing,OH,large
+B1820,Frontier Realty Partners,O,53,Real estate,MD-DC,mid
+B1821,Brookside Logistics Corp,O,48,Transportation,Multi-state,mid
+B1822,Liberty Advisors LLC,O,54,Professional services,MD-DC,small
+B1823,Maplewood Surgical Center Co,O,62,Health care,PA-West,mid
+B1824,Allegheny Distributors Corp,O,42,Wholesale trade,IL,large
+B1825,Larkspur Auto Components Corp,O,33,Machinery and parts manufacturing,MI,large
+B1826,Union Tooling Corp,O,33,Machinery and parts manufacturing,OH,mid
+B1827,Liberty Surgical Center Co,O,62,Health care,PA-West,mid
+B1828,Lantern Supply Partners,O,42,Wholesale trade,MI,small
+B1829,Juniper Property Management Co,O,53,Real estate,MD-DC,mid
+B1830,Copperline Advisors Inc,O,54,Professional services,Multi-state,mid
+B1831,Halcyon Auto Components Group,O,33,Machinery and parts manufacturing,MI,mid
+B1832,Monarch Freight Partners,O,48,Transportation,KY,small
+B1833,Pioneer Transport LLC,O,48,Transportation,KY,large
+B1834,Larkspur Distributors Partners,O,42,Wholesale trade,MI,small
+B1835,Ironbridge Electrical Contractors Inc,O,23,Construction,PA-East,mid
+B1836,Riverbend Castings Group,O,33,Machinery and parts manufacturing,VA-OH,mid
+B1837,Brookside Accounting Group,O,54,Professional services,PA-West,mid
+B1838,Creek Machine Works Co,O,33,Machinery and parts manufacturing,OH,large
+B1839,Pioneer Chemical Corp,O,32,Chemical and pharma manufacturing,NJ,small
+B1840,Bluegrass Home Store Partners,O,44,Retail trade,Multi-state,large
+B1841,Sterling Realty Group,O,53,Real estate,MD-DC,small
+B1842,Ashford Property Management Corp,O,53,Real estate,PA-East,mid
+B1843,Kingsley Pharma Labs Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B1844,Elmhurst Transport LLC,O,48,Transportation,KY,small
+B1845,Prairie Transport Corp,O,48,Transportation,KY,mid
+B1846,Elmhurst Market Group,O,44,Retail trade,Multi-state,mid
+B1847,Keystone Tooling Partners,O,33,Machinery and parts manufacturing,MI,large
+B1848,Redstone Logistics LLC,O,48,Transportation,IL,small
+B1849,Crestview Concrete Corp,O,23,Construction,PA-East,mid
+B1850,Silverlake Castings Inc,O,33,Machinery and parts manufacturing,OH,mid
+B1851,Tristate Logistics LLC,O,48,Transportation,OH,large
+B1852,Allegheny Supply LLC,O,42,Wholesale trade,NJ,small
+B1853,Cedar Health Partners Inc,O,62,Health care,PA-West,mid
+B1854,Prairie Health Partners Corp,O,62,Health care,PA-West,mid
+B1855,Brookside Clinic Partners,O,62,Health care,PA-West,small
+B1856,Crestview Restaurant Group Inc,O,72,Food services,IL,large
+B1857,Hollow Security Services Co,O,56,Admin and support services,NJ,large
+B1858,Lantern Machine Works Inc,O,33,Machinery and parts manufacturing,OH,large
+B1859,Hollow Advisors Group,O,54,Professional services,NJ,large
+B1860,Oakmont Concrete Partners,O,23,Construction,MD-DC,small
+B1861,Heritage Advisors Inc,O,54,Professional services,NJ,mid
+B1862,Maplewood Concrete Co,O,23,Construction,MD-DC,mid
+B1863,Highpoint Freight Co,O,48,Transportation,OH,large
+B1864,Lakeside Catering Co,O,72,Food services,IL,mid
+B1865,Lantern Auto Components LLC,O,33,Machinery and parts manufacturing,VA-OH,large
+B1866,Lantern Advisors Co,O,54,Professional services,PA-East,mid
+B1867,Oakmont Freight Co,O,48,Transportation,Multi-state,large
+B1868,Juniper Supply LLC,O,42,Wholesale trade,MI,mid
+B1869,Meridian Analytics Inc,O,54,Professional services,Multi-state,small
+B1870,Union Medical Group LLC,O,62,Health care,PA-West,mid
+B1871,Creek Bakery Supply Group,O,31,Food manufacturing,IN-IA,mid
+B1872,Foxhall Supply Corp,O,42,Wholesale trade,KY,mid
+B1873,Monarch Services Corp,O,81,Other services,KY,large
+B1874,Copperline Machine Works Co,O,33,Machinery and parts manufacturing,VA-OH,mid
+B1875,Clearwater Engineering Corp,O,54,Professional services,PA-West,mid
+B1876,Ironbridge Retail Group Group,O,44,Retail trade,Multi-state,mid
+B1877,Vantage Repair Inc,O,81,Other services,KY,mid
+B1878,Ironbridge Analytics Group,O,54,Professional services,PA-West,mid
+B1879,Oakmont Trading Corp,O,42,Wholesale trade,IL,large
+B1880,Tristate Property Management Group,O,53,Real estate,PA-West,mid
+B1881,Northgate Facility Services Partners,O,56,Admin and support services,Multi-state,mid
+B1882,Monarch Precision Parts Group,O,33,Machinery and parts manufacturing,MI,large
+B1883,Copperline Analytics Co,O,54,Professional services,NJ,mid
+B1884,Prairie Machine Works Corp,O,33,Machinery and parts manufacturing,OH,mid
+B1885,Juniper Advisors Inc,O,54,Professional services,MI,large
+B1886,Clearwater Transport Inc,O,48,Transportation,KY,mid
+B1887,Oakmont Advisors Co,O,54,Professional services,IN-IA,mid
+B1888,Halcyon Analytics Corp,O,54,Professional services,OH,large
+B1889,Foxhall Market LLC,O,44,Retail trade,Multi-state,large
+B1890,Meridian Medical Group Partners,O,62,Health care,PA-West,large
+B1891,Summit Bakery Supply Inc,O,31,Food manufacturing,IN-IA,small
+B1892,Riverbend Analytics Partners,O,54,Professional services,NJ,small
+B1893,Elmhurst Logistics Group,O,48,Transportation,Multi-state,mid
+B1894,Bluegrass Biologics LLC,O,32,Chemical and pharma manufacturing,NJ,large
+B1895,Ashford Logistics Co,O,48,Transportation,KY,small
+B1896,Midland Consulting Co,O,54,Professional services,PA-East,small
+B1897,Creek Machine Works Partners,O,33,Machinery and parts manufacturing,MI,mid
+B1898,Northgate Security Services Inc,O,56,Admin and support services,PA-West,large
+B1899,Ashford Orchards Partners,O,11,Agriculture,IN-IA,mid
+B1900,Stonegate Home Store Co,O,44,Retail trade,PA-West,small
+B1901,Sterling Analytics Co,O,54,Professional services,Multi-state,large
+B1902,Monarch Wholesale Corp,O,42,Wholesale trade,OH,mid
+B1903,Sterling Consulting Partners,O,54,Professional services,PA-East,mid
+B1904,Stonegate Auto Components Co,O,33,Machinery and parts manufacturing,OH,mid
+B1905,Eastgate Distributors Group,O,42,Wholesale trade,IL,small
+B1906,Lantern Consulting LLC,O,54,Professional services,Multi-state,large
+B1907,Maplewood Auto Components Group,O,33,Machinery and parts manufacturing,MI,small
+B1908,Ashford Trading LLC,O,42,Wholesale trade,Multi-state,mid
+B1909,Copperline Electrical Contractors Partners,O,23,Construction,VA-OH,mid
+B1910,Foxhall Mechanical Co,O,23,Construction,PA-East,mid
+B1911,Westfield Accounting Corp,O,54,Professional services,PA-West,large
+B1912,Lantern Trading LLC,O,42,Wholesale trade,VA-OH,small
+B1913,Larkspur Janitorial LLC,O,56,Admin and support services,PA-West,mid
+B1914,Larkspur Supply LLC,O,42,Wholesale trade,NJ,mid
+B1915,Liberty Repair LLC,O,81,Other services,KY,large
+B1916,Silverlake Staffing Corp,O,56,Admin and support services,Multi-state,large
+B1917,Brookside Bakery Supply Corp,O,31,Food manufacturing,IN-IA,mid
+B1918,Granite Precision Parts Co,O,33,Machinery and parts manufacturing,OH,mid
+B1919,Meridian Engineering Group,O,54,Professional services,Multi-state,mid
+B1920,Vantage Trading Group,O,42,Wholesale trade,PA-West,small
+B1921,Monarch Market LLC,O,44,Retail trade,Multi-state,small
+B1922,Tristate Real Estate Partners,O,53,Real estate,PA-West,large
+B1923,Monarch Bakery Supply Partners,O,31,Food manufacturing,IN-IA,mid
+B1924,Eastgate Home Store Group,O,44,Retail trade,Multi-state,large
+B1925,Brookside Trading Inc,O,42,Wholesale trade,IL,mid
+B1926,Keystone Advisors Co,O,54,Professional services,Multi-state,small
+B1927,Fairview Kitchen Group,O,72,Food services,IL,mid
+B1928,Summit Compounding Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1929,Prairie Precision Parts LLC,O,33,Machinery and parts manufacturing,OH,large
+B1930,Granite Castings Co,O,33,Machinery and parts manufacturing,MI,small
+B1931,Cedar Electrical Contractors Partners,O,23,Construction,PA-East,large
+B1932,Keystone Packing LLC,O,31,Food manufacturing,IN-IA,mid
+B1933,Prairie Accounting Co,O,54,Professional services,Multi-state,large
+B1934,Wexford Distributors Co,O,42,Wholesale trade,Multi-state,large
+B1935,Crestview Outfitters LLC,O,44,Retail trade,Multi-state,small
+B1936,Brookside Realty Inc,O,53,Real estate,MD-DC,large
+B1937,Bluegrass Holdings Group,O,55,Holding companies,Multi-state,large
+B1938,Lantern Pharma Labs Co,O,32,Chemical and pharma manufacturing,NJ,large
+B1939,Maplewood Transport Partners,O,48,Transportation,KY,large
+B1940,Copperline Chemical Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B1941,Lantern Staffing Corp,O,56,Admin and support services,NJ,mid
+B1942,Midland Trading Partners,O,42,Wholesale trade,IL,mid
+B1943,Larkspur Kitchen Partners,O,72,Food services,IL,mid
+B1944,Oakmont Foods Co,O,31,Food manufacturing,IN-IA,mid
+B1945,Harbor Wholesale Co,O,42,Wholesale trade,IL,mid
+B1946,Bridgeway Builders LLC,O,23,Construction,PA-East,mid
+B1947,Redstone Precision Parts Inc,O,33,Machinery and parts manufacturing,KY,mid
+B1948,Elmhurst Properties Group,O,53,Real estate,MD-DC,mid
+B1949,Riverbend Chemical Inc,O,32,Chemical and pharma manufacturing,NJ,mid
+B1950,Halcyon Builders Inc,O,23,Construction,PA-East,large
+B1951,Ridgeline Retail Group Group,O,44,Retail trade,Multi-state,mid
+B1952,Fairview Transport Corp,O,48,Transportation,KY,small
+B1953,Heritage Trading Group,O,42,Wholesale trade,KY,large
+B1954,Creek Laundry Group,O,81,Other services,KY,small
+B1955,Ashford Distributors Corp,O,42,Wholesale trade,Multi-state,mid
+B1956,Juniper Imaging Corp,O,62,Health care,PA-West,small
+B1957,Maplewood Wholesale LLC,O,42,Wholesale trade,PA-East,mid
+B1958,Liberty Supply Corp,O,42,Wholesale trade,PA-West,mid
+B1959,Frontier Mechanical Group,O,23,Construction,PA-East,mid
+B1960,Northgate Biologics Partners,O,32,Chemical and pharma manufacturing,NJ,large
+B1961,Union Market Corp,O,44,Retail trade,Multi-state,large
+B1962,Ashford Retail Group Partners,O,44,Retail trade,Multi-state,mid
+B1963,Larkspur Castings LLC,O,33,Machinery and parts manufacturing,MI,mid
+B1964,Creek Trading Corp,O,42,Wholesale trade,MI,small
+B1965,Copperline Group LLC,O,55,Holding companies,Multi-state,large
+B1966,Eastgate Restaurant Group Group,O,72,Food services,IL,mid
+B1967,Crestview Supply Co,O,42,Wholesale trade,OH,mid
+B1968,Redstone Restaurant Group Co,O,72,Food services,IL,large
+B1969,Oakmont Accounting Group,O,54,Professional services,Multi-state,small
+B1970,Allegheny Wholesale Inc,O,42,Wholesale trade,NJ,large
+B1971,Creek Freight Partners,O,48,Transportation,KY,mid
+B1972,Highpoint Properties Group,O,53,Real estate,MD-DC,large
+B1973,Wexford Distributors Inc,O,42,Wholesale trade,NJ,mid
+B1974,Tristate Construction Co,O,23,Construction,PA-East,mid
+B1975,Kingsley Outfitters Inc,O,44,Retail trade,Multi-state,large
+B1976,Allegheny Laundry Co,O,81,Other services,KY,large
+B1977,Tristate Supply LLC,O,42,Wholesale trade,NJ,mid
+B1978,Heritage Group Group,O,55,Holding companies,Multi-state,mid
+B1979,Vantage Castings Inc,O,33,Machinery and parts manufacturing,KY,small
+B1980,Keystone Outfitters Co,O,44,Retail trade,Multi-state,mid
+B1981,Union Precision Parts Co,O,33,Machinery and parts manufacturing,MI,mid
+B1982,Juniper Accounting Group,O,54,Professional services,PA-East,mid
+B1983,Sterling Facility Services Co,O,56,Admin and support services,NJ,mid
+B1984,Redstone Staffing Partners,O,56,Admin and support services,Multi-state,large
+B1985,Harbor Chemical Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B1986,Beacon Staffing Partners,O,56,Admin and support services,MD-DC,mid
+B1987,Creek Imaging Inc,O,62,Health care,PA-West,large
+B1988,Midland Accounting Co,O,54,Professional services,OH,mid
+B1989,Bridgeway Retail Group Corp,O,44,Retail trade,Multi-state,large
+B1990,Meridian Tooling Co,O,33,Machinery and parts manufacturing,MI,large
+B1991,Ridgeline Construction Inc,O,23,Construction,VA-OH,small
+B1992,Meridian Farms Partners,O,11,Agriculture,IN-IA,mid
+B1993,Clearwater Health Partners Co,O,62,Health care,PA-West,large
+B1994,Westfield Electrical Contractors Group,O,23,Construction,MD-DC,mid
+B1995,Northgate Imaging Co,O,62,Health care,PA-West,large
+B1996,Clearwater Supply Group,O,42,Wholesale trade,NJ,small
+B1997,Foxhall Tooling LLC,O,33,Machinery and parts manufacturing,MI,large
+B1998,Larkspur Packing Corp,O,31,Food manufacturing,IL,mid
+B1999,Wexford Real Estate Partners,O,53,Real estate,MD-DC,large
+B2000,Crestview Janitorial Corp,O,56,Admin and support services,Multi-state,mid
+B2001,Creek Freight LLC,O,48,Transportation,KY,mid
+B2002,Redstone Outfitters Corp,O,44,Retail trade,Multi-state,mid
+B2003,Sycamore Auto Components Corp,O,33,Machinery and parts manufacturing,OH,small
+B2004,Stonegate Grain Co-op Corp,O,11,Agriculture,IN-IA,mid
+B2005,Bluegrass Real Estate Partners,O,53,Real estate,MD-DC,mid
+B2006,Summit Tooling Corp,O,33,Machinery and parts manufacturing,MI,large
+B2007,Midland Orchards LLC,O,11,Agriculture,IN-IA,large
+B2008,Ridgeline Trucking Co,O,48,Transportation,IL,small
+B2009,Copperline Precision Parts Inc,O,33,Machinery and parts manufacturing,OH,mid
+B2010,Beacon Tooling Group,O,33,Machinery and parts manufacturing,MI,small
+B2011,Redstone Distributors Co,O,42,Wholesale trade,VA-OH,mid
+B2012,Kingsley Machine Works Co,O,33,Machinery and parts manufacturing,MI,mid
+B2013,Brookside Wholesale Partners,O,42,Wholesale trade,MI,mid
+B2014,Clearwater Grill Corp,O,72,Food services,IL,mid
+B2015,Harbor Kitchen Partners,O,72,Food services,IL,mid
+B2016,Pioneer Staffing Partners,O,56,Admin and support services,PA-West,mid
+B2017,Clearwater Machine Works Group,O,33,Machinery and parts manufacturing,OH,mid
+B2018,Ashford Trucking Inc,O,48,Transportation,KY,mid
+B2019,Harbor Machine Works LLC,O,33,Machinery and parts manufacturing,OH,small
+B2020,Sycamore Health Partners Corp,O,62,Health care,PA-West,mid
+B2021,Granite Facility Services Inc,O,56,Admin and support services,MD-DC,mid
+B2022,Lantern Engineering Group,O,54,Professional services,PA-East,mid
+B2023,Larkspur Auto Components Inc,O,33,Machinery and parts manufacturing,OH,mid
+B2024,Lantern Wholesale Group,O,42,Wholesale trade,IL,small
+B2025,Pioneer Trucking LLC,O,48,Transportation,KY,mid
+B2026,Creek Accounting Partners,O,54,Professional services,MI,mid
+B2027,Lakeside Home Store Co,O,44,Retail trade,Multi-state,mid
+B2028,Granite Builders LLC,O,23,Construction,PA-East,mid
+B2029,Oakmont Concrete Corp,O,23,Construction,VA-OH,mid
+B2030,Vantage Trucking LLC,O,48,Transportation,KY,mid
+B2031,Cedar Janitorial Corp,O,56,Admin and support services,Multi-state,mid
+B2032,Northgate Trading Group,O,42,Wholesale trade,MI,mid
+B2033,Silverlake Freight Group,O,48,Transportation,Multi-state,mid
+B2034,Granite Accounting Corp,O,54,Professional services,MI,small
+B2035,Lantern Facility Services Inc,O,56,Admin and support services,MD-DC,mid
+B2036,Stonegate Supply Corp,O,42,Wholesale trade,NJ,small
+B2037,Bluegrass Real Estate Co,O,53,Real estate,MD-DC,small
+B2038,Cedar Freight Co,O,48,Transportation,KY,large
+B2039,Westfield Supply Corp,O,42,Wholesale trade,IN-IA,mid
+B2040,Westfield Supply Inc,O,42,Wholesale trade,PA-East,mid
+B2041,Fairview Bakery Supply Inc,O,31,Food manufacturing,IL,small
+B2042,Creek Distributors Co,O,42,Wholesale trade,NJ,large
+B2043,Beacon Electrical Contractors Corp,O,23,Construction,PA-East,mid
+B2044,Keystone Staffing Inc,O,56,Admin and support services,MD-DC,large
+B2045,Ashford Property Management Inc,O,53,Real estate,MD-DC,large
+B2046,Fairview Advisors Corp,O,54,Professional services,MI,small
+B2047,Bluegrass Facility Services Partners,O,56,Admin and support services,PA-West,mid
+B2048,Midland Staffing LLC,O,56,Admin and support services,Multi-state,small
+B2049,Maplewood Advisors Inc,O,54,Professional services,MI,small
+B2050,Prairie Foods Group,O,31,Food manufacturing,IN-IA,mid
+B2051,Maplewood Engineering LLC,O,54,Professional services,NJ,mid
+B2052,Monarch Auto Components Inc,O,33,Machinery and parts manufacturing,OH,mid
+B2053,Liberty Supply Group,O,42,Wholesale trade,IL,large
+B2054,Prairie Accounting Group,O,54,Professional services,MI,small
+B2055,Midland Retail Group Corp,O,44,Retail trade,Multi-state,mid
+B2056,Liberty Auto Components Co,O,33,Machinery and parts manufacturing,VA-OH,small
+B2057,Juniper Wholesale Inc,O,42,Wholesale trade,NJ,mid
+B2058,Brookside Holdings Group,O,55,Holding companies,Multi-state,mid
+B2059,Sterling Grain Co-op Inc,O,11,Agriculture,IN-IA,mid
+B2060,Lantern Distributors Partners,O,42,Wholesale trade,KY,mid
+B2061,Stonegate Supply Co,O,42,Wholesale trade,NJ,large
+B2062,Pioneer Distributors LLC,O,42,Wholesale trade,NJ,large
+B2063,Lantern Analytics Inc,O,54,Professional services,OH,small
+B2064,Highpoint Staffing Inc,O,56,Admin and support services,PA-West,mid
+B2065,Prairie Realty LLC,O,53,Real estate,MD-DC,large
+B2066,Harbor Concrete Inc,O,23,Construction,PA-East,large
+B2067,Liberty Capital Corp,O,52,Finance and insurance,Multi-state,large
+B2068,Union Trading LLC,O,42,Wholesale trade,Multi-state,mid
+B2069,Summit Packing LLC,O,31,Food manufacturing,IN-IA,mid
+B2070,Elmhurst Wholesale LLC,O,42,Wholesale trade,PA-West,large
+B2071,Crestview Distributors Group,O,42,Wholesale trade,PA-West,mid
+B2072,Heritage Freight Corp,O,48,Transportation,KY,large
+B2073,Foxhall Electrical Contractors Corp,O,23,Construction,VA-OH,mid
+B2074,Summit Wholesale Partners,O,42,Wholesale trade,PA-West,mid
+B2075,Wexford Auto Components Group,O,33,Machinery and parts manufacturing,OH,mid
+B2076,Wexford Biologics Partners,O,32,Chemical and pharma manufacturing,NJ,mid
+B2077,Copperline Pharma Labs Inc,O,32,Chemical and pharma manufacturing,NJ,large
+B2078,Kingsley Advisors Corp,O,54,Professional services,PA-West,mid
+B2079,Copperline Logistics Group,O,48,Transportation,IL,mid
+B2080,Oakmont Builders LLC,O,23,Construction,VA-OH,mid
+B2081,Lantern Wholesale Co,O,42,Wholesale trade,Multi-state,mid
+B2082,Silverlake Trading Co,O,42,Wholesale trade,PA-East,mid
+B2083,Heritage Holdings LLC,O,55,Holding companies,Multi-state,mid
+B2084,Lakeside Construction LLC,O,23,Construction,VA-OH,mid
+B2085,Westfield Freight Inc,O,48,Transportation,KY,large
+B2086,Monarch Auto Components Group,O,33,Machinery and parts manufacturing,OH,mid
+B2087,Hollow Wholesale Corp,O,42,Wholesale trade,PA-West,mid
+B2088,Ridgeline Distributors LLC,O,42,Wholesale trade,OH,mid
+B2089,Larkspur Mechanical Corp,O,23,Construction,MD-DC,large
+B2090,Foxhall Machine Works Inc,O,33,Machinery and parts manufacturing,MI,small
+B2091,Crestview Capital LLC,O,52,Finance and insurance,Multi-state,large
+B2092,Sterling Imaging Co,O,62,Health care,PA-West,large
+B2093,Oakmont Trading Partners,O,42,Wholesale trade,IL,large
+B2094,Lakeside Distributors Corp,O,42,Wholesale trade,OH,mid
+B2095,Bluegrass Health Partners LLC,O,62,Health care,PA-West,mid
+B2096,Ironbridge Castings LLC,O,33,Machinery and parts manufacturing,OH,large
+B2097,Fairview Castings Co,O,33,Machinery and parts manufacturing,MI,mid
+B2098,Oakmont Construction Inc,O,23,Construction,PA-East,mid
+B2099,Foxhall Wholesale LLC,O,42,Wholesale trade,MI,large
+B2100,Keystone Trucking Inc,O,48,Transportation,KY,small
+B2101,Summit Consulting Co,O,54,Professional services,MI,mid
+B2102,Foxhall Machine Works Co,O,33,Machinery and parts manufacturing,OH,large
+B2103,Prairie Tooling Inc,O,33,Machinery and parts manufacturing,VA-OH,large
+B2104,Wexford Construction Partners,O,23,Construction,VA-OH,mid
+B2105,Juniper Analytics Corp,O,54,Professional services,NJ,mid
+B2106,Bridgeway Distributors Group,O,42,Wholesale trade,MI,mid
+B2107,Lakeside Consulting Partners,O,54,Professional services,NJ,mid
+B2108,Frontier Engineering Partners,O,54,Professional services,Multi-state,large
+B2109,Frontier Janitorial Co,O,56,Admin and support services,Multi-state,large
+B2110,Union Advisors Partners,O,54,Professional services,PA-West,small
+B2111,Riverbend Consulting Inc,O,54,Professional services,Multi-state,mid
+B2112,Midland Construction Co,O,23,Construction,MD-DC,mid
+B2113,Summit Facility Services Co,O,56,Admin and support services,MD-DC,mid
+B2114,Oakmont Insurance Agency Co,O,52,Finance and insurance,Multi-state,mid
+B2115,Monarch Advisors Partners,O,54,Professional services,PA-East,mid
+B2116,Clearwater Machine Works Inc,O,33,Machinery and parts manufacturing,MI,large
+B2117,Ashford Packing LLC,O,31,Food manufacturing,IN-IA,large
+B2118,Beacon Financial Co,O,52,Finance and insurance,Multi-state,mid
+B2119,Highpoint Properties Partners,O,53,Real estate,PA-East,small
+B2120,Allegheny Janitorial Group,O,56,Admin and support services,NJ,mid
+B2121,Crestview Supply LLC,O,42,Wholesale trade,IN-IA,mid
+B2122,Westfield Construction Corp,O,23,Construction,PA-East,mid
+B2123,Brookside Packing Partners,O,31,Food manufacturing,IN-IA,large
+B2124,Redstone Advisors Co,O,54,Professional services,NJ,mid
+B2125,Vantage Concrete Group,O,23,Construction,PA-East,mid
+B2126,Prairie Wholesale Inc,O,42,Wholesale trade,IN-IA,mid
+B2127,Heritage Trucking Group,O,48,Transportation,KY,large
+B2128,Bluegrass Machine Works Partners,O,33,Machinery and parts manufacturing,MI,mid
+B2129,Clearwater Construction Group,O,23,Construction,PA-East,small
+B2130,Ironbridge Insurance Agency Group,O,52,Finance and insurance,Multi-state,mid
+B2131,Bridgeway Auto Components Corp,O,33,Machinery and parts manufacturing,MI,mid
+B2132,Vantage Engineering Partners,O,54,Professional services,Multi-state,mid
+B2133,Monarch Trading Inc,O,42,Wholesale trade,PA-West,mid
+B2134,Stonegate Trucking Co,O,48,Transportation,Multi-state,mid
+B2135,Copperline Properties Inc,O,53,Real estate,PA-West,mid
+B2136,Fairview Tooling Group,O,33,Machinery and parts manufacturing,VA-OH,mid
+B2137,Ashford Consulting Partners,O,54,Professional services,NJ,mid
+B2138,Ironbridge Accounting Partners,O,54,Professional services,Multi-state,large
+B2139,Stonegate Holdings Group,O,55,Holding companies,Multi-state,mid
+B2140,Stonegate Realty Group,O,53,Real estate,MD-DC,mid
+B2141,Pioneer Dairy Partners,O,31,Food manufacturing,IN-IA,large
+B2142,Stonegate Wholesale Partners,O,42,Wholesale trade,IL,small
+B2143,Ridgeline Kitchen Group,O,72,Food services,IL,mid
+B2144,Midland Advisors Corp,O,54,Professional services,PA-West,mid
+B2145,Bridgeway Wholesale Corp,O,42,Wholesale trade,IL,mid
+B2146,Harbor Restaurant Group LLC,O,72,Food services,IL,large
+B2147,Vantage Retail Group Co,O,44,Retail trade,Multi-state,large
+B2148,Eastgate Construction Partners,O,23,Construction,PA-East,mid
+B2149,Harbor Concrete LLC,O,23,Construction,PA-East,small
+B2150,Juniper Dairy LLC,O,31,Food manufacturing,IN-IA,mid
+B2151,Riverbend Real Estate LLC,O,53,Real estate,MD-DC,large
+B2152,Monarch Accounting Partners,O,54,Professional services,Multi-state,mid
+B2153,Ashford Analytics Inc,O,54,Professional services,Multi-state,small
+B2154,Granite Logistics Inc,O,48,Transportation,KY,large
+B2155,Harbor Construction Group,O,23,Construction,PA-East,mid
+B2156,Lantern Restaurant Group Partners,O,72,Food services,IL,mid
+B2157,Hollow Accounting Inc,O,54,Professional services,OH,large
+B2158,Crestview Analytics Partners,O,54,Professional services,Multi-state,mid
+B2159,Midland Machine Works Partners,O,33,Machinery and parts manufacturing,MI,mid
+B2160,Vantage Advisors Inc,O,54,Professional services,NJ,large
+B2161,Fairview Machine Works Co,O,33,Machinery and parts manufacturing,MI,mid
+B2162,Sterling Pharma Labs Corp,O,32,Chemical and pharma manufacturing,NJ,mid
+B2163,Hollow Foods Inc,O,31,Food manufacturing,IL,mid
+B2164,Silverlake Construction LLC,O,23,Construction,PA-East,mid
+B2165,Ridgeline Trucking Inc,O,48,Transportation,KY,mid
+B2166,Meridian Kitchen Co,O,72,Food services,IL,mid
+B2167,Union Staffing Co,O,56,Admin and support services,PA-West,mid
+B2168,Silverlake Group Partners,O,55,Holding companies,Multi-state,mid
+B2169,Cedar Auto Components Corp,O,33,Machinery and parts manufacturing,MI,mid
+B2170,Clearwater Janitorial LLC,O,56,Admin and support services,PA-West,mid
+B2171,Granite Market Co,O,44,Retail trade,Multi-state,mid
+B2172,Allegheny Builders Corp,O,23,Construction,VA-OH,mid
+B2173,Bluegrass Logistics Group,O,48,Transportation,KY,large
+B2174,Copperline Catering Partners,O,72,Food services,IL,mid
+B2175,Hollow Laundry Corp,O,81,Other services,KY,small
+B2176,Monarch Wholesale Co,O,42,Wholesale trade,PA-West,small
+B2177,Tristate Castings Inc,O,33,Machinery and parts manufacturing,KY,mid
+B2178,Crestview Consulting Partners,O,54,Professional services,IN-IA,small
+B2179,Frontier Janitorial Group,O,56,Admin and support services,Multi-state,mid
+B2180,Vantage Janitorial Inc,O,56,Admin and support services,PA-East,small
+B2181,Harbor Bakery Supply Group,O,31,Food manufacturing,IL,large
+B2182,Stonegate Tooling Partners,O,33,Machinery and parts manufacturing,MI,large
+B2183,Maplewood Orchards Group,O,11,Agriculture,IN-IA,mid
+B2184,Summit Freight Partners,O,48,Transportation,KY,large
+B2185,Pioneer Market LLC,O,44,Retail trade,Multi-state,mid
+B2186,Lakeside Consulting Co,O,54,Professional services,NJ,mid
+B2187,Halcyon Freight Partners,O,48,Transportation,KY,mid
+B2188,Heritage Biologics Group,O,32,Chemical and pharma manufacturing,NJ,mid
+B2189,Lakeside Biologics Inc,O,32,Chemical and pharma manufacturing,NJ,large
+B2190,Lantern Trading Corp,O,42,Wholesale trade,Multi-state,large
+B2191,Kingsley Compounding Co,O,32,Chemical and pharma manufacturing,NJ,mid
+B2192,Westfield Biologics Co,O,32,Chemical and pharma manufacturing,NJ,large
+B2193,FleetLine Fuel Card,O,52,Finance and insurance,Multi-state,large
+B2194,Elmhurst Trading Inc,O,42,Wholesale trade,KY,mid
+B2195,Keystone Orchards Co,O,11,Agriculture,IN-IA,mid
+B2196,Halcyon Kitchen Co,O,72,Food services,IL,small
+B2197,Sycamore Concrete Corp,O,23,Construction,PA-East,mid
+B2198,Ridgeline Clinic Partners,O,62,Health care,PA-West,large
+B2199,Hollow Logistics LLC,O,48,Transportation,KY,large
+B2200,Larkspur Imaging Partners,O,62,Health care,PA-West,large
+B2201,Hollow Concrete Corp,O,23,Construction,PA-East,mid
+B2202,Ironbridge Property Management LLC,O,53,Real estate,MD-DC,small
+B2203,Frontier Bakery Supply Inc,O,31,Food manufacturing,IN-IA,mid
+B2204,Prairie Financial Group,O,52,Finance and insurance,Multi-state,mid
+B2205,Highpoint Accounting Inc,O,54,Professional services,MD-DC,small
+P0001,Individual P0001,P,,,NJ,
+P0002,Individual P0002,P,,,PA-East,
+P0003,Individual P0003,P,,,IN-IA,
+P0004,Individual P0004,P,,,IN-IA,
+P0005,Individual P0005,P,,,VA-OH,
+P0006,Individual P0006,P,,,VA-OH,
+P0007,Individual P0007,P,,,PA-West,
+P0008,Individual P0008,P,,,MI,
+P0009,Individual P0009,P,,,MD-DC,
+P0010,Individual P0010,P,,,MI,
+P0011,Individual P0011,P,,,IN-IA,
+P0012,Individual P0012,P,,,PA-East,
+P0013,Individual P0013,P,,,Multi-state,
+P0014,Individual P0014,P,,,MI,
+P0015,Individual P0015,P,,,PA-West,
+P0016,Individual P0016,P,,,IN-IA,
+P0017,Individual P0017,P,,,PA-West,
+P0018,Individual P0018,P,,,IN-IA,
+P0019,Individual P0019,P,,,Multi-state,
+P0020,Individual P0020,P,,,OH,
+P0021,Individual P0021,P,,,MD-DC,
+P0022,Individual P0022,P,,,MI,
+P0023,Individual P0023,P,,,VA-OH,
+P0024,Individual P0024,P,,,IL,
+P0025,Individual P0025,P,,,NJ,
+P0026,Individual P0026,P,,,Multi-state,
+P0027,Individual P0027,P,,,VA-OH,
+P0028,Individual P0028,P,,,PA-West,
+P0029,Individual P0029,P,,,Multi-state,
+P0030,Individual P0030,P,,,IL,
+P0031,Individual P0031,P,,,MD-DC,
+P0032,Individual P0032,P,,,PA-East,
+P0033,Individual P0033,P,,,MD-DC,
+P0034,Individual P0034,P,,,Multi-state,
+P0035,Individual P0035,P,,,MD-DC,
+P0036,Individual P0036,P,,,OH,
+P0037,Individual P0037,P,,,Multi-state,
+P0038,Individual P0038,P,,,IN-IA,
+P0039,Individual P0039,P,,,IL,
+P0040,Individual P0040,P,,,Multi-state,
+P0041,Individual P0041,P,,,PA-East,
+P0042,Individual P0042,P,,,OH,
+P0043,Individual P0043,P,,,MI,
+P0044,Individual P0044,P,,,IN-IA,
+P0045,Individual P0045,P,,,PA-East,
+P0046,Individual P0046,P,,,NJ,
+P0047,Individual P0047,P,,,VA-OH,
+P0048,Individual P0048,P,,,IL,
+P0049,Individual P0049,P,,,OH,
+P0050,Individual P0050,P,,,Multi-state,
+P0051,Individual P0051,P,,,Multi-state,
+P0052,Individual P0052,P,,,OH,
+P0053,Individual P0053,P,,,IN-IA,
+P0054,Individual P0054,P,,,OH,
+P0055,Individual P0055,P,,,Multi-state,
+P0056,Individual P0056,P,,,OH,
+P0057,Individual P0057,P,,,Multi-state,
+P0058,Individual P0058,P,,,OH,
+P0059,Individual P0059,P,,,OH,
+P0060,Individual P0060,P,,,PA-West,
+P0061,Individual P0061,P,,,KY,
+P0062,Individual P0062,P,,,IL,
+P0063,Individual P0063,P,,,NJ,
+P0064,Individual P0064,P,,,MI,
+P0065,Individual P0065,P,,,PA-East,
+P0066,Individual P0066,P,,,VA-OH,
+P0067,Individual P0067,P,,,Multi-state,
+P0068,Individual P0068,P,,,IL,
+P0069,Individual P0069,P,,,NJ,
+P0070,Individual P0070,P,,,PA-East,
+P0071,Individual P0071,P,,,Multi-state,
+P0072,Individual P0072,P,,,Multi-state,
+P0073,Individual P0073,P,,,OH,
+P0074,Individual P0074,P,,,Multi-state,
+P0075,Individual P0075,P,,,VA-OH,
+P0076,Individual P0076,P,,,PA-West,
+P0077,Individual P0077,P,,,Multi-state,
+P0078,Individual P0078,P,,,VA-OH,
+P0079,Individual P0079,P,,,IN-IA,
+P0080,Individual P0080,P,,,NJ,
+P0081,Individual P0081,P,,,MI,
+P0082,Individual P0082,P,,,OH,
+P0083,Individual P0083,P,,,MI,
+P0084,Individual P0084,P,,,IN-IA,
+P0085,Individual P0085,P,,,NJ,
+P0086,Individual P0086,P,,,PA-West,
+P0087,Individual P0087,P,,,IN-IA,
+P0088,Individual P0088,P,,,VA-OH,
+P0089,Individual P0089,P,,,IN-IA,
+P0090,Individual P0090,P,,,IL,
+P0091,Individual P0091,P,,,MI,
+P0092,Individual P0092,P,,,MD-DC,
+P0093,Individual P0093,P,,,VA-OH,
+P0094,Individual P0094,P,,,PA-West,
+P0095,Individual P0095,P,,,NJ,
+P0096,Individual P0096,P,,,PA-West,
+P0097,Individual P0097,P,,,IL,
+P0098,Individual P0098,P,,,OH,
+P0099,Individual P0099,P,,,NJ,
+P0100,Individual P0100,P,,,OH,
+P0101,Individual P0101,P,,,PA-East,
+P0102,Individual P0102,P,,,IN-IA,
+P0103,Individual P0103,P,,,PA-East,
+P0104,Individual P0104,P,,,MI,
+P0105,Individual P0105,P,,,NJ,
+P0106,Individual P0106,P,,,PA-East,
+P0107,Individual P0107,P,,,MD-DC,
+P0108,Individual P0108,P,,,MI,
+P0109,Individual P0109,P,,,IL,
+P0110,Individual P0110,P,,,OH,
+P0111,Individual P0111,P,,,IN-IA,
+P0112,Individual P0112,P,,,Multi-state,
+P0113,Individual P0113,P,,,MI,
+P0114,Individual P0114,P,,,VA-OH,
+P0115,Individual P0115,P,,,VA-OH,
+P0116,Individual P0116,P,,,KY,
+P0117,Individual P0117,P,,,PA-East,
+P0118,Individual P0118,P,,,Multi-state,
+P0119,Individual P0119,P,,,IN-IA,
+P0120,Individual P0120,P,,,Multi-state,
+P0121,Individual P0121,P,,,Multi-state,
+P0122,Individual P0122,P,,,MI,
+P0123,Individual P0123,P,,,KY,
+P0124,Individual P0124,P,,,PA-West,
+P0125,Individual P0125,P,,,MD-DC,
+P0126,Individual P0126,P,,,PA-West,
+P0127,Individual P0127,P,,,IN-IA,
+P0128,Individual P0128,P,,,MD-DC,
+P0129,Individual P0129,P,,,MI,
+P0130,Individual P0130,P,,,IL,
+P0131,Individual P0131,P,,,PA-West,
+P0132,Individual P0132,P,,,Multi-state,
+P0133,Individual P0133,P,,,MI,
+P0134,Individual P0134,P,,,IL,
+P0135,Individual P0135,P,,,VA-OH,
+P0136,Individual P0136,P,,,OH,
+P0137,Individual P0137,P,,,IL,
+P0138,Individual P0138,P,,,IN-IA,
+P0139,Individual P0139,P,,,IL,
+P0140,Individual P0140,P,,,KY,
+P0141,Individual P0141,P,,,MD-DC,
+P0142,Individual P0142,P,,,PA-West,
+P0143,Individual P0143,P,,,MI,
+P0144,Individual P0144,P,,,PA-West,
+P0145,Individual P0145,P,,,IL,
+P0146,Individual P0146,P,,,MD-DC,
+P0147,Individual P0147,P,,,VA-OH,
+P0148,Individual P0148,P,,,VA-OH,
+P0149,Individual P0149,P,,,PA-West,
+P0150,Individual P0150,P,,,KY,
+P0151,Individual P0151,P,,,VA-OH,
+P0152,Individual P0152,P,,,PA-East,
+P0153,Individual P0153,P,,,MI,
+P0154,Individual P0154,P,,,PA-West,
+P0155,Individual P0155,P,,,IL,
+P0156,Individual P0156,P,,,PA-East,
+P0157,Individual P0157,P,,,MI,
+P0158,Individual P0158,P,,,MD-DC,
+P0159,Individual P0159,P,,,PA-East,
+P0160,Individual P0160,P,,,MI,
+P0161,Individual P0161,P,,,MD-DC,
+P0162,Individual P0162,P,,,MD-DC,
+P0163,Individual P0163,P,,,Multi-state,
+P0164,Individual P0164,P,,,PA-West,
+P0165,Individual P0165,P,,,VA-OH,
+P0166,Individual P0166,P,,,MI,
+P0167,Individual P0167,P,,,MI,
+P0168,Individual P0168,P,,,IL,
+P0169,Individual P0169,P,,,Multi-state,
+P0170,Individual P0170,P,,,MI,
+P0171,Individual P0171,P,,,IL,
+P0172,Individual P0172,P,,,PA-East,
+P0173,Individual P0173,P,,,Multi-state,
+P0174,Individual P0174,P,,,MI,
+P0175,Individual P0175,P,,,OH,
+P0176,Individual P0176,P,,,OH,
+P0177,Individual P0177,P,,,NJ,
+P0178,Individual P0178,P,,,KY,
+P0179,Individual P0179,P,,,IL,
+P0180,Individual P0180,P,,,KY,
+P0181,Individual P0181,P,,,IN-IA,
+P0182,Individual P0182,P,,,PA-East,
+P0183,Individual P0183,P,,,IN-IA,
+P0184,Individual P0184,P,,,OH,
+P0185,Individual P0185,P,,,PA-West,
+P0186,Individual P0186,P,,,NJ,
+P0187,Individual P0187,P,,,MI,
+P0188,Individual P0188,P,,,KY,
+P0189,Individual P0189,P,,,IN-IA,
+P0190,Individual P0190,P,,,PA-West,
+P0191,Individual P0191,P,,,IN-IA,
+P0192,Individual P0192,P,,,PA-East,
+P0193,Individual P0193,P,,,Multi-state,
+P0194,Individual P0194,P,,,NJ,
+P0195,Individual P0195,P,,,KY,
+P0196,Individual P0196,P,,,IL,
+P0197,Individual P0197,P,,,OH,
+P0198,Individual P0198,P,,,Multi-state,
+P0199,Individual P0199,P,,,MI,
+P0200,Individual P0200,P,,,Multi-state,
+P0201,Individual P0201,P,,,PA-West,
+P0202,Individual P0202,P,,,MD-DC,
+P0203,Individual P0203,P,,,OH,
+P0204,Individual P0204,P,,,IL,
+P0205,Individual P0205,P,,,IN-IA,
+P0206,Individual P0206,P,,,NJ,
+P0207,Individual P0207,P,,,MD-DC,
+P0208,Individual P0208,P,,,MI,
+P0209,Individual P0209,P,,,MI,
+P0210,Individual P0210,P,,,OH,
+P0211,Individual P0211,P,,,IN-IA,
+P0212,Individual P0212,P,,,OH,
+P0213,Individual P0213,P,,,MD-DC,
+P0214,Individual P0214,P,,,MD-DC,
+P0215,Individual P0215,P,,,VA-OH,
+P0216,Individual P0216,P,,,MD-DC,
+P0217,Individual P0217,P,,,PA-West,
+P0218,Individual P0218,P,,,PA-West,
+P0219,Individual P0219,P,,,Multi-state,
+P0220,Individual P0220,P,,,Multi-state,
+P0221,Individual P0221,P,,,Multi-state,
+P0222,Individual P0222,P,,,PA-East,
+P0223,Individual P0223,P,,,OH,
+P0224,Individual P0224,P,,,KY,
+P0225,Individual P0225,P,,,Multi-state,
+P0226,Individual P0226,P,,,IN-IA,
+P0227,Individual P0227,P,,,KY,
+P0228,Individual P0228,P,,,VA-OH,
+P0229,Individual P0229,P,,,VA-OH,
+P0230,Individual P0230,P,,,VA-OH,
+P0231,Individual P0231,P,,,Multi-state,
+P0232,Individual P0232,P,,,NJ,
+P0233,Individual P0233,P,,,Multi-state,
+P0234,Individual P0234,P,,,OH,
+P0235,Individual P0235,P,,,OH,
+P0236,Individual P0236,P,,,PA-West,
+P0237,Individual P0237,P,,,VA-OH,
+P0238,Individual P0238,P,,,KY,
+P0239,Individual P0239,P,,,MI,
+P0240,Individual P0240,P,,,MI,
+P0241,Individual P0241,P,,,IL,
+P0242,Individual P0242,P,,,MI,
+P0243,Individual P0243,P,,,MD-DC,
+P0244,Individual P0244,P,,,OH,
+P0245,Individual P0245,P,,,MI,
+P0246,Individual P0246,P,,,NJ,
+P0247,Individual P0247,P,,,MI,
+P0248,Individual P0248,P,,,PA-West,
+P0249,Individual P0249,P,,,MI,
+P0250,Individual P0250,P,,,PA-East,
+P0251,Individual P0251,P,,,MI,
+P0252,Individual P0252,P,,,Multi-state,
+P0253,Individual P0253,P,,,PA-East,
+P0254,Individual P0254,P,,,VA-OH,
+P0255,Individual P0255,P,,,PA-West,
+P0256,Individual P0256,P,,,IN-IA,
+P0257,Individual P0257,P,,,MD-DC,
+P0258,Individual P0258,P,,,IL,
+P0259,Individual P0259,P,,,MI,
+P0260,Individual P0260,P,,,PA-West,
+P0261,Individual P0261,P,,,IN-IA,
+P0262,Individual P0262,P,,,OH,
+P0263,Individual P0263,P,,,IN-IA,
+P0264,Individual P0264,P,,,PA-East,
+P0265,Individual P0265,P,,,IN-IA,
+P0266,Individual P0266,P,,,KY,
+P0267,Individual P0267,P,,,KY,
+P0268,Individual P0268,P,,,MD-DC,
+P0269,Individual P0269,P,,,NJ,
+P0270,Individual P0270,P,,,VA-OH,
+P0271,Individual P0271,P,,,MI,
+P0272,Individual P0272,P,,,OH,
+P0273,Individual P0273,P,,,OH,
+P0274,Individual P0274,P,,,Multi-state,
+P0275,Individual P0275,P,,,PA-West,
+P0276,Individual P0276,P,,,NJ,
+P0277,Individual P0277,P,,,VA-OH,
+P0278,Individual P0278,P,,,MD-DC,
+P0279,Individual P0279,P,,,PA-West,
+P0280,Individual P0280,P,,,MD-DC,
+P0281,Individual P0281,P,,,OH,
+P0282,Individual P0282,P,,,MD-DC,
+P0283,Individual P0283,P,,,KY,
+P0284,Individual P0284,P,,,PA-West,
+P0285,Individual P0285,P,,,KY,
+P0286,Individual P0286,P,,,Multi-state,
+P0287,Individual P0287,P,,,VA-OH,
+P0288,Individual P0288,P,,,NJ,
+P0289,Individual P0289,P,,,NJ,
+P0290,Individual P0290,P,,,Multi-state,
+P0291,Individual P0291,P,,,IN-IA,
+P0292,Individual P0292,P,,,IN-IA,
+P0293,Individual P0293,P,,,NJ,
+P0294,Individual P0294,P,,,MI,
+P0295,Individual P0295,P,,,IL,
+P0296,Individual P0296,P,,,IN-IA,
+P0297,Individual P0297,P,,,IL,
+P0298,Individual P0298,P,,,KY,
+P0299,Individual P0299,P,,,IL,
+P0300,Individual P0300,P,,,MI,
+P0301,Individual P0301,P,,,IN-IA,
+P0302,Individual P0302,P,,,MD-DC,
+P0303,Individual P0303,P,,,IL,
+P0304,Individual P0304,P,,,VA-OH,
+P0305,Individual P0305,P,,,Multi-state,
+P0306,Individual P0306,P,,,IL,
+P0307,Individual P0307,P,,,NJ,
+P0308,Individual P0308,P,,,PA-West,
+P0309,Individual P0309,P,,,Multi-state,
+P0310,Individual P0310,P,,,KY,
+P0311,Individual P0311,P,,,Multi-state,
+P0312,Individual P0312,P,,,Multi-state,
+P0313,Individual P0313,P,,,NJ,
+P0314,Individual P0314,P,,,IL,
+P0315,Individual P0315,P,,,IN-IA,
+P0316,Individual P0316,P,,,KY,
+P0317,Individual P0317,P,,,IN-IA,
+P0318,Individual P0318,P,,,KY,
+P0319,Individual P0319,P,,,MI,
+P0320,Individual P0320,P,,,PA-East,
+P0321,Individual P0321,P,,,Multi-state,
+P0322,Individual P0322,P,,,NJ,
+P0323,Individual P0323,P,,,IL,
+P0324,Individual P0324,P,,,PA-West,
+P0325,Individual P0325,P,,,NJ,
+P0326,Individual P0326,P,,,MD-DC,
+P0327,Individual P0327,P,,,MD-DC,
+P0328,Individual P0328,P,,,OH,
+P0329,Individual P0329,P,,,PA-East,
+P0330,Individual P0330,P,,,KY,
+P0331,Individual P0331,P,,,Multi-state,
+P0332,Individual P0332,P,,,VA-OH,
+P0333,Individual P0333,P,,,IL,
+P0334,Individual P0334,P,,,Multi-state,
+P0335,Individual P0335,P,,,Multi-state,
+P0336,Individual P0336,P,,,PA-West,
+P0337,Individual P0337,P,,,Multi-state,
+P0338,Individual P0338,P,,,KY,
+P0339,Individual P0339,P,,,IL,
+P0340,Individual P0340,P,,,IL,
+P0341,Individual P0341,P,,,PA-East,
+P0342,Individual P0342,P,,,Multi-state,
+P0343,Individual P0343,P,,,VA-OH,
+P0344,Individual P0344,P,,,Multi-state,
+P0345,Individual P0345,P,,,PA-West,
+P0346,Individual P0346,P,,,VA-OH,
+P0347,Individual P0347,P,,,IL,
+P0348,Individual P0348,P,,,MI,
+P0349,Individual P0349,P,,,Multi-state,
+P0350,Individual P0350,P,,,NJ,
+P0351,Individual P0351,P,,,VA-OH,
+P0352,Individual P0352,P,,,Multi-state,
+P0353,Individual P0353,P,,,MD-DC,
+P0354,Individual P0354,P,,,KY,
+P0355,Individual P0355,P,,,OH,
+P0356,Individual P0356,P,,,Multi-state,
+P0357,Individual P0357,P,,,VA-OH,
+P0358,Individual P0358,P,,,IL,
+P0359,Individual P0359,P,,,IN-IA,
+P0360,Individual P0360,P,,,Multi-state,
+P0361,Individual P0361,P,,,NJ,
+P0362,Individual P0362,P,,,NJ,
+P0363,Individual P0363,P,,,PA-West,
+P0364,Individual P0364,P,,,VA-OH,
+P0365,Individual P0365,P,,,MI,
+P0366,Individual P0366,P,,,IN-IA,
+P0367,Individual P0367,P,,,MD-DC,
+P0368,Individual P0368,P,,,KY,
+P0369,Individual P0369,P,,,NJ,
+P0370,Individual P0370,P,,,PA-East,
+P0371,Individual P0371,P,,,VA-OH,
+P0372,Individual P0372,P,,,IL,
+P0373,Individual P0373,P,,,VA-OH,
+P0374,Individual P0374,P,,,KY,
+P0375,Individual P0375,P,,,OH,
+P0376,Individual P0376,P,,,MI,
+P0377,Individual P0377,P,,,VA-OH,
+P0378,Individual P0378,P,,,Multi-state,
+P0379,Individual P0379,P,,,KY,
+P0380,Individual P0380,P,,,NJ,
+P0381,Individual P0381,P,,,MD-DC,
+P0382,Individual P0382,P,,,IN-IA,
+P0383,Individual P0383,P,,,VA-OH,
+P0384,Individual P0384,P,,,PA-East,
+P0385,Individual P0385,P,,,KY,
+P0386,Individual P0386,P,,,PA-West,
+P0387,Individual P0387,P,,,Multi-state,
+P0388,Individual P0388,P,,,PA-West,
+P0389,Individual P0389,P,,,VA-OH,
+P0390,Individual P0390,P,,,Multi-state,
+P0391,Individual P0391,P,,,IN-IA,
+P0392,Individual P0392,P,,,Multi-state,
+P0393,Individual P0393,P,,,MD-DC,
+P0394,Individual P0394,P,,,OH,
+P0395,Individual P0395,P,,,VA-OH,
+P0396,Individual P0396,P,,,OH,
+P0397,Individual P0397,P,,,MD-DC,
+P0398,Individual P0398,P,,,IL,
+P0399,Individual P0399,P,,,IL,
+P0400,Individual P0400,P,,,IN-IA,
+P0401,Individual P0401,P,,,Multi-state,
+P0402,Individual P0402,P,,,VA-OH,
+P0403,Individual P0403,P,,,IL,
+P0404,Individual P0404,P,,,IL,
+P0405,Individual P0405,P,,,VA-OH,
+P0406,Individual P0406,P,,,MI,
+P0407,Individual P0407,P,,,Multi-state,
+P0408,Individual P0408,P,,,MD-DC,
+P0409,Individual P0409,P,,,OH,
+P0410,Individual P0410,P,,,IL,
+P0411,Individual P0411,P,,,NJ,
+P0412,Individual P0412,P,,,IN-IA,
+P0413,Individual P0413,P,,,Multi-state,
+P0414,Individual P0414,P,,,MD-DC,
+P0415,Individual P0415,P,,,OH,
+P0416,Individual P0416,P,,,NJ,
+P0417,Individual P0417,P,,,NJ,
+P0418,Individual P0418,P,,,MD-DC,
+P0419,Individual P0419,P,,,IL,
+P0420,Individual P0420,P,,,KY,
+P0421,Individual P0421,P,,,PA-West,
+P0422,Individual P0422,P,,,VA-OH,
+P0423,Individual P0423,P,,,OH,
+P0424,Individual P0424,P,,,IN-IA,
+P0425,Individual P0425,P,,,VA-OH,
+P0426,Individual P0426,P,,,PA-West,
+P0427,Individual P0427,P,,,MI,
+P0428,Individual P0428,P,,,NJ,
+P0429,Individual P0429,P,,,KY,
+P0430,Individual P0430,P,,,IN-IA,
+P0431,Individual P0431,P,,,IL,
+P0432,Individual P0432,P,,,IN-IA,
+P0433,Individual P0433,P,,,IL,
+P0434,Individual P0434,P,,,Multi-state,
+P0435,Individual P0435,P,,,VA-OH,
+P0436,Individual P0436,P,,,IL,
+P0437,Individual P0437,P,,,Multi-state,
+P0438,Individual P0438,P,,,PA-East,
+P0439,Individual P0439,P,,,KY,
+P0440,Individual P0440,P,,,PA-East,
+P0441,Individual P0441,P,,,OH,
+P0442,Individual P0442,P,,,Multi-state,
+P0443,Individual P0443,P,,,IL,
+P0444,Individual P0444,P,,,Multi-state,
+P0445,Individual P0445,P,,,Multi-state,
+P0446,Individual P0446,P,,,VA-OH,
+P0447,Individual P0447,P,,,IN-IA,
+P0448,Individual P0448,P,,,OH,
+P0449,Individual P0449,P,,,OH,
+P0450,Individual P0450,P,,,OH,
+P0451,Individual P0451,P,,,OH,
+P0452,Individual P0452,P,,,IN-IA,
+P0453,Individual P0453,P,,,PA-West,
+P0454,Individual P0454,P,,,NJ,
+P0455,Individual P0455,P,,,KY,
+P0456,Individual P0456,P,,,MI,
+P0457,Individual P0457,P,,,KY,
+P0458,Individual P0458,P,,,VA-OH,
+P0459,Individual P0459,P,,,PA-East,
+P0460,Individual P0460,P,,,PA-East,
+P0461,Individual P0461,P,,,PA-East,
+P0462,Individual P0462,P,,,Multi-state,
+P0463,Individual P0463,P,,,MI,
+P0464,Individual P0464,P,,,IL,
+P0465,Individual P0465,P,,,PA-East,
+P0466,Individual P0466,P,,,PA-West,
+P0467,Individual P0467,P,,,PA-East,
+P0468,Individual P0468,P,,,KY,
+P0469,Individual P0469,P,,,PA-East,
+P0470,Individual P0470,P,,,IN-IA,
+P0471,Individual P0471,P,,,IL,
+P0472,Individual P0472,P,,,KY,
+P0473,Individual P0473,P,,,MD-DC,
+P0474,Individual P0474,P,,,MD-DC,
+P0475,Individual P0475,P,,,OH,
+P0476,Individual P0476,P,,,Multi-state,
+P0477,Individual P0477,P,,,VA-OH,
+P0478,Individual P0478,P,,,VA-OH,
+P0479,Individual P0479,P,,,PA-East,
+P0480,Individual P0480,P,,,MD-DC,
+P0481,Individual P0481,P,,,KY,
+P0482,Individual P0482,P,,,MI,
+P0483,Individual P0483,P,,,PA-East,
+P0484,Individual P0484,P,,,OH,
+P0485,Individual P0485,P,,,MD-DC,
+P0486,Individual P0486,P,,,MD-DC,
+P0487,Individual P0487,P,,,IN-IA,
+P0488,Individual P0488,P,,,KY,
+P0489,Individual P0489,P,,,Multi-state,
+P0490,Individual P0490,P,,,OH,
+P0491,Individual P0491,P,,,OH,
+P0492,Individual P0492,P,,,Multi-state,
+P0493,Individual P0493,P,,,Multi-state,
+P0494,Individual P0494,P,,,VA-OH,
+P0495,Individual P0495,P,,,NJ,
+P0496,Individual P0496,P,,,IN-IA,
+P0497,Individual P0497,P,,,IL,
+P0498,Individual P0498,P,,,IL,
+P0499,Individual P0499,P,,,VA-OH,
+P0500,Individual P0500,P,,,Multi-state,
+P0501,Individual P0501,P,,,VA-OH,
+P0502,Individual P0502,P,,,NJ,
+P0503,Individual P0503,P,,,PA-East,
+P0504,Individual P0504,P,,,VA-OH,
+P0505,Individual P0505,P,,,Multi-state,
+P0506,Individual P0506,P,,,KY,
+P0507,Individual P0507,P,,,VA-OH,
+P0508,Individual P0508,P,,,IN-IA,
+P0509,Individual P0509,P,,,Multi-state,
+P0510,Individual P0510,P,,,MI,
+P0511,Individual P0511,P,,,IL,
+P0512,Individual P0512,P,,,IN-IA,
+P0513,Individual P0513,P,,,VA-OH,
+P0514,Individual P0514,P,,,KY,
+P0515,Individual P0515,P,,,MD-DC,
+P0516,Individual P0516,P,,,IL,
+P0517,Individual P0517,P,,,VA-OH,
+P0518,Individual P0518,P,,,Multi-state,
+P0519,Individual P0519,P,,,OH,
+P0520,Individual P0520,P,,,MI,
+P0521,Individual P0521,P,,,PA-East,
+P0522,Individual P0522,P,,,OH,
+P0523,Individual P0523,P,,,OH,
+P0524,Individual P0524,P,,,Multi-state,
+P0525,Individual P0525,P,,,IL,
+P0526,Individual P0526,P,,,OH,
+P0527,Individual P0527,P,,,VA-OH,
+P0528,Individual P0528,P,,,Multi-state,
+P0529,Individual P0529,P,,,PA-East,
+P0530,Individual P0530,P,,,Multi-state,
+P0531,Individual P0531,P,,,NJ,
+P0532,Individual P0532,P,,,Multi-state,
+P0533,Individual P0533,P,,,MD-DC,
+P0534,Individual P0534,P,,,VA-OH,
+P0535,Individual P0535,P,,,IN-IA,
+P0536,Individual P0536,P,,,OH,
+P0537,Individual P0537,P,,,MI,
+P0538,Individual P0538,P,,,NJ,
+P0539,Individual P0539,P,,,KY,
+P0540,Individual P0540,P,,,Multi-state,
+P0541,Individual P0541,P,,,NJ,
+P0542,Individual P0542,P,,,Multi-state,
+P0543,Individual P0543,P,,,VA-OH,
+P0544,Individual P0544,P,,,OH,
+P0545,Individual P0545,P,,,PA-East,
+P0546,Individual P0546,P,,,Multi-state,
+P0547,Individual P0547,P,,,PA-West,
+P0548,Individual P0548,P,,,IL,
+P0549,Individual P0549,P,,,Multi-state,
+P0550,Individual P0550,P,,,OH,
+P0551,Individual P0551,P,,,KY,
+P0552,Individual P0552,P,,,MI,
+P0553,Individual P0553,P,,,VA-OH,
+P0554,Individual P0554,P,,,VA-OH,
+P0555,Individual P0555,P,,,IL,
+P0556,Individual P0556,P,,,PA-West,
+P0557,Individual P0557,P,,,OH,
+P0558,Individual P0558,P,,,IN-IA,
+P0559,Individual P0559,P,,,Multi-state,
+P0560,Individual P0560,P,,,Multi-state,
+P0561,Individual P0561,P,,,IL,
+P0562,Individual P0562,P,,,IL,
+P0563,Individual P0563,P,,,NJ,
+P0564,Individual P0564,P,,,MD-DC,
+P0565,Individual P0565,P,,,IL,
+P0566,Individual P0566,P,,,Multi-state,
+P0567,Individual P0567,P,,,NJ,
+P0568,Individual P0568,P,,,NJ,
+P0569,Individual P0569,P,,,Multi-state,
+P0570,Individual P0570,P,,,IN-IA,
+P0571,Individual P0571,P,,,KY,
+P0572,Individual P0572,P,,,Multi-state,
+P0573,Individual P0573,P,,,NJ,
+P0574,Individual P0574,P,,,IL,
+P0575,Individual P0575,P,,,KY,
+P0576,Individual P0576,P,,,MD-DC,
+P0577,Individual P0577,P,,,IL,
+P0578,Individual P0578,P,,,IN-IA,
+P0579,Individual P0579,P,,,IN-IA,
+P0580,Individual P0580,P,,,MD-DC,
+P0581,Individual P0581,P,,,OH,
+P0582,Individual P0582,P,,,NJ,
+P0583,Individual P0583,P,,,KY,
+P0584,Individual P0584,P,,,MD-DC,
+P0585,Individual P0585,P,,,OH,
+P0586,Individual P0586,P,,,Multi-state,
+P0587,Individual P0587,P,,,OH,
+P0588,Individual P0588,P,,,KY,
+P0589,Individual P0589,P,,,PA-West,
+P0590,Individual P0590,P,,,IL,
+P0591,Individual P0591,P,,,Multi-state,
+P0592,Individual P0592,P,,,NJ,
+P0593,Individual P0593,P,,,KY,
+P0594,Individual P0594,P,,,VA-OH,
+P0595,Individual P0595,P,,,Multi-state,
+P0596,Individual P0596,P,,,OH,
+P0597,Individual P0597,P,,,VA-OH,
+P0598,Individual P0598,P,,,Multi-state,
+P0599,Individual P0599,P,,,VA-OH,
+P0600,Individual P0600,P,,,IL,
+P0601,Individual P0601,P,,,PA-West,
+P0602,Individual P0602,P,,,VA-OH,
+P0603,Individual P0603,P,,,NJ,
+P0604,Individual P0604,P,,,OH,
+P0605,Individual P0605,P,,,Multi-state,
+P0606,Individual P0606,P,,,IL,
+P0607,Individual P0607,P,,,KY,
+P0608,Individual P0608,P,,,Multi-state,
+P0609,Individual P0609,P,,,Multi-state,
+P0610,Individual P0610,P,,,MI,
+P0611,Individual P0611,P,,,IN-IA,
+P0612,Individual P0612,P,,,Multi-state,
+P0613,Individual P0613,P,,,MI,
+P0614,Individual P0614,P,,,PA-East,
+P0615,Individual P0615,P,,,NJ,
+P0616,Individual P0616,P,,,VA-OH,
+P0617,Individual P0617,P,,,KY,
+P0618,Individual P0618,P,,,PA-East,
+P0619,Individual P0619,P,,,OH,
+P0620,Individual P0620,P,,,IN-IA,
+P0621,Individual P0621,P,,,IN-IA,
+P0622,Individual P0622,P,,,NJ,
+P0623,Individual P0623,P,,,VA-OH,
+P0624,Individual P0624,P,,,Multi-state,
+P0625,Individual P0625,P,,,Multi-state,
+P0626,Individual P0626,P,,,IL,
+P0627,Individual P0627,P,,,Multi-state,
+P0628,Individual P0628,P,,,NJ,
+P0629,Individual P0629,P,,,IL,
+P0630,Individual P0630,P,,,PA-West,
+P0631,Individual P0631,P,,,VA-OH,
+P0632,Individual P0632,P,,,PA-East,
+P0633,Individual P0633,P,,,PA-East,
+P0634,Individual P0634,P,,,MD-DC,
+P0635,Individual P0635,P,,,IL,
+P0636,Individual P0636,P,,,PA-East,
+P0637,Individual P0637,P,,,IN-IA,
+P0638,Individual P0638,P,,,Multi-state,
+P0639,Individual P0639,P,,,MI,
+P0640,Individual P0640,P,,,KY,
+P0641,Individual P0641,P,,,VA-OH,
+P0642,Individual P0642,P,,,PA-West,
+P0643,Individual P0643,P,,,MI,
+P0644,Individual P0644,P,,,VA-OH,
+P0645,Individual P0645,P,,,NJ,
+P0646,Individual P0646,P,,,KY,
+P0647,Individual P0647,P,,,Multi-state,
+P0648,Individual P0648,P,,,MI,
+P0649,Individual P0649,P,,,MI,
+P0650,Individual P0650,P,,,IL,
+P0651,Individual P0651,P,,,Multi-state,
+P0652,Individual P0652,P,,,Multi-state,
+P0653,Individual P0653,P,,,KY,
+P0654,Individual P0654,P,,,IL,
+P0655,Individual P0655,P,,,IN-IA,
+P0656,Individual P0656,P,,,VA-OH,
+P0657,Individual P0657,P,,,NJ,
+P0658,Individual P0658,P,,,MD-DC,
+P0659,Individual P0659,P,,,IL,
+P0660,Individual P0660,P,,,KY,
+P0661,Individual P0661,P,,,IN-IA,
+P0662,Individual P0662,P,,,Multi-state,
+P0663,Individual P0663,P,,,KY,
+P0664,Individual P0664,P,,,Multi-state,
+P0665,Individual P0665,P,,,MD-DC,
+P0666,Individual P0666,P,,,VA-OH,
+P0667,Individual P0667,P,,,IL,
+P0668,Individual P0668,P,,,PA-East,
+P0669,Individual P0669,P,,,MD-DC,
+P0670,Individual P0670,P,,,MD-DC,
+P0671,Individual P0671,P,,,PA-East,
+P0672,Individual P0672,P,,,NJ,
+P0673,Individual P0673,P,,,Multi-state,
+P0674,Individual P0674,P,,,KY,
+P0675,Individual P0675,P,,,Multi-state,
+P0676,Individual P0676,P,,,IN-IA,
+P0677,Individual P0677,P,,,NJ,
+P0678,Individual P0678,P,,,IN-IA,
+P0679,Individual P0679,P,,,PA-West,
+P0680,Individual P0680,P,,,VA-OH,
+P0681,Individual P0681,P,,,IN-IA,
+P0682,Individual P0682,P,,,PA-East,
+P0683,Individual P0683,P,,,PA-West,
+P0684,Individual P0684,P,,,PA-West,
+P0685,Individual P0685,P,,,MD-DC,
+P0686,Individual P0686,P,,,VA-OH,
+P0687,Individual P0687,P,,,KY,
+P0688,Individual P0688,P,,,MD-DC,
+P0689,Individual P0689,P,,,Multi-state,
+P0690,Individual P0690,P,,,IL,
+P0691,Individual P0691,P,,,VA-OH,
+P0692,Individual P0692,P,,,PA-East,
+P0693,Individual P0693,P,,,IL,
+P0694,Individual P0694,P,,,OH,
+P0695,Individual P0695,P,,,PA-West,
+P0696,Individual P0696,P,,,PA-West,
+P0697,Individual P0697,P,,,IL,
+P0698,Individual P0698,P,,,VA-OH,
+P0699,Individual P0699,P,,,VA-OH,
+P0700,Individual P0700,P,,,KY,
+P0701,Individual P0701,P,,,MD-DC,
+P0702,Individual P0702,P,,,MI,
+P0703,Individual P0703,P,,,PA-West,
+P0704,Individual P0704,P,,,PA-East,
+P0705,Individual P0705,P,,,IL,
+P0706,Individual P0706,P,,,IL,
+P0707,Individual P0707,P,,,IN-IA,
+P0708,Individual P0708,P,,,MD-DC,
+P0709,Individual P0709,P,,,IL,
+P0710,Individual P0710,P,,,PA-East,
+P0711,Individual P0711,P,,,Multi-state,
+P0712,Individual P0712,P,,,PA-East,
+P0713,Individual P0713,P,,,Multi-state,
+P0714,Individual P0714,P,,,Multi-state,
+P0715,Individual P0715,P,,,VA-OH,
+P0716,Individual P0716,P,,,Multi-state,
+P0717,Individual P0717,P,,,NJ,
+P0718,Individual P0718,P,,,Multi-state,
+P0719,Individual P0719,P,,,VA-OH,
+P0720,Individual P0720,P,,,KY,
+P0721,Individual P0721,P,,,Multi-state,
+P0722,Individual P0722,P,,,KY,
+P0723,Individual P0723,P,,,Multi-state,
+P0724,Individual P0724,P,,,PA-West,
+P0725,Individual P0725,P,,,KY,
+P0726,Individual P0726,P,,,IL,
+P0727,Individual P0727,P,,,KY,
+P0728,Individual P0728,P,,,NJ,
+P0729,Individual P0729,P,,,OH,
+P0730,Individual P0730,P,,,IL,
+P0731,Individual P0731,P,,,MI,
+P0732,Individual P0732,P,,,Multi-state,
+P0733,Individual P0733,P,,,VA-OH,
+P0734,Individual P0734,P,,,Multi-state,
+P0735,Individual P0735,P,,,PA-West,
+P0736,Individual P0736,P,,,VA-OH,
+P0737,Individual P0737,P,,,NJ,
+P0738,Individual P0738,P,,,MD-DC,
+P0739,Individual P0739,P,,,Multi-state,
+P0740,Individual P0740,P,,,PA-East,
+P0741,Individual P0741,P,,,VA-OH,
+P0742,Individual P0742,P,,,PA-West,
+P0743,Individual P0743,P,,,IL,
+P0744,Individual P0744,P,,,Multi-state,
+P0745,Individual P0745,P,,,VA-OH,
+P0746,Individual P0746,P,,,PA-West,
+P0747,Individual P0747,P,,,IL,
+P0748,Individual P0748,P,,,OH,
+P0749,Individual P0749,P,,,Multi-state,
+P0750,Individual P0750,P,,,MD-DC,
+P0751,Individual P0751,P,,,IN-IA,
+P0752,Individual P0752,P,,,Multi-state,
+P0753,Individual P0753,P,,,IL,
+P0754,Individual P0754,P,,,Multi-state,
+P0755,Individual P0755,P,,,Multi-state,
+P0756,Individual P0756,P,,,Multi-state,
+P0757,Individual P0757,P,,,MD-DC,
+P0758,Individual P0758,P,,,PA-East,
+P0759,Individual P0759,P,,,IL,
+P0760,Individual P0760,P,,,KY,
+P0761,Individual P0761,P,,,MI,
+P0762,Individual P0762,P,,,PA-West,
+P0763,Individual P0763,P,,,Multi-state,
+P0764,Individual P0764,P,,,Multi-state,
+P0765,Individual P0765,P,,,Multi-state,
+P0766,Individual P0766,P,,,PA-East,
+P0767,Individual P0767,P,,,VA-OH,
+P0768,Individual P0768,P,,,PA-West,
+P0769,Individual P0769,P,,,IN-IA,
+P0770,Individual P0770,P,,,MI,
+P0771,Individual P0771,P,,,VA-OH,
+P0772,Individual P0772,P,,,MI,
+P0773,Individual P0773,P,,,IL,
+P0774,Individual P0774,P,,,NJ,
+P0775,Individual P0775,P,,,OH,
+P0776,Individual P0776,P,,,KY,
+P0777,Individual P0777,P,,,MI,
+P0778,Individual P0778,P,,,MI,
+P0779,Individual P0779,P,,,IN-IA,
+P0780,Individual P0780,P,,,Multi-state,
+P0781,Individual P0781,P,,,Multi-state,
+P0782,Individual P0782,P,,,KY,
+P0783,Individual P0783,P,,,KY,
+P0784,Individual P0784,P,,,OH,
+P0785,Individual P0785,P,,,PA-East,
+P0786,Individual P0786,P,,,NJ,
+P0787,Individual P0787,P,,,IN-IA,
+P0788,Individual P0788,P,,,NJ,
+P0789,Individual P0789,P,,,Multi-state,
+P0790,Individual P0790,P,,,KY,
+P0791,Individual P0791,P,,,MD-DC,
+P0792,Individual P0792,P,,,MI,
+P0793,Individual P0793,P,,,MI,
+P0794,Individual P0794,P,,,MD-DC,
+P0795,Individual P0795,P,,,VA-OH,
+P0796,Individual P0796,P,,,KY,
+P0797,Individual P0797,P,,,PA-East,
+P0798,Individual P0798,P,,,Multi-state,
+P0799,Individual P0799,P,,,IN-IA,
+P0800,Individual P0800,P,,,VA-OH,
+P0801,Individual P0801,P,,,IN-IA,
+P0802,Individual P0802,P,,,Multi-state,
+P0803,Individual P0803,P,,,IN-IA,
+P0804,Individual P0804,P,,,VA-OH,
+P0805,Individual P0805,P,,,KY,
+P0806,Individual P0806,P,,,MI,
+P0807,Individual P0807,P,,,OH,
+P0808,Individual P0808,P,,,Multi-state,
+P0809,Individual P0809,P,,,IN-IA,
+P0810,Individual P0810,P,,,KY,
+P0811,Individual P0811,P,,,Multi-state,
+P0812,Individual P0812,P,,,Multi-state,
+P0813,Individual P0813,P,,,OH,
+P0814,Individual P0814,P,,,PA-West,
+P0815,Individual P0815,P,,,IL,
+P0816,Individual P0816,P,,,Multi-state,
+P0817,Individual P0817,P,,,PA-East,
+P0818,Individual P0818,P,,,OH,
+P0819,Individual P0819,P,,,Multi-state,
+P0820,Individual P0820,P,,,VA-OH,
+P0821,Individual P0821,P,,,MD-DC,
+P0822,Individual P0822,P,,,OH,
+P0823,Individual P0823,P,,,KY,
+P0824,Individual P0824,P,,,KY,
+P0825,Individual P0825,P,,,IN-IA,
+P0826,Individual P0826,P,,,VA-OH,
+P0827,Individual P0827,P,,,IL,
+P0828,Individual P0828,P,,,PA-West,
+P0829,Individual P0829,P,,,IL,
+P0830,Individual P0830,P,,,NJ,
+P0831,Individual P0831,P,,,IL,
+P0832,Individual P0832,P,,,KY,
+P0833,Individual P0833,P,,,PA-West,
+P0834,Individual P0834,P,,,IL,
+P0835,Individual P0835,P,,,IL,
+P0836,Individual P0836,P,,,MD-DC,
+P0837,Individual P0837,P,,,PA-East,
+P0838,Individual P0838,P,,,IL,
+P0839,Individual P0839,P,,,VA-OH,
+P0840,Individual P0840,P,,,Multi-state,
+P0841,Individual P0841,P,,,Multi-state,
+P0842,Individual P0842,P,,,MD-DC,
+P0843,Individual P0843,P,,,KY,
+P0844,Individual P0844,P,,,IN-IA,
+P0845,Individual P0845,P,,,VA-OH,
+P0846,Individual P0846,P,,,KY,
+P0847,Individual P0847,P,,,VA-OH,
+P0848,Individual P0848,P,,,OH,
+P0849,Individual P0849,P,,,Multi-state,
+P0850,Individual P0850,P,,,MI,
+P0851,Individual P0851,P,,,OH,
+P0852,Individual P0852,P,,,MD-DC,
+P0853,Individual P0853,P,,,PA-East,
+P0854,Individual P0854,P,,,Multi-state,
+P0855,Individual P0855,P,,,OH,
+P0856,Individual P0856,P,,,Multi-state,
+P0857,Individual P0857,P,,,IN-IA,
+P0858,Individual P0858,P,,,KY,
+P0859,Individual P0859,P,,,KY,
+P0860,Individual P0860,P,,,OH,
+P0861,Individual P0861,P,,,Multi-state,
+P0862,Individual P0862,P,,,Multi-state,
+P0863,Individual P0863,P,,,Multi-state,
+P0864,Individual P0864,P,,,Multi-state,
+P0865,Individual P0865,P,,,PA-West,
+P0866,Individual P0866,P,,,NJ,
+P0867,Individual P0867,P,,,Multi-state,
+P0868,Individual P0868,P,,,VA-OH,
+P0869,Individual P0869,P,,,KY,
+P0870,Individual P0870,P,,,OH,
+P0871,Individual P0871,P,,,KY,
+P0872,Individual P0872,P,,,Multi-state,
+P0873,Individual P0873,P,,,PA-West,
+P0874,Individual P0874,P,,,OH,
+P0875,Individual P0875,P,,,Multi-state,
+P0876,Individual P0876,P,,,Multi-state,
+P0877,Individual P0877,P,,,MI,
+P0878,Individual P0878,P,,,MD-DC,
+P0879,Individual P0879,P,,,IL,
+P0880,Individual P0880,P,,,IN-IA,
+P0881,Individual P0881,P,,,Multi-state,
+P0882,Individual P0882,P,,,Multi-state,
+P0883,Individual P0883,P,,,VA-OH,
+P0884,Individual P0884,P,,,KY,
+P0885,Individual P0885,P,,,IN-IA,
+P0886,Individual P0886,P,,,PA-West,
+P0887,Individual P0887,P,,,PA-East,
+P0888,Individual P0888,P,,,PA-West,
+P0889,Individual P0889,P,,,MI,
+P0890,Individual P0890,P,,,VA-OH,
+P0891,Individual P0891,P,,,VA-OH,
+P0892,Individual P0892,P,,,KY,
+P0893,Individual P0893,P,,,IN-IA,
+P0894,Individual P0894,P,,,NJ,
+P0895,Individual P0895,P,,,NJ,
+P0896,Individual P0896,P,,,OH,
+P0897,Individual P0897,P,,,IL,
+P0898,Individual P0898,P,,,PA-East,
+P0899,Individual P0899,P,,,MI,
+P0900,Individual P0900,P,,,PA-West,
+P0901,Individual P0901,P,,,IL,
+P0902,Individual P0902,P,,,MD-DC,
+P0903,Individual P0903,P,,,PA-East,
+P0904,Individual P0904,P,,,MI,
+P0905,Individual P0905,P,,,VA-OH,
+P0906,Individual P0906,P,,,Multi-state,
+P0907,Individual P0907,P,,,IL,
+P0908,Individual P0908,P,,,PA-West,
+P0909,Individual P0909,P,,,Multi-state,
+P0910,Individual P0910,P,,,Multi-state,
+P0911,Individual P0911,P,,,PA-East,
+P0912,Individual P0912,P,,,NJ,
+P0913,Individual P0913,P,,,PA-West,
+P0914,Individual P0914,P,,,MD-DC,
+P0915,Individual P0915,P,,,MI,
+P0916,Individual P0916,P,,,Multi-state,
+P0917,Individual P0917,P,,,IL,
+P0918,Individual P0918,P,,,MI,
+P0919,Individual P0919,P,,,PA-West,
+P0920,Individual P0920,P,,,KY,
+P0921,Individual P0921,P,,,MI,
+P0922,Individual P0922,P,,,Multi-state,
+P0923,Individual P0923,P,,,KY,
+P0924,Individual P0924,P,,,Multi-state,
+P0925,Individual P0925,P,,,Multi-state,
+P0926,Individual P0926,P,,,NJ,
+P0927,Individual P0927,P,,,PA-East,
+P0928,Individual P0928,P,,,NJ,
+P0929,Individual P0929,P,,,MI,
+P0930,Individual P0930,P,,,OH,
+P0931,Individual P0931,P,,,NJ,
+P0932,Individual P0932,P,,,Multi-state,
+P0933,Individual P0933,P,,,IN-IA,
+P0934,Individual P0934,P,,,KY,
+P0935,Individual P0935,P,,,KY,
+P0936,Individual P0936,P,,,VA-OH,
+P0937,Individual P0937,P,,,PA-East,
+P0938,Individual P0938,P,,,MI,
+P0939,Individual P0939,P,,,KY,
+P0940,Individual P0940,P,,,PA-West,
+P0941,Individual P0941,P,,,IN-IA,
+P0942,Individual P0942,P,,,VA-OH,
+P0943,Individual P0943,P,,,VA-OH,
+P0944,Individual P0944,P,,,PA-West,
+P0945,Individual P0945,P,,,IL,
+P0946,Individual P0946,P,,,PA-East,
+P0947,Individual P0947,P,,,MI,
+P0948,Individual P0948,P,,,IL,
+P0949,Individual P0949,P,,,IL,
+P0950,Individual P0950,P,,,MI,
+P0951,Individual P0951,P,,,MD-DC,
+P0952,Individual P0952,P,,,IL,
+P0953,Individual P0953,P,,,KY,
+P0954,Individual P0954,P,,,PA-West,
+P0955,Individual P0955,P,,,PA-East,
+P0956,Individual P0956,P,,,PA-East,
+P0957,Individual P0957,P,,,IN-IA,
+P0958,Individual P0958,P,,,PA-East,
+P0959,Individual P0959,P,,,OH,
+P0960,Individual P0960,P,,,MD-DC,
+P0961,Individual P0961,P,,,VA-OH,
+P0962,Individual P0962,P,,,IL,
+P0963,Individual P0963,P,,,VA-OH,
+P0964,Individual P0964,P,,,MI,
+P0965,Individual P0965,P,,,Multi-state,
+P0966,Individual P0966,P,,,MD-DC,
+P0967,Individual P0967,P,,,IL,
+P0968,Individual P0968,P,,,VA-OH,
+P0969,Individual P0969,P,,,OH,
+P0970,Individual P0970,P,,,KY,
+P0971,Individual P0971,P,,,PA-East,
+P0972,Individual P0972,P,,,VA-OH,
+P0973,Individual P0973,P,,,Multi-state,
+P0974,Individual P0974,P,,,MI,
+P0975,Individual P0975,P,,,PA-East,
+P0976,Individual P0976,P,,,PA-East,
+P0977,Individual P0977,P,,,IN-IA,
+P0978,Individual P0978,P,,,PA-East,
+P0979,Individual P0979,P,,,Multi-state,
+P0980,Individual P0980,P,,,IL,
+P0981,Individual P0981,P,,,Multi-state,
+P0982,Individual P0982,P,,,VA-OH,
+P0983,Individual P0983,P,,,KY,
+P0984,Individual P0984,P,,,VA-OH,
+P0985,Individual P0985,P,,,PA-East,
+P0986,Individual P0986,P,,,PA-East,
+P0987,Individual P0987,P,,,IN-IA,
+P0988,Individual P0988,P,,,OH,
+P0989,Individual P0989,P,,,MD-DC,
+P0990,Individual P0990,P,,,MD-DC,
+P0991,Individual P0991,P,,,MD-DC,
+P0992,Individual P0992,P,,,PA-East,
+P0993,Individual P0993,P,,,PA-East,
+P0994,Individual P0994,P,,,Multi-state,
+P0995,Individual P0995,P,,,Multi-state,
+P0996,Individual P0996,P,,,MI,
+P0997,Individual P0997,P,,,OH,
+P0998,Individual P0998,P,,,IN-IA,
+P0999,Individual P0999,P,,,KY,
+P1000,Individual P1000,P,,,MI,
+P1001,Individual P1001,P,,,IN-IA,
+P1002,Individual P1002,P,,,MD-DC,
+P1003,Individual P1003,P,,,OH,
+P1004,Individual P1004,P,,,Multi-state,
+P1005,Individual P1005,P,,,VA-OH,
+P1006,Individual P1006,P,,,PA-West,
+P1007,Individual P1007,P,,,OH,
+P1008,Individual P1008,P,,,IL,
+P1009,Individual P1009,P,,,MI,
+P1010,Individual P1010,P,,,MI,
+P1011,Individual P1011,P,,,Multi-state,
+P1012,Individual P1012,P,,,OH,
+P1013,Individual P1013,P,,,VA-OH,
+P1014,Individual P1014,P,,,VA-OH,
+P1015,Individual P1015,P,,,VA-OH,
+P1016,Individual P1016,P,,,Multi-state,
+P1017,Individual P1017,P,,,PA-East,
+P1018,Individual P1018,P,,,IL,
+P1019,Individual P1019,P,,,Multi-state,
+P1020,Individual P1020,P,,,Multi-state,
+P1021,Individual P1021,P,,,Multi-state,
+P1022,Individual P1022,P,,,Multi-state,
+P1023,Individual P1023,P,,,IN-IA,
+P1024,Individual P1024,P,,,Multi-state,
+P1025,Individual P1025,P,,,MD-DC,
+P1026,Individual P1026,P,,,IN-IA,
+P1027,Individual P1027,P,,,MD-DC,
+P1028,Individual P1028,P,,,IN-IA,
+P1029,Individual P1029,P,,,KY,
+P1030,Individual P1030,P,,,NJ,
+P1031,Individual P1031,P,,,PA-West,
+P1032,Individual P1032,P,,,Multi-state,
+P1033,Individual P1033,P,,,MI,
+P1034,Individual P1034,P,,,IL,
+P1035,Individual P1035,P,,,NJ,
+P1036,Individual P1036,P,,,OH,
+P1037,Individual P1037,P,,,PA-East,
+P1038,Individual P1038,P,,,IL,
+P1039,Individual P1039,P,,,Multi-state,
+P1040,Individual P1040,P,,,PA-West,
+P1041,Individual P1041,P,,,KY,
+P1042,Individual P1042,P,,,KY,
+P1043,Individual P1043,P,,,KY,
+P1044,Individual P1044,P,,,VA-OH,
+P1045,Individual P1045,P,,,PA-West,
+P1046,Individual P1046,P,,,IN-IA,
+P1047,Individual P1047,P,,,MI,
+P1048,Individual P1048,P,,,Multi-state,
+P1049,Individual P1049,P,,,PA-East,
+P1050,Individual P1050,P,,,MD-DC,
+P1051,Individual P1051,P,,,KY,
+P1052,Individual P1052,P,,,IN-IA,
+P1053,Individual P1053,P,,,Multi-state,
+P1054,Individual P1054,P,,,VA-OH,
+P1055,Individual P1055,P,,,PA-West,
+P1056,Individual P1056,P,,,NJ,
+P1057,Individual P1057,P,,,IN-IA,
+P1058,Individual P1058,P,,,Multi-state,
+P1059,Individual P1059,P,,,NJ,
+P1060,Individual P1060,P,,,PA-East,
+P1061,Individual P1061,P,,,PA-West,
+P1062,Individual P1062,P,,,MI,
+P1063,Individual P1063,P,,,VA-OH,
+P1064,Individual P1064,P,,,OH,
+P1065,Individual P1065,P,,,PA-East,
+P1066,Individual P1066,P,,,IN-IA,
+P1067,Individual P1067,P,,,IN-IA,
+P1068,Individual P1068,P,,,OH,
+P1069,Individual P1069,P,,,MI,
+P1070,Individual P1070,P,,,NJ,
+P1071,Individual P1071,P,,,Multi-state,
+P1072,Individual P1072,P,,,MD-DC,
+P1073,Individual P1073,P,,,PA-West,
+P1074,Individual P1074,P,,,KY,
+P1075,Individual P1075,P,,,Multi-state,
+P1076,Individual P1076,P,,,IL,
+P1077,Individual P1077,P,,,IL,
+P1078,Individual P1078,P,,,NJ,
+P1079,Individual P1079,P,,,Multi-state,
+P1080,Individual P1080,P,,,PA-East,
+P1081,Individual P1081,P,,,Multi-state,
+P1082,Individual P1082,P,,,IL,
+P1083,Individual P1083,P,,,NJ,
+P1084,Individual P1084,P,,,IN-IA,
+P1085,Individual P1085,P,,,VA-OH,
+P1086,Individual P1086,P,,,VA-OH,
+P1087,Individual P1087,P,,,IL,
+P1088,Individual P1088,P,,,NJ,
+P1089,Individual P1089,P,,,KY,
+P1090,Individual P1090,P,,,OH,
+P1091,Individual P1091,P,,,Multi-state,
+P1092,Individual P1092,P,,,KY,
+P1093,Individual P1093,P,,,PA-East,
+P1094,Individual P1094,P,,,Multi-state,
+P1095,Individual P1095,P,,,Multi-state,
+P1096,Individual P1096,P,,,NJ,
+P1097,Individual P1097,P,,,IL,
+P1098,Individual P1098,P,,,KY,
+P1099,Individual P1099,P,,,NJ,
+P1100,Individual P1100,P,,,IL,
+P1101,Individual P1101,P,,,PA-West,
+P1102,Individual P1102,P,,,OH,
+P1103,Individual P1103,P,,,Multi-state,
+P1104,Individual P1104,P,,,KY,
+P1105,Individual P1105,P,,,Multi-state,
+P1106,Individual P1106,P,,,KY,
+P1107,Individual P1107,P,,,Multi-state,
+P1108,Individual P1108,P,,,PA-West,
+P1109,Individual P1109,P,,,VA-OH,
+P1110,Individual P1110,P,,,IN-IA,
+P1111,Individual P1111,P,,,MD-DC,
+P1112,Individual P1112,P,,,IL,
+P1113,Individual P1113,P,,,NJ,
+P1114,Individual P1114,P,,,MD-DC,
+P1115,Individual P1115,P,,,IN-IA,
+P1116,Individual P1116,P,,,VA-OH,
+P1117,Individual P1117,P,,,OH,
+P1118,Individual P1118,P,,,OH,
+P1119,Individual P1119,P,,,KY,
+P1120,Individual P1120,P,,,Multi-state,
+P1121,Individual P1121,P,,,PA-East,
+P1122,Individual P1122,P,,,PA-East,
+P1123,Individual P1123,P,,,OH,
+P1124,Individual P1124,P,,,NJ,
+P1125,Individual P1125,P,,,MD-DC,
+P1126,Individual P1126,P,,,OH,
+P1127,Individual P1127,P,,,VA-OH,
+P1128,Individual P1128,P,,,IL,
+P1129,Individual P1129,P,,,IL,
+P1130,Individual P1130,P,,,PA-East,
+P1131,Individual P1131,P,,,Multi-state,
+P1132,Individual P1132,P,,,VA-OH,
+P1133,Individual P1133,P,,,VA-OH,
+P1134,Individual P1134,P,,,Multi-state,
+P1135,Individual P1135,P,,,PA-East,
+P1136,Individual P1136,P,,,IL,
+P1137,Individual P1137,P,,,MI,
+P1138,Individual P1138,P,,,PA-East,
+P1139,Individual P1139,P,,,VA-OH,
+P1140,Individual P1140,P,,,PA-East,
+P1141,Individual P1141,P,,,MD-DC,
+P1142,Individual P1142,P,,,VA-OH,
+P1143,Individual P1143,P,,,VA-OH,
+P1144,Individual P1144,P,,,OH,
+P1145,Individual P1145,P,,,OH,
+P1146,Individual P1146,P,,,VA-OH,
+P1147,Individual P1147,P,,,Multi-state,
+P1148,Individual P1148,P,,,MD-DC,
+P1149,Individual P1149,P,,,VA-OH,
+P1150,Individual P1150,P,,,KY,
+P1151,Individual P1151,P,,,Multi-state,
+P1152,Individual P1152,P,,,VA-OH,
+P1153,Individual P1153,P,,,Multi-state,
+P1154,Individual P1154,P,,,IL,
+P1155,Individual P1155,P,,,VA-OH,
+P1156,Individual P1156,P,,,OH,
+P1157,Individual P1157,P,,,MI,
+P1158,Individual P1158,P,,,KY,
+P1159,Individual P1159,P,,,NJ,
+P1160,Individual P1160,P,,,KY,
+P1161,Individual P1161,P,,,OH,
+P1162,Individual P1162,P,,,PA-West,
+P1163,Individual P1163,P,,,PA-East,
+P1164,Individual P1164,P,,,KY,
+P1165,Individual P1165,P,,,OH,
+P1166,Individual P1166,P,,,Multi-state,
+P1167,Individual P1167,P,,,MI,
+P1168,Individual P1168,P,,,OH,
+P1169,Individual P1169,P,,,IN-IA,
+P1170,Individual P1170,P,,,MD-DC,
+P1171,Individual P1171,P,,,MD-DC,
+P1172,Individual P1172,P,,,IN-IA,
+P1173,Individual P1173,P,,,PA-East,
+P1174,Individual P1174,P,,,IL,
+P1175,Individual P1175,P,,,IL,
+P1176,Individual P1176,P,,,MD-DC,
+P1177,Individual P1177,P,,,Multi-state,
+P1178,Individual P1178,P,,,PA-West,
+P1179,Individual P1179,P,,,PA-East,
+P1180,Individual P1180,P,,,IL,
+P1181,Individual P1181,P,,,IN-IA,
+P1182,Individual P1182,P,,,PA-East,
+P1183,Individual P1183,P,,,Multi-state,
+P1184,Individual P1184,P,,,MI,
+P1185,Individual P1185,P,,,IL,
+P1186,Individual P1186,P,,,IL,
+P1187,Individual P1187,P,,,Multi-state,
+P1188,Individual P1188,P,,,Multi-state,
+P1189,Individual P1189,P,,,Multi-state,
+P1190,Individual P1190,P,,,VA-OH,
+P1191,Individual P1191,P,,,OH,
+P1192,Individual P1192,P,,,MI,
+P1193,Individual P1193,P,,,Multi-state,
+P1194,Individual P1194,P,,,MI,
+P1195,Individual P1195,P,,,PA-West,
+P1196,Individual P1196,P,,,VA-OH,
+P1197,Individual P1197,P,,,Multi-state,
+P1198,Individual P1198,P,,,PA-West,
+P1199,Individual P1199,P,,,NJ,
+P1200,Individual P1200,P,,,Multi-state,
+P1201,Individual P1201,P,,,OH,
+P1202,Individual P1202,P,,,Multi-state,
+P1203,Individual P1203,P,,,NJ,
+P1204,Individual P1204,P,,,NJ,
+P1205,Individual P1205,P,,,PA-East,
+P1206,Individual P1206,P,,,KY,
+P1207,Individual P1207,P,,,PA-East,
+P1208,Individual P1208,P,,,OH,
+P1209,Individual P1209,P,,,Multi-state,
+P1210,Individual P1210,P,,,MI,
+P1211,Individual P1211,P,,,MI,
+P1212,Individual P1212,P,,,PA-East,
+P1213,Individual P1213,P,,,PA-East,
+P1214,Individual P1214,P,,,IN-IA,
+P1215,Individual P1215,P,,,IL,
+P1216,Individual P1216,P,,,IL,
+P1217,Individual P1217,P,,,MD-DC,
+P1218,Individual P1218,P,,,IL,
+P1219,Individual P1219,P,,,OH,
+P1220,Individual P1220,P,,,IL,
+P1221,Individual P1221,P,,,VA-OH,
+P1222,Individual P1222,P,,,OH,
+P1223,Individual P1223,P,,,OH,
+P1224,Individual P1224,P,,,PA-West,
+P1225,Individual P1225,P,,,KY,
+P1226,Individual P1226,P,,,KY,
+P1227,Individual P1227,P,,,OH,
+P1228,Individual P1228,P,,,Multi-state,
+P1229,Individual P1229,P,,,PA-West,
+P1230,Individual P1230,P,,,Multi-state,
+P1231,Individual P1231,P,,,MI,
+P1232,Individual P1232,P,,,PA-East,
+P1233,Individual P1233,P,,,MD-DC,
+P1234,Individual P1234,P,,,Multi-state,
+P1235,Individual P1235,P,,,MD-DC,
+P1236,Individual P1236,P,,,VA-OH,
+P1237,Individual P1237,P,,,MD-DC,
+P1238,Individual P1238,P,,,OH,
+P1239,Individual P1239,P,,,MD-DC,
+P1240,Individual P1240,P,,,IN-IA,
+P1241,Individual P1241,P,,,KY,
+P1242,Individual P1242,P,,,Multi-state,
+P1243,Individual P1243,P,,,IN-IA,
+P1244,Individual P1244,P,,,MI,
+P1245,Individual P1245,P,,,MD-DC,
+P1246,Individual P1246,P,,,OH,
+P1247,Individual P1247,P,,,MD-DC,
+P1248,Individual P1248,P,,,NJ,
+P1249,Individual P1249,P,,,OH,
+P1250,Individual P1250,P,,,VA-OH,
+P1251,Individual P1251,P,,,PA-East,
+P1252,Individual P1252,P,,,Multi-state,
+P1253,Individual P1253,P,,,VA-OH,
+P1254,Individual P1254,P,,,PA-East,
+P1255,Individual P1255,P,,,KY,
+P1256,Individual P1256,P,,,OH,
+P1257,Individual P1257,P,,,KY,
+P1258,Individual P1258,P,,,IN-IA,
+P1259,Individual P1259,P,,,Multi-state,
+P1260,Individual P1260,P,,,VA-OH,
+P1261,Individual P1261,P,,,Multi-state,
+P1262,Individual P1262,P,,,Multi-state,
+P1263,Individual P1263,P,,,NJ,
+P1264,Individual P1264,P,,,OH,
+P1265,Individual P1265,P,,,MD-DC,
+P1266,Individual P1266,P,,,NJ,
+P1267,Individual P1267,P,,,VA-OH,
+P1268,Individual P1268,P,,,MD-DC,
+P1269,Individual P1269,P,,,VA-OH,
+P1270,Individual P1270,P,,,PA-East,
+P1271,Individual P1271,P,,,Multi-state,
+P1272,Individual P1272,P,,,IL,
+P1273,Individual P1273,P,,,PA-West,
+P1274,Individual P1274,P,,,PA-West,
+P1275,Individual P1275,P,,,IL,
+P1276,Individual P1276,P,,,IL,
+P1277,Individual P1277,P,,,PA-West,
+P1278,Individual P1278,P,,,IL,
+P1279,Individual P1279,P,,,VA-OH,
+P1280,Individual P1280,P,,,OH,
+P1281,Individual P1281,P,,,PA-East,
+P1282,Individual P1282,P,,,MI,
+P1283,Individual P1283,P,,,KY,
+P1284,Individual P1284,P,,,KY,
+P1285,Individual P1285,P,,,MD-DC,
+P1286,Individual P1286,P,,,MI,
+P1287,Individual P1287,P,,,MI,
+P1288,Individual P1288,P,,,IN-IA,
+P1289,Individual P1289,P,,,PA-East,
+P1290,Individual P1290,P,,,MI,
+P1291,Individual P1291,P,,,KY,
+P1292,Individual P1292,P,,,OH,
+P1293,Individual P1293,P,,,OH,
+P1294,Individual P1294,P,,,OH,
+P1295,Individual P1295,P,,,IN-IA,
+P1296,Individual P1296,P,,,NJ,
+P1297,Individual P1297,P,,,NJ,
+P1298,Individual P1298,P,,,Multi-state,
+P1299,Individual P1299,P,,,KY,
+P1300,Individual P1300,P,,,VA-OH,
+P1301,Individual P1301,P,,,MD-DC,
+P1302,Individual P1302,P,,,IN-IA,
+P1303,Individual P1303,P,,,NJ,
+P1304,Individual P1304,P,,,IL,
+P1305,Individual P1305,P,,,IN-IA,
+P1306,Individual P1306,P,,,IL,
+P1307,Individual P1307,P,,,Multi-state,
+P1308,Individual P1308,P,,,MI,
+P1309,Individual P1309,P,,,NJ,
+P1310,Individual P1310,P,,,Multi-state,
+P1311,Individual P1311,P,,,MD-DC,
+P1312,Individual P1312,P,,,PA-West,
+P1313,Individual P1313,P,,,IL,
+P1314,Individual P1314,P,,,MI,
+P1315,Individual P1315,P,,,IN-IA,
+P1316,Individual P1316,P,,,OH,
+P1317,Individual P1317,P,,,KY,
+P1318,Individual P1318,P,,,KY,
+P1319,Individual P1319,P,,,OH,
+P1320,Individual P1320,P,,,VA-OH,
+P1321,Individual P1321,P,,,MD-DC,
+P1322,Individual P1322,P,,,IL,
+P1323,Individual P1323,P,,,PA-West,
+P1324,Individual P1324,P,,,PA-East,
+P1325,Individual P1325,P,,,PA-East,
+P1326,Individual P1326,P,,,KY,
+P1327,Individual P1327,P,,,OH,
+P1328,Individual P1328,P,,,IN-IA,
+P1329,Individual P1329,P,,,OH,
+P1330,Individual P1330,P,,,KY,
+P1331,Individual P1331,P,,,KY,
+P1332,Individual P1332,P,,,PA-West,
+P1333,Individual P1333,P,,,MD-DC,
+P1334,Individual P1334,P,,,PA-East,
+P1335,Individual P1335,P,,,MI,
+P1336,Individual P1336,P,,,MD-DC,
+P1337,Individual P1337,P,,,MI,
+P1338,Individual P1338,P,,,MI,
+P1339,Individual P1339,P,,,IL,
+P1340,Individual P1340,P,,,IL,
+P1341,Individual P1341,P,,,IL,
+P1342,Individual P1342,P,,,PA-West,
+P1343,Individual P1343,P,,,IN-IA,
+P1344,Individual P1344,P,,,PA-West,
+P1345,Individual P1345,P,,,MD-DC,
+P1346,Individual P1346,P,,,IL,
+P1347,Individual P1347,P,,,PA-West,
+P1348,Individual P1348,P,,,KY,
+P1349,Individual P1349,P,,,KY,
+P1350,Individual P1350,P,,,NJ,
+P1351,Individual P1351,P,,,OH,
+P1352,Individual P1352,P,,,PA-West,
+P1353,Individual P1353,P,,,PA-West,
+P1354,Individual P1354,P,,,NJ,
+P1355,Individual P1355,P,,,VA-OH,
+P1356,Individual P1356,P,,,PA-West,
+P1357,Individual P1357,P,,,PA-East,
+P1358,Individual P1358,P,,,VA-OH,
+P1359,Individual P1359,P,,,MD-DC,
+P1360,Individual P1360,P,,,OH,
+P1361,Individual P1361,P,,,IN-IA,
+P1362,Individual P1362,P,,,IL,
+P1363,Individual P1363,P,,,KY,
+P1364,Individual P1364,P,,,OH,
+P1365,Individual P1365,P,,,OH,
+P1366,Individual P1366,P,,,IN-IA,
+P1367,Individual P1367,P,,,NJ,
+P1368,Individual P1368,P,,,MI,
+P1369,Individual P1369,P,,,PA-West,
+P1370,Individual P1370,P,,,Multi-state,
+P1371,Individual P1371,P,,,IN-IA,
+P1372,Individual P1372,P,,,IL,
+P1373,Individual P1373,P,,,KY,
+P1374,Individual P1374,P,,,PA-West,
+P1375,Individual P1375,P,,,PA-West,
+P1376,Individual P1376,P,,,IL,
+P1377,Individual P1377,P,,,MI,
+P1378,Individual P1378,P,,,NJ,
+P1379,Individual P1379,P,,,OH,
+P1380,Individual P1380,P,,,IN-IA,
+P1381,Individual P1381,P,,,KY,
+P1382,Individual P1382,P,,,VA-OH,
+P1383,Individual P1383,P,,,PA-West,
+P1384,Individual P1384,P,,,KY,
+P1385,Individual P1385,P,,,Multi-state,
+P1386,Individual P1386,P,,,OH,
+P1387,Individual P1387,P,,,MI,
+P1388,Individual P1388,P,,,PA-East,
+P1389,Individual P1389,P,,,VA-OH,
+P1390,Individual P1390,P,,,PA-East,
+P1391,Individual P1391,P,,,Multi-state,
+P1392,Individual P1392,P,,,VA-OH,
+P1393,Individual P1393,P,,,MD-DC,
+P1394,Individual P1394,P,,,PA-East,
+P1395,Individual P1395,P,,,MI,
+P1396,Individual P1396,P,,,OH,
+P1397,Individual P1397,P,,,VA-OH,
+P1398,Individual P1398,P,,,PA-West,
+P1399,Individual P1399,P,,,PA-East,
+P1400,Individual P1400,P,,,IN-IA,
+P1401,Individual P1401,P,,,NJ,
+P1402,Individual P1402,P,,,Multi-state,
+P1403,Individual P1403,P,,,NJ,
+P1404,Individual P1404,P,,,Multi-state,
+P1405,Individual P1405,P,,,IN-IA,
+P1406,Individual P1406,P,,,PA-East,
+P1407,Individual P1407,P,,,OH,
+P1408,Individual P1408,P,,,MI,
+P1409,Individual P1409,P,,,VA-OH,
+P1410,Individual P1410,P,,,Multi-state,
+P1411,Individual P1411,P,,,KY,
+P1412,Individual P1412,P,,,MI,
+P1413,Individual P1413,P,,,MD-DC,
+P1414,Individual P1414,P,,,OH,
+P1415,Individual P1415,P,,,IL,
+P1416,Individual P1416,P,,,KY,
+P1417,Individual P1417,P,,,VA-OH,
+P1418,Individual P1418,P,,,Multi-state,
+P1419,Individual P1419,P,,,PA-East,
+P1420,Individual P1420,P,,,IL,
+P1421,Individual P1421,P,,,Multi-state,
+P1422,Individual P1422,P,,,OH,
+P1423,Individual P1423,P,,,PA-West,
+P1424,Individual P1424,P,,,Multi-state,
+P1425,Individual P1425,P,,,OH,
+P1426,Individual P1426,P,,,IN-IA,
+P1427,Individual P1427,P,,,MI,
+P1428,Individual P1428,P,,,PA-East,
+P1429,Individual P1429,P,,,VA-OH,
+P1430,Individual P1430,P,,,IN-IA,
+P1431,Individual P1431,P,,,MI,
+P1432,Individual P1432,P,,,MD-DC,
+P1433,Individual P1433,P,,,Multi-state,
+P1434,Individual P1434,P,,,OH,
+P1435,Individual P1435,P,,,OH,
+P1436,Individual P1436,P,,,Multi-state,
+P1437,Individual P1437,P,,,IN-IA,
+P1438,Individual P1438,P,,,IN-IA,
+P1439,Individual P1439,P,,,NJ,
+P1440,Individual P1440,P,,,Multi-state,
+P1441,Individual P1441,P,,,Multi-state,
+P1442,Individual P1442,P,,,PA-West,
+P1443,Individual P1443,P,,,IL,
+P1444,Individual P1444,P,,,NJ,
+P1445,Individual P1445,P,,,Multi-state,
+P1446,Individual P1446,P,,,OH,
+P1447,Individual P1447,P,,,PA-East,
+P1448,Individual P1448,P,,,PA-West,
+P1449,Individual P1449,P,,,KY,
+P1450,Individual P1450,P,,,NJ,
+P1451,Individual P1451,P,,,Multi-state,
+P1452,Individual P1452,P,,,OH,
+P1453,Individual P1453,P,,,MD-DC,
+P1454,Individual P1454,P,,,Multi-state,
+P1455,Individual P1455,P,,,OH,
+P1456,Individual P1456,P,,,KY,
+P1457,Individual P1457,P,,,IL,
+P1458,Individual P1458,P,,,OH,
+P1459,Individual P1459,P,,,PA-West,
+P1460,Individual P1460,P,,,IL,
+P1461,Individual P1461,P,,,Multi-state,
+P1462,Individual P1462,P,,,VA-OH,
+P1463,Individual P1463,P,,,OH,
+P1464,Individual P1464,P,,,IL,
+P1465,Individual P1465,P,,,Multi-state,
+P1466,Individual P1466,P,,,PA-West,
+P1467,Individual P1467,P,,,KY,
+P1468,Individual P1468,P,,,NJ,
+P1469,Individual P1469,P,,,PA-East,
+P1470,Individual P1470,P,,,NJ,
+P1471,Individual P1471,P,,,NJ,
+P1472,Individual P1472,P,,,MI,
+P1473,Individual P1473,P,,,VA-OH,
+P1474,Individual P1474,P,,,IL,
+P1475,Individual P1475,P,,,MD-DC,
+P1476,Individual P1476,P,,,PA-West,
+P1477,Individual P1477,P,,,VA-OH,
+P1478,Individual P1478,P,,,OH,
+P1479,Individual P1479,P,,,MI,
+P1480,Individual P1480,P,,,MI,
+P1481,Individual P1481,P,,,IL,
+P1482,Individual P1482,P,,,PA-West,
+P1483,Individual P1483,P,,,Multi-state,
+P1484,Individual P1484,P,,,PA-West,
+P1485,Individual P1485,P,,,Multi-state,
+P1486,Individual P1486,P,,,PA-West,
+P1487,Individual P1487,P,,,IL,
+P1488,Individual P1488,P,,,OH,
+P1489,Individual P1489,P,,,Multi-state,
+P1490,Individual P1490,P,,,MI,
+P1491,Individual P1491,P,,,OH,
+P1492,Individual P1492,P,,,VA-OH,
+P1493,Individual P1493,P,,,PA-West,
+P1494,Individual P1494,P,,,VA-OH,
+P1495,Individual P1495,P,,,PA-West,
+P1496,Individual P1496,P,,,KY,
+P1497,Individual P1497,P,,,PA-West,
+P1498,Individual P1498,P,,,OH,
+P1499,Individual P1499,P,,,IN-IA,
+P1500,Individual P1500,P,,,MD-DC,
