@@ -26,7 +26,7 @@ To point the labs at a copy of the data elsewhere, set the environment variable 
 
 ## If the interactive figures are blank
 
-The labs draw with plotly. `labkit.py` sets plotly's renderer to `"iframe"`: each figure is written to a small HTML file (with plotly.js inside) under `labs/iframe_figures/` and shown in an iframe. That works offline and without the JupyterLab plotly extension, whose absence is the usual reason figures come out empty. To try another renderer, set the environment variable `PAYGRAPH_PLOTLY` (for example `iframe_connected`, `jupyterlab`, `notebook`, or `png` for static pictures, which needs `kaleido`), or call `lk.use_renderer("png")` in a cell. Keep the `iframe_figures/` folder next to the notebooks: saved outputs point to it.
+The labs draw with plotly. `labkit.py` sets plotly's renderer to `"inline"`: each figure goes straight into the cell output with plotly.js inside, so it needs no JupyterLab plotly extension (whose absence is the usual reason figures come out empty), no iframe and no internet. Each figure adds about 3.5 MB to the saved notebook. Other choices, with the environment variable `PAYGRAPH_PLOTLY` or `lk.use_renderer(...)` in a cell: `inline_cdn` (plotly.js from the internet, small notebooks), `png` (static pictures, needs `kaleido`), or plotly's own `jupyterlab`, `notebook`, `iframe`.
 
 ## The data
 

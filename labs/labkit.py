@@ -22,24 +22,40 @@ except ImportError:          # the labs need plotly for interactive figures
     go = None
 
 
+def _register_inline():
+    """A plotly renderer that writes the figure straight into the cell output as HTML with
+    plotly.js inside. No iframe, no JupyterLab extension, no internet needed."""
+    import plotly.io as pio
+    from plotly.io.base_renderers import MimetypeRenderer
+
+    class _Inline(MimetypeRenderer):
+        def __init__(self, js=True):
+            self.js = js
+
+        def to_mimebundle(self, fig_dict):
+            html = pio.to_html(fig_dict, include_plotlyjs=self.js, full_html=False, validate=False,
+                               default_width="100%", default_height=fig_dict.get("layout", {}).get("height", 525))
+            return {"text/html": html}
+
+    pio.renderers["inline"] = _Inline(True)        # plotly.js embedded in every figure
+    pio.renderers["inline_cdn"] = _Inline("cdn")   # plotly.js from the internet: much smaller notebooks
+
+
 def use_renderer(name=None):
     """Choose how plotly figures appear in the notebook.
 
-    "iframe" (default) writes each figure to a small HTML file with plotly.js inside
-    (folder iframe_figures/ next to the notebook) and shows it in an iframe. It works
-    offline and without the JupyterLab plotly extension, which is the usual reason
-    figures come out blank. Other choices: "iframe_connected" (plotly.js from the
-    internet), "notebook", "jupyterlab", "png" (static, needs kaleido).
+    "inline" (default): each figure goes into the cell output as HTML with plotly.js inside.
+    Works offline, without the JupyterLab plotly extension (the usual reason figures come
+    out blank) and where iframes are blocked. Each figure adds about 3.5 MB to the saved notebook.
+    "inline_cdn": the same, but plotly.js loads from the internet (small notebooks).
+    "png": static pictures (needs the kaleido package). Plotly's own names also work
+    ("jupyterlab", "notebook", "iframe").
     Override for all labs with the environment variable PAYGRAPH_PLOTLY.
     """
-    import time
     import plotly.io as pio
-    name = name or os.environ.get("PAYGRAPH_PLOTLY", "iframe")
+    _register_inline()
+    name = name or os.environ.get("PAYGRAPH_PLOTLY", "inline")
     pio.renderers.default = name
-    # one folder per kernel session, so two labs never overwrite each other's figures
-    session = time.strftime("%Y%m%d-%H%M%S") + f"-{os.getpid()}"
-    for r in ("iframe", "iframe_connected"):
-        pio.renderers[r].html_directory = os.path.join("iframe_figures", session)
     return name
 
 
