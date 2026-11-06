@@ -21,6 +21,34 @@ try:
 except ImportError:          # the labs need plotly for interactive figures
     go = None
 
+
+def use_renderer(name=None):
+    """Choose how plotly figures appear in the notebook.
+
+    "iframe" (default) writes each figure to a small HTML file with plotly.js inside
+    (folder iframe_figures/ next to the notebook) and shows it in an iframe. It works
+    offline and without the JupyterLab plotly extension, which is the usual reason
+    figures come out blank. Other choices: "iframe_connected" (plotly.js from the
+    internet), "notebook", "jupyterlab", "png" (static, needs kaleido).
+    Override for all labs with the environment variable PAYGRAPH_PLOTLY.
+    """
+    import time
+    import plotly.io as pio
+    name = name or os.environ.get("PAYGRAPH_PLOTLY", "iframe")
+    pio.renderers.default = name
+    # one folder per kernel session, so two labs never overwrite each other's figures
+    session = time.strftime("%Y%m%d-%H%M%S") + f"-{os.getpid()}"
+    for r in ("iframe", "iframe_connected"):
+        pio.renderers[r].html_directory = os.path.join("iframe_figures", session)
+    return name
+
+
+if go is not None:
+    try:
+        RENDERER = use_renderer()
+    except Exception:            # an unknown renderer name: keep plotly's default
+        RENDERER = None
+
 # colours (validated categorical palette, fixed order)
 PALETTE = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"]
 OTHER = "#a3a29b"

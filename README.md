@@ -24,6 +24,10 @@ Libraries: pandas, numpy, scipy, networkx (2.8 or later), plotly, scikit-learn, 
 
 To point the labs at a copy of the data elsewhere, set the environment variable `PAYGRAPH_DATA` to that folder.
 
+## If the interactive figures are blank
+
+The labs draw with plotly. `labkit.py` sets plotly's renderer to `"iframe"`: each figure is written to a small HTML file (with plotly.js inside) under `labs/iframe_figures/` and shown in an iframe. That works offline and without the JupyterLab plotly extension, whose absence is the usual reason figures come out empty. To try another renderer, set the environment variable `PAYGRAPH_PLOTLY` (for example `iframe_connected`, `jupyterlab`, `notebook`, or `png` for static pictures, which needs `kaleido`), or call `lk.use_renderer("png")` in a cell. Keep the `iframe_figures/` folder next to the notebooks: saved outputs point to it.
+
 ## The data
 
 | File | Rows | One row is |
