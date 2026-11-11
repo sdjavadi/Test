@@ -1,0 +1,37 @@
+Snapshot retention on /bdpp/bda — cdi_tm quota
+
+Hi team,
+
+Our folder /bdpp/bda/01/str/pub/dlgcdi01pii/bdahd01p_dlcdi1_cdi_tm hit its 9.9 TB quota on 2026-11-10. We deleted about 2 TB and moved our files from 3 to 2 copies, but used space only fell from 9.88 to 9.10 TB. There are 8 snapshots on /bdpp/bda (latest distcp-1549793779-31-old) that seem to keep the deleted data counted: about 3,055 GB counted under our folder vs about 1,740 GB in current files.
+
+Could you tell us the snapshot retention and either release the older snapshots, exclude our _state_*, _work_* and _tmp_* working folders, or raise the quota / give us a scratch area outside /bdpp/bda?
+
+Thanks,
+Saeed
+
+
+HDFS snapshots holding deleted data against the bdahd01p_dlcdi1_cdi_tm quota
+
+Hi team,
+
+Our database folder /bdpp/bda/01/str/pub/dlgcdi01pii/bdahd01p_dlcdi1_cdi_tm has a 9.9 TB space quota, and it filled up on 2026-11-10 (DSQuotaExceededException), which stopped one of our builds.
+
+We cleaned up the same day:
+- deleted about 1.95 TB of scratch and superseded folders (Hadoop API delete, no trash);
+- lowered the replication of our files from 3 to 2 copies (28,785 files, about 1.64 TB).
+
+However, space consumed only went from 9.88 TB to 9.10 TB. Our check shows 8 HDFS snapshots on /bdpp/bda (latest named distcp-1549793779-31-old). The quota counts about 3,055 GB of data under our folder, while the current files hold only about 1,740 GB, so the snapshots appear to keep the deleted files and the old 3-copy replicas counted against our quota.
+
+Could you help with the following?
+1. What is the snapshot schedule and retention on /bdpp/bda, and when will the current snapshots expire?
+2. Can the older snapshots be released, or the retention shortened, so the deleted data stops counting against our quota?
+3. Can our working folders be excluded from the snapshots? They are rebuilt by our notebooks and don't need a backup:
+   - _state_* (for example _state_pkg_cust_reg)
+   - _work_* (for example _work_pkg_cust_reg)
+   - _tmp_* (for example _tmp_pkg_cust_metrics_v4)
+4. If none of the above is possible, can the quota be raised, or can we get a scratch location outside /bdpp/bda with its own quota for these working files?
+
+Once the snapshots no longer hold the deleted data, we expect the folder to use about 3.5–4 TB of the 9.9 TB quota.
+
+Thanks,
+Saeed
