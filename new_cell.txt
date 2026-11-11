@@ -1,0 +1,41 @@
+# ============================================================
+# 6. What does active_flg mean here? Versions per natural key
+# ============================================================
+# Read-only. Set NAT_KEY to the business id of one row (e.g. empl_id); None = only the flag counts.
+NAT_KEY = None
+
+d = spark.table(TABLE)
+cols = {c.lower(): c for c in d.columns}
+flag = cols.get("active_flg")
+parts = ["<h3>6. active_flg check</h3>"]
+if flag is None:
+    parts.append(f"<p class='note'>{esc(TABLE)} has no active_flg column.</p>")
+else:
+    fv = F.upper(F.trim(F.col(flag).cast("string")))
+    vals = d.groupBy(fv.alias("active_flg")).count().orderBy(F.desc("count")).toPandas()
+    vals["share"] = (vals["count"] / vals["count"].sum()).map(lambda v: f"{100 * v:.1f}%")
+    vals["count"] = vals["count"].map(lambda v: f"{v:,}")
+    parts += ["<p class='note'>active_flg values (all rows)</p>", tbl(vals)]
+    if NAT_KEY:
+        if NAT_KEY.lower() not in cols:
+            raise RuntimeError(f"{TABLE} has no column {NAT_KEY}")
+        k = cols[NAT_KEY.lower()]
+        per = (d.filter(F.col(k).isNotNull())
+                .groupBy(k).agg(F.count("*").alias("rows"), F.sum((fv == "Y").cast("int")).alias("y_rows")))
+        dist = (per.select(F.when(F.col("rows") >= 5, "5+").otherwise(F.col("rows").cast("string")).alias("rows per key"),
+                           F.when(F.col("y_rows") >= 2, "2+").otherwise(F.col("y_rows").cast("string")).alias("active rows per key"))
+                   .groupBy("rows per key", "active rows per key").count()
+                   .orderBy("rows per key", "active rows per key").toPandas())
+        dist["share of keys"] = (dist["count"] / dist["count"].sum()).map(lambda v: f"{100 * v:.1f}%")
+        dist["count"] = dist["count"].map(lambda v: f"{v:,}")
+        parts += [f"<p class='note'>Keys ({esc(k)}) by number of rows and number of active rows. "
+                  "Many rows with exactly 1 active = version flag; 1 row with Y or N = status flag; "
+                  "0 active rows = entity no longer active (e.g. employee left).</p>", tbl(dist)]
+        # one example key with several versions, all date-like columns shown, newest first
+        dcols = [c for c in d.columns if any(s in c.lower() for s in ("eff", "end_dt", "_dt", "date", "load"))][:8]
+        ex = per.filter("rows >= 3").orderBy(F.desc("rows")).select(k).limit(1).collect()
+        if ex:
+            exd = (d.filter(F.col(k) == ex[0][0]).select(k, flag, *[F.col(c).cast("string").alias(c) for c in dcols])
+                    .orderBy(*[F.col(c).desc() for c in dcols[:1]]).limit(10).toPandas())
+            parts += [f"<p class='note'>Example key with the most versions (up to 10 rows, date-like columns)</p>", tbl(exd)]
+show(parts)
