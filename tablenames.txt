@@ -1,0 +1,7 @@
+import pandas as pd
+from IPython.display import display, HTML
+ca = pd.read_csv("../explore/cdm_catalog/cdm_columns.csv")
+hit = ca[ca["column"].str.contains(r"empl|officer|(^|_)rm_|(^|_)rm$|tmo|banker|cash|currency|teller|vault|coin|atm", case=False, regex=True)]
+out = (hit.groupby("table")["column"].agg(lambda s: ", ".join(s.head(12))).reset_index()
+          .assign(n=hit.groupby("table").size().values).sort_values("n", ascending=False))
+display(HTML(out.to_html(index=False)))
