@@ -1,0 +1,91 @@
+# ============================================================
+# 7. Segment link: customer dim cust_comp_cntr -> cost center hierarchy (current versions)
+# ============================================================
+# Read-only. Current customer rows = active_flg 'Y' (a partition, so cheap).
+CUST_DIM = "clhhd01p_clh.cdm_customer_dim_v"
+GLCC_DIM = "clhhd01p_clh.cdm_gl_cc_prim_org_hierarchy_dim_v"
+
+def _pid(c):
+    s = F.regexp_replace(F.trim(F.col(c).cast("string")), r"^0+", "")
+    return F.when(s.isNull() | (s == "") | (s == "-1"), F.lit(None)).otherwise(s)
+
+def _cc(c):
+    # cost center compared as text without leading zeros; blank / masked (only * characters) = missing
+    s = F.trim(F.col(c).cast("string"))
+    s2 = F.regexp_replace(s, r"^0+", "")
+    return F.when(s.isNull() | (s == "") | s.rlike(r"^\*+$"), F.lit(None)).otherwise(s2)
+
+def _p(x):
+    return "" if x is None else f"{100 * float(x):.1f}%"
+
+parts = ["<h3>7. Segment link (customer dim -> cost center hierarchy)</h3>"]
+
+cur = (spark.table(CUST_DIM).filter(F.upper(F.trim(F.col("active_flg"))) == "Y")
+            .select(_pid("cust_pwr_id").alias("pid"), F.trim(F.col("cust_comp_cntr")).alias("cc_raw"),
+                    _cc("cust_comp_cntr").alias("cc"), F.col("eff_dt"))
+            .filter("pid is not null"))
+# one current row per power id (newest eff_dt if a power id has several Y rows)
+from pyspark.sql import Window as _W
+w = _W.partitionBy("pid").orderBy(F.col("eff_dt").desc())
+cur1 = cur.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn").persist(StorageLevel.MEMORY_AND_DISK)
+
+pkg = spark.table(PKG_DIM).select(_pid("customer_pwr_id").alias("pid")).filter("pid is not null").distinct() \
+           .withColumn("in_pkg", F.lit(1))
+
+gl = (spark.table(GLCC_DIM).filter(F.upper(F.trim(F.col("active_flg"))) == "Y")
+           .select(_cc("cntr_nbr").alias("cc"), F.trim(F.col("cntr_nbr")).alias("cc_raw_gl"),
+                   F.col("gl_cc_roll_up_level_2_desc").alias("lob"), F.col("gl_cc_roll_up_level_3_desc").alias("segment"),
+                   F.col("market_desc").alias("market"), F.col("eff_dt").alias("gl_eff"))
+           .filter("cc is not null"))
+wg = _W.partitionBy("cc").orderBy(F.col("gl_eff").desc())
+gl1 = gl.withColumn("_rn", F.row_number().over(wg)).filter("_rn = 1").drop("_rn", "gl_eff")
+
+# A) current rows per power id, fill of cust_comp_cntr
+a = (cur.groupBy("pid").count()
+        .agg(F.count("*").alias("pids"), F.sum((F.col("count") > 1).cast("int")).alias("multi")).collect()[0])
+b = cur1.agg(F.count("*").alias("n"),
+             F.sum(F.when(F.col("cc_raw").isNull() | (F.col("cc_raw") == ""), 1).otherwise(0)).alias("blank"),
+             F.sum(F.when(F.col("cc_raw").rlike(r"^\*+$"), 1).otherwise(0)).alias("masked"),
+             F.sum(F.col("cc").isNotNull().cast("int")).alias("filled")).collect()[0]
+lens = (cur1.filter("cc_raw is not null").groupBy(F.length("cc_raw").alias("length")).count()
+            .orderBy(F.desc("count")).limit(6).toPandas())
+ex_c = [r[0] for r in cur1.filter("cc is not null").select("cc_raw").limit(3).collect()]
+ex_g = [r[0] for r in gl1.select("cc_raw_gl").limit(3).collect()]
+parts += ["<p class='note'>Current customer rows (active_flg Y)</p>", tbl(pd.DataFrame([
+    ("Power ids with a current row", f"{a['pids']:,}"),
+    ("... with more than one current row", f"{a['multi']:,}"),
+    ("cust_comp_cntr blank", _p(b["blank"] / b["n"])),
+    ("cust_comp_cntr masked (only *)", _p(b["masked"] / b["n"])),
+    ("cust_comp_cntr filled", _p(b["filled"] / b["n"])),
+    ("Examples, customer dim", ", ".join(map(str, ex_c))),
+    ("Examples, hierarchy cntr_nbr", ", ".join(map(str, ex_g))),
+], columns=["check", "value"])), "<p class='note'>Lengths of cust_comp_cntr</p>", tbl(lens)]
+
+# B) link rate, all customers and PKG customers
+j = cur1.join(pkg, "pid", "left").join(gl1, "cc", "left")
+r = (j.agg(F.count("*").alias("n"), F.sum(F.col("cc").isNotNull().cast("int")).alias("filled"),
+           F.sum((F.col("lob").isNotNull() | F.col("segment").isNotNull()).cast("int")).alias("hit"),
+           F.sum(F.coalesce("in_pkg", F.lit(0))).alias("n_pkg"),
+           F.sum(F.when(F.col("in_pkg") == 1, F.col("cc").isNotNull().cast("int"))).alias("filled_pkg"),
+           F.sum(F.when(F.col("in_pkg") == 1, (F.col("lob").isNotNull() | F.col("segment").isNotNull()).cast("int")))
+            .alias("hit_pkg")).collect()[0])
+n_pkg_all = pkg.count()
+parts += ["<p class='note'>Link to the hierarchy (current version of each cost center, leading zeros ignored)</p>",
+          tbl(pd.DataFrame([
+              ("All current customers", f"{r['n']:,}", _p(r["filled"] / r["n"]), _p(r["hit"] / r["n"])),
+              ("PKG customers (pkg_cust_dim power ids)", f"{r['n_pkg']:,} of {n_pkg_all:,}",
+               _p((r["filled_pkg"] or 0) / r["n_pkg"]) if r["n_pkg"] else "",
+               _p((r["hit_pkg"] or 0) / r["n_pkg"]) if r["n_pkg"] else ""),
+          ], columns=["customers", "count", "cost center filled", "found in hierarchy"]))]
+
+# C) what PKG customers look like (top values)
+jp = j.filter("in_pkg = 1")
+for c in ("lob", "segment", "market"):
+    t = (jp.groupBy(F.coalesce(F.col(c), F.lit("(no link)")).alias(c)).count()
+           .orderBy(F.desc("count")).limit(15).toPandas())
+    t["share"] = (t["count"] / max(r["n_pkg"], 1)).map(_p)
+    t["count"] = t["count"].map(lambda v: f"{v:,}")
+    parts += [f"<p class='note'>PKG customers by {c} (top 15)</p>", tbl(t)]
+
+cur1.unpersist()
+show(parts)
