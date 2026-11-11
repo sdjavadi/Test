@@ -1,1 +1,0 @@
-pip install pandas numpy scipy networkx plotly scikit-learn matplotlib lightgbm

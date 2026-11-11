@@ -1,4 +1,0 @@
-neg = (spark.table(TABLE).filter("empl_dim_key <= 0")
-       .select("empl_dim_key", "empl_id", "empl_full_name", "empl_job_title", "active_flg", "purge_flg")
-       .orderBy("empl_dim_key").toPandas())
-show(["<h3>Special employee keys</h3>", tbl(neg)])
