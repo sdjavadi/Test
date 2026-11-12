@@ -319,7 +319,7 @@ def parties(E: pd.DataFrame) -> pd.DataFrame:
     N["kind"] = N.id.map(id_kind)
     N = N[N.kind != "Default DC"]
     if N.empty:
-        return pd.DataFrame(columns=["id", "name", "kind", "roles", "tabs", "types", "rows"])
+        return pd.DataFrame(columns=["id", "name", "kind", "roles", "tabs", "types", "rows", "gkey"])
     g = N.groupby("id", sort=False)
     P = pd.DataFrame({
         "name": g.name.agg(lambda s: next((v for v in s if isinstance(v, str)), None)),
@@ -329,6 +329,8 @@ def parties(E: pd.DataFrame) -> pd.DataFrame:
         "types": g.type.agg(lambda s: tuple(sorted({v for v in s if isinstance(v, str)}))),
         "rows": g.size()}).reset_index()
     P["name"] = P.name.where(P.name.notna(), P.id)
+    # the same company can carry several ids across tabs (a Power ID in one, a made-up id in another): gkey groups them
+    P["gkey"] = [name_key(n) or i for n, i in zip(P.name, P.id)]
     return P
 
 
@@ -495,6 +497,11 @@ def _focus(key: str, label: str, ids, M: Match, family: bool) -> Focus:
     mdm, c1 = _cap(m for i in ids for m in src.get(i, ()))
     ent, c2 = _cap(e for i in ids for e in M.ent_of.get(i, ()))
     return Focus(key, label, mdm, ent, tuple(dict.fromkeys(ids)), c1 or c2)
+
+
+def focus_ids(key: str, label: str, ids, M: Match, family: bool = True) -> Focus:
+    """One selected node standing for several workbook ids (the same company listed under more than one id)."""
+    return _focus(key, label, [i for i in dict.fromkeys(ids) if i not in DEFAULT_DC_IDS], M, family)
 
 
 def focus_parent(master_id: str, E: pd.DataFrame, M: Match, label: str, family: bool = True) -> Focus:
@@ -1211,7 +1218,7 @@ RAILS = [("ach", "ACH"), ("wire", "Wire"), ("rtp_prt", "RTP"), ("rtp_p2p", "RTP 
 # Month-by-month charts: (title, unit, [(column, series label)], what it means). A chart shows the columns that exist.
 TREND_PANELS = [
     ("PNC clients", "count", [("n_cust_in", "paying it"), ("n_cust_out", "it pays")], "Distinct PNC clients in the month."),
-    ("Money with PNC clients", "usd", [("amt_in", "received"), ("amt_out", "paid")], "Money it received from and paid to PNC clients."),
+    ("Money with PNC clients", "flow", [("amt_in", "received"), ("amt_out", "paid")], "Money it received from and paid to PNC clients."),
     ("TM clients", "count", [("n_cust_tm_in", "paying it"), ("n_cust_tm_out", "it pays")], "Distinct TM clients in the month."),
     ("Average payment", "usd", [("avg_ticket_in", "received"), ("avg_ticket_out", "paid")], "Money divided by the number of payments."),
     ("Days with payments", "count", [("active_days_in", "received"), ("active_days_out", "paid")],

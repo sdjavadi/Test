@@ -28,7 +28,8 @@ HAS_QP = hasattr(st, "query_params")
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 NAVY, BLUE, SLATE, VIOLET = "#0d366b", "#2a78d6", "#5b6573", "#6250d6"
 ORANGE = "#eb6834"
-C_IN, C_OUT = BLUE, ORANGE                     # money received / money paid, the same on every chart
+C_IN, C_OUT = BLUE, ORANGE                     # paired series on line charts
+FLOW_IN, FLOW_OUT = "#0ca30c", "#d03b3b"       # money in (bars above zero) / money out (bars below zero)
 STATE_COLOR = {"on schedule": "#0ca30c", "late or overdue": ORANGE, "stopped": "#d03b3b", "casual": "#8f8e86",
                "others": "#8f8e86", "between": "#c2c1b9", "workbook": VIOLET}
 STATE_DASH = {"on schedule": "solid", "late or overdue": "solid", "stopped": "solid", "casual": "dash", "others": "solid",
@@ -63,6 +64,15 @@ html, body, .stApp, .stMarkdown, button, input, textarea, select,
 .dc-note { color: #5B6573; font-size: 0.86rem; }
 .dc-h { font-size: 1.05rem; font-weight: 600; color: #1B2430; margin: 0.4rem 0 0.2rem 0; }
 [data-testid="stMetricValue"] { font-size: 1.45rem; }
+/* multiselects grow with what is chosen and show each name in full (two generations of Streamlit markup) */
+[data-testid="stMultiSelect"] div[role="group"] { max-height: none !important; height: auto !important; min-height: 40px; }
+[data-testid="stMultiSelectTagsContainer"] { flex-wrap: wrap !important; overflow: visible !important; height: auto !important;
+  row-gap: 4px; padding-top: 5px; padding-bottom: 5px; }
+[data-testid="stMultiSelectTagsContainer"] > span[role="group"] > span { max-width: 100% !important; }
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div { max-height: none !important; height: auto !important; overflow: visible !important; }
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div > div { max-height: none !important; overflow: visible !important; flex-wrap: wrap !important; }
+[data-testid="stMultiSelect"] [data-baseweb="tag"] { max-width: 100% !important; }
+[data-testid="stMultiSelect"] [data-baseweb="tag"] span[title] { max-width: none !important; }
 </style>""", unsafe_allow_html=True)
 
 
@@ -403,6 +413,60 @@ def line_chart(df: pd.DataFrame, x: str, series, unit: str = "usd", height: int 
     if unit in ("count", "days") and top <= 6:
         fig.update_yaxes(dtick=1, range=[0, max(top, 1) + 0.4])
     return fig
+
+
+def flow_bars(df: pd.DataFrame, x: str, col_in: str, col_out: str, title: str = "", height: int = 300, lab_in: str = "money in",
+              lab_out: str = "money out") -> go.Figure:
+    """Money in and out over time: green bars above zero for money in, red bars below zero for money out."""
+    fig = go.Figure()
+    for col, lab, colr, sign in ((col_in, lab_in, FLOW_IN, 1), (col_out, lab_out, FLOW_OUT, -1)):
+        if col not in df:
+            continue
+        v = pd.to_numeric(df[col], errors="coerce")
+        fig.add_trace(go.Bar(x=df[x], y=sign * v, name=lab, marker={"color": colr, "line": {"width": 0}}, customdata=v,
+                             hovertemplate="$%{customdata:,.0f}<extra>" + esc(lab) + "</extra>"))
+    fig.update_layout(height=height, template="plotly_white", font={"family": FONT, "size": 12, "color": INK}, hovermode="x unified",
+                      barmode="relative", bargap=0.25, margin={"l": 8, "r": 8, "t": 34 if title else 12, "b": 8},
+                      title={"text": title, "font": {"size": 13}, "x": 0, "xanchor": "left"} if title else None,
+                      showlegend=True, legend={"orientation": "h", "y": 1.16, "x": 1, "xanchor": "right"},
+                      xaxis={"type": "category", "showgrid": False, "tickangle": -45, "nticks": 12},
+                      yaxis={"gridcolor": GRID, "zeroline": True, "zerolinecolor": MUTED, "zerolinewidth": 1, "tickformat": "$,.0f"})
+    return fig
+
+
+def deposit_chart(df: pd.DataFrame, x: str, bar, lines, title: str = "", height: int = 320) -> go.Figure:
+    """Deposits: bars for the monthly (month-end) balance, lines for the other balance measures.
+    bar: (column, label); lines: [(column, label, colour)]."""
+    fig = go.Figure()
+    if bar[0] in df:
+        fig.add_trace(go.Bar(x=df[x], y=df[bar[0]], name=bar[1], marker={"color": "#86b6ef", "line": {"width": 0}},
+                             hovertemplate="$%{y:,.0f}<extra>" + esc(bar[1]) + "</extra>"))
+    for col, lab, colr in lines:
+        if col in df:
+            fig.add_trace(go.Scatter(x=df[x], y=df[col], mode="lines+markers", name=lab, line={"width": 2, "color": colr},
+                                     marker={"size": 5, "color": colr}, hovertemplate="$%{y:,.0f}<extra>" + esc(lab) + "</extra>"))
+    fig.update_layout(height=height, template="plotly_white", font={"family": FONT, "size": 12, "color": INK}, hovermode="x unified",
+                      bargap=0.25, margin={"l": 8, "r": 8, "t": 34 if title else 12, "b": 8},
+                      title={"text": title, "font": {"size": 13}, "x": 0, "xanchor": "left"} if title else None,
+                      showlegend=len(fig.data) > 1, legend={"orientation": "h", "y": 1.16, "x": 1, "xanchor": "right"},
+                      xaxis={"type": "category", "showgrid": False, "tickangle": -45, "nticks": 12},
+                      yaxis={"gridcolor": GRID, "rangemode": "tozero", "zeroline": False, "tickformat": "$,.0f"})
+    return fig
+
+
+def export_html(fig: go.Figure, title: str) -> bytes:
+    """The network as one self-contained interactive HTML file (hover and zoom keep working; no internet needed)."""
+    f = go.Figure(fig)
+    f.update_layout(title={"text": esc(title), "font": {"size": 15}, "x": 0.01, "xanchor": "left"}, margin={"l": 8, "r": 8, "t": 48, "b": 8},
+                    paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", height=None, autosize=True)
+    return f.to_html(include_plotlyjs=True, full_html=True, default_height="92vh",
+                     config={"displaylogo": False, "scrollZoom": True, "toImageButtonOptions": {"format": "png", "scale": 2}}).encode("utf-8")
+
+
+def net_config(filename: str) -> dict:
+    """Chart toolbar of the network: a camera button that saves a PNG (twice the screen resolution) and a reset-view button."""
+    return {"displayModeBar": True, "displaylogo": False, "scrollZoom": True, "modeBarButtons": [["toImage", "resetScale2d"]],
+            "toImageButtonOptions": {"format": "png", "filename": filename, "scale": 2}}
 
 
 def show(fig, **kw):

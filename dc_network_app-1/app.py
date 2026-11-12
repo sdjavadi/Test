@@ -24,15 +24,23 @@ logging.basicConfig(level=logging.INFO)
 ui.inject_css()
 
 # ------------------------------------------------------------------ state (survives a visit to another page)
+# The controls of the network page only edit a draft. Nothing is read from the database until "Update the network" is
+# pressed: the pressed state is copied to st.session_state["applied"], and the picture is drawn from that copy.
 DEFAULTS = {"f_tabs": [], "f_level": "Parents", "f_dc": [], "f_so": [], "o_len": dc.DEFAULT_LEN, "o_top": 25, "o_dir": "Both ways",
             "o_reg": "All", "o_kinds": ["PNC customers", "Outside counterparties"], "o_min": 0, "o_family": True, "o_people": True,
             "o_hubs": True, "o_between": False, "o_overlay": True, "o_shared": False, "q": ""}
+APPLY_KEYS = [k for k in DEFAULTS if k != "q"] + ["extra"]
 for k, v in DEFAULTS.items():
     st.session_state[k] = st.session_state[k] if k in st.session_state else (list(v) if isinstance(v, list) else v)
 st.session_state.setdefault("nav", 0)
 st.session_state.setdefault("up_n", 0)
 st.session_state.setdefault("extra", [])        # selections added by search or by a click on the network
+st.session_state.setdefault("applied", None)    # the state the picture is drawn from
 MAX_FOCUS = 12
+
+
+def snapshot() -> dict:
+    return {k: (list(st.session_state[k]) if isinstance(st.session_state[k], list) else st.session_state[k]) for k in APPLY_KEYS}
 
 
 def qp_get(k):
@@ -60,8 +68,8 @@ def get_calendar():
         st.stop()
 
 
-def period(cal) -> tuple:
-    return dc.period(cal["last"], int(st.session_state.o_len))
+def period(cal, n) -> tuple:
+    return dc.period(cal["last"], int(n))
 
 
 # ------------------------------------------------------------------ workbook
@@ -90,24 +98,44 @@ def load_workbook(name: str, data: bytes, cal) -> None:
     st.session_state["wb"] = {"name": name, "sig": sig, "E": E, "P": P, "M": M}
     for k in ("f_tabs", "f_dc", "f_so"):
         st.session_state[k] = []
+    st.session_state["applied"] = None
     st.session_state["nav"] += 1
     st.rerun()
 
 
-def current_focus(wb) -> list:
-    """Selected workbook nodes plus anything added by search or by a click, in that order."""
-    fam = bool(st.session_state.o_family)
+def wb_groups(Es: pd.DataFrame, P: pd.DataFrame, col: str) -> dict:
+    """Companies listed in a workbook column, one entry per name: group key -> workbook ids (a company can carry
+    several ids across tabs)."""
+    out = {}
+    for i in dict.fromkeys(Es[col].dropna()):
+        if i in P.index:
+            out.setdefault(P.gkey[i], []).append(i)
+    return out
+
+
+def current_focus(wb, S: dict) -> list:
+    """Selected workbook nodes plus anything added by search or by a click, in that order, for a state S."""
+    fam = bool(S["o_family"])
     out = []
     if wb:
         E, P, M = wb["E"], wb["P"].set_index("id"), wb["M"]
-        tabs = st.session_state.f_tabs
-        Es = E[E.tab.isin(tabs)] if tabs else E
-        for i in st.session_state.f_dc:
-            nm = P.name.get(i, i)
-            out.append(dc.focus_parent(i, Es, M, nm, fam) if st.session_state.f_level == "Parents" else dc.focus_entity(i, M, nm, fam))
-        for i in st.session_state.f_so:
-            out.append(dc.focus_party(i, M, P.name.get(i, i), fam))
-    out += [dc.Focus(*t) for t in st.session_state.extra]
+        Es = E[E.tab.isin(S["f_tabs"])] if S["f_tabs"] else E
+        parents = S["f_level"] == "Parents"
+        g_dc = wb_groups(Es, P, "master_id" if parents else "dc_id")
+        g_so = wb_groups(Es, P, "so_id")
+        for k in S["f_dc"]:
+            ids = list(g_dc.get(k, []))
+            if not ids:
+                continue
+            nm = P.name[ids[0]]
+            if parents:
+                ids += [d for d in dict.fromkeys(Es.loc[Es.master_id.isin(ids), "dc_id"].dropna())]
+            out.append(dc.focus_ids(f"{'wbp' if parents else 'wbe'}|{k}", nm, ids, M, fam))
+        for k in S["f_so"]:
+            ids = g_so.get(k, [])
+            if ids:
+                out.append(dc.focus_ids(f"wbs|{k}", P.name[ids[0]], ids, M, fam))
+    out += [dc.Focus(*t) for t in S["extra"]]
     seen, res = set(), []
     for f in out:
         if f.key not in seen:
@@ -137,9 +165,10 @@ def apply_pending() -> None:
         return
     if p.get("clear_q"):
         st.session_state.q = ""
-    if p["do"] == "only":
+    if p["do"] == "only":                         # "Show its network" is itself a request to draw: applied at once
         st.session_state.f_dc, st.session_state.f_so = [], []
         st.session_state.extra = [p["focus"]]
+        st.session_state.applied = snapshot()
     elif p["do"] == "add":
         if p["focus"][0] not in {t[0] for t in st.session_state.extra}:
             st.session_state.extra = st.session_state.extra + [p["focus"]]
@@ -180,25 +209,36 @@ def workbook_box(cal):
     return wb
 
 
-def selection_row(wb, c1, c2, c3) -> None:
-    E, P = wb["E"], wb["P"].set_index("id")
-    tabs_all = list(dict.fromkeys(E.tab))
-    st.session_state.f_tabs = [t for t in st.session_state.f_tabs if t in tabs_all]
-    c1.multiselect("Workbook tabs", tabs_all, key="f_tabs", placeholder="All tabs")
-    Es = E[E.tab.isin(st.session_state.f_tabs)] if st.session_state.f_tabs else E
-    c1.radio("Data centers listed as", ["Parents", "Borrowing entities"], key="f_level", horizontal=True,
-             help="Parents: one node per data center parent with every borrowing entity under it. Borrowing entities: one node each.")
-    col = "master_id" if st.session_state.f_level == "Parents" else "dc_id"
-    short = {"PNC customer": "PNC customer", "Outside account (name match)": "outside account", "PNC customer + outside account": "PNC customer + outside account",
-             "Not in the payment data": "not in the payment data"}
-    lab = lambda i: f"{P.name.get(i, i)}  ·  {short.get(P.status.get(i, ''), '')}"   # noqa: E731
-    by_name = lambda ids: sorted(ids, key=lambda i: str(P.name.get(i, i)).upper())   # noqa: E731
-    dcs = by_name(i for i in dict.fromkeys(Es[col].dropna()) if i in P.index)
-    sos = by_name(i for i in dict.fromkeys(Es.so_id.dropna()) if i in P.index)
-    st.session_state.f_dc = [i for i in st.session_state.f_dc if i in set(dcs)]
-    st.session_state.f_so = [i for i in st.session_state.f_so if i in set(sos)]
-    c2.multiselect(f"Data centers ({len(dcs):,})", dcs, key="f_dc", format_func=lab, placeholder="Choose one or more")
-    c3.multiselect(f"Second-order parties ({len(sos):,})", sos, key="f_so", format_func=lab, placeholder="Choose one or more")
+def selection_rows(wb, cal) -> None:
+    """Tabs, level and search on one row; the two pickers on their own wide row so long names stay readable."""
+    top = st.columns([1.4, 1.1, 1.5]) if wb else [None, None, st.columns([1.5, 2.5])[0]]
+    if wb:
+        E, P = wb["E"], wb["P"].set_index("id")
+        tabs_all = list(dict.fromkeys(E.tab))
+        st.session_state.f_tabs = [t for t in st.session_state.f_tabs if t in tabs_all]
+        top[0].multiselect("Workbook tabs", tabs_all, key="f_tabs", placeholder="All tabs")
+        Es = E[E.tab.isin(st.session_state.f_tabs)] if st.session_state.f_tabs else E
+        top[1].radio("Data centers listed as", ["Parents", "Borrowing entities"], key="f_level", horizontal=True,
+                     help="Parents: one node per data center parent with every borrowing entity under it. Borrowing entities: one node each.")
+    search_row(cal, top[2])
+    if not wb:
+        return
+    g_dc = wb_groups(Es, P, "master_id" if st.session_state.f_level == "Parents" else "dc_id")
+    g_so = wb_groups(Es, P, "so_id")
+
+    def status(ids):
+        st_ = set(P.status[i] for i in ids)
+        pnc = any(x.startswith("PNC customer") for x in st_)
+        out_ = any("outside" in x.lower() for x in st_)
+        return "PNC customer + outside account" if pnc and out_ else "PNC customer" if pnc else "outside account" if out_ else "not in the payment data"
+    def label(g):   # noqa: E306
+        return lambda k: f"{P.name[g[k][0]]}  ·  {status(g[k])}" if k in g else str(k)
+    order = lambda g: sorted(g, key=lambda k: str(P.name[g[k][0]]).upper())   # noqa: E731
+    st.session_state.f_dc = [k for k in st.session_state.f_dc if k in g_dc]
+    st.session_state.f_so = [k for k in st.session_state.f_so if k in g_so]
+    c = st.columns(2)
+    c[0].multiselect(f"Data centers ({len(g_dc):,})", order(g_dc), key="f_dc", format_func=label(g_dc), placeholder="Choose one or more")
+    c[1].multiselect(f"Second-order parties ({len(g_so):,})", order(g_so), key="f_so", format_func=label(g_so), placeholder="Choose one or more")
 
 
 def search_row(cal, c1) -> None:
@@ -234,15 +274,16 @@ def extras_row() -> None:
     ex = st.session_state.extra
     if not ex:
         return
+    st.markdown('<div class="dc-note">Added by search or from the network (press ✕ to take one out):</div>', unsafe_allow_html=True)
     cols = st.columns(min(len(ex), 5) + 1)
     for j, t in enumerate(ex[:5]):
-        if cols[j].button(f"✕  {ui._short(t[1], 26)}", key=f"x_{t[0]}_{st.session_state.nav}", help="Remove from the selection"):
+        if cols[j].button(f"✕  {ui._short(t[1], 40)}", key=f"x_{t[0]}_{st.session_state.nav}", help="Remove from the selection"):
             ask("drop", key=t[0])
     if cols[-1].button("Clear the selection", key=f"x_all_{st.session_state.nav}"):
         ask("clear")
 
 
-def options_rows(n_focus: int) -> dc.GraphOpts:
+def options_rows(n_focus: int) -> None:
     c = st.columns([1.5, 1.5, 1.15, 1.15, 1.15, 1.15])
     c[0].radio("Period (months to the latest)", dc.PERIOD_LENGTHS, key="o_len", horizontal=True)
     c[1].slider("Neighbours shown", 5, 100, key="o_top", step=5, help="The largest by dollars; the rest are summed in one 'others' node.")
@@ -263,12 +304,15 @@ def options_rows(n_focus: int) -> dc.GraphOpts:
         f[4].toggle("Hide people", key="o_people")
         f[5].toggle("Hide hubs", key="o_hubs", help="Outside counterparties that deal with a very large number of PNC customers (processors, utilities, tax). "
                                                     "Companies listed in the workbook are always kept.")
-    kinds = tuple(k for k, lab in (("cust", "PNC customers"), ("ent", "Outside counterparties")) if lab in ss.o_kinds) or ("cust", "ent")
-    return dc.GraphOpts(top_n=int(ss.o_top), family=bool(ss.o_family),
-                        direction={"Both ways": "both", "The selection pays": "out", "The selection is paid": "in"}[ss.o_dir],
-                        min_amt=float(ss.o_min or 0), kinds=kinds, hide_people=bool(ss.o_people), hide_hubs=bool(ss.o_hubs),
-                        regular={"All": "all", "Regular only": "regular", "Not regular only": "casual"}[ss.o_reg],
-                        shared_only=bool(ss.o_shared) and n_focus > 1, overlay=bool(ss.o_overlay))
+
+
+def graph_opts(S: dict, n_focus: int) -> dc.GraphOpts:
+    kinds = tuple(k for k, lab in (("cust", "PNC customers"), ("ent", "Outside counterparties")) if lab in S["o_kinds"]) or ("cust", "ent")
+    return dc.GraphOpts(top_n=int(S["o_top"]), family=bool(S["o_family"]),
+                        direction={"Both ways": "both", "The selection pays": "out", "The selection is paid": "in"}[S["o_dir"]],
+                        min_amt=float(S["o_min"] or 0), kinds=kinds, hide_people=bool(S["o_people"]), hide_hubs=bool(S["o_hubs"]),
+                        regular={"All": "all", "Regular only": "regular", "Not regular only": "casual"}[S["o_reg"]],
+                        shared_only=bool(S["o_shared"]) and n_focus > 1, overlay=bool(S["o_overlay"]))
 
 
 def neighbour_table(G: dc.Graph, n_focus: int) -> pd.DataFrame:
@@ -286,10 +330,9 @@ def neighbour_table(G: dc.Graph, n_focus: int) -> pd.DataFrame:
     return V
 
 
-def workbook_rows(focus, wb, ego) -> pd.DataFrame:
+def workbook_rows(focus, wb, ego, tabs) -> pd.DataFrame:
     """Workbook lines of the selected nodes, with whether payments were seen with the other side."""
     E, M, P = wb["E"], wb["M"], wb["P"].set_index("id")
-    tabs = st.session_state.f_tabs
     Es = E[E.tab.isin(tabs)] if tabs else E
     ids = {w for f in focus for w in f.wb_ids}
     if not ids:
@@ -361,32 +404,51 @@ def render_network() -> None:
                 'regular, and where PNC has credit exposure.</div>', unsafe_allow_html=True)
     cal = get_calendar()
     wb = workbook_box(cal)
-    c = st.columns([1.0, 1.5, 1.5, 1.2]) if wb else [None, None, None, st.columns([1.2, 3])[0]]
-    if wb:
-        selection_row(wb, *c[:3])
-    search_row(cal, c[3])
+    selection_rows(wb, cal)
     extras_row()
-    focus = current_focus(wb)
+    draft = snapshot()
+    n_draft = len(draft["f_dc"]) + len(draft["f_so"]) + len(draft["extra"])
+    options_rows(n_draft)
+    draft = snapshot()
+    A = st.session_state.applied
+    b = st.columns([1.3, 5])
+    if b[0].button("Update the network", type="primary", disabled=n_draft == 0, key="apply",
+                   help="Choose data centers, parties and options first; the payment data is read only when you press this."):
+        st.session_state.applied = draft
+        st.session_state["nav"] += 1
+        st.rerun()
+    if n_draft == 0 and A is None:
+        b[1].markdown('<div class="dc-note" style="padding-top:0.55rem">Upload the workbook and choose a data center or a second-order party, '
+                      'or find any PNC customer by name. Then press <b>Update the network</b>.</div>', unsafe_allow_html=True)
+    elif A is None:
+        b[1].markdown(f'<div class="dc-note" style="padding-top:0.55rem">{n_draft:,} selected. Press <b>Update the network</b> to draw.</div>',
+                      unsafe_allow_html=True)
+    elif draft != A:
+        b[1].markdown('<span class="dc-chip warn" style="margin-top:0.45rem">The selection or the options changed: press Update the network '
+                      'to redraw. The picture below still shows the previous choice.</span>', unsafe_allow_html=True)
+    if A is None:
+        return
+    focus = current_focus(wb, A)
     if not focus:
-        st.info("Upload the workbook and choose a data center or a second-order party, or find any PNC customer by name.")
+        st.info("Nothing is selected in the network shown. Choose something and press Update the network.")
         return
     if len(focus) > MAX_FOCUS:
         st.warning(f"The first {MAX_FOCUS} selected nodes are shown.")
         focus = focus[:MAX_FOCUS]
-    opts = options_rows(len(focus))
-    first, last = period(cal)
+    opts = graph_opts(A, len(focus))
+    first, last = period(cal, A["o_len"])
     try:
         with st.spinner(f"Reading payments for {first} to {last}…"):
             ego = ui.load_ego(focus, first, last, cal["tm_last"])
-            streams = ui.load_streams(focus, last, int(st.session_state.o_len))
+            streams = ui.load_streams(focus, last, int(A["o_len"]))
     except Exception as e:  # noqa: BLE001
         ui.fail("the payments", e)
         return
     Es = None
     if wb:
-        Es = wb["E"][wb["E"].tab.isin(st.session_state.f_tabs)] if st.session_state.f_tabs else wb["E"]
+        Es = wb["E"][wb["E"].tab.isin(A["f_tabs"])] if A["f_tabs"] else wb["E"]
     G = dc.build_graph(ego, streams, focus, opts, wb["M"] if wb else None, Es, wb["P"] if wb else None)
-    if st.session_state.o_between and G.members:
+    if A["o_between"] and G.members:
         try:
             mk = tuple((k, tuple(v["mdm"]), tuple(v["ent"])) for k, v in sorted(G.members.items()))
             dc.add_between(G, ui.load_between(mk, first, last))
@@ -408,16 +470,25 @@ def render_network() -> None:
         ui.chips([(f"Not in the payment data: {', '.join(missing[:6])}", "warn")])
 
     fig = ui.draw_graph(G, f"{first} to {last}", opts.family)
+    fname = f"data_center_network_{first}_{last}"
     clicked = None
     if ui.SELECTABLE:
         ev = st.plotly_chart(fig, **ui.WIDE, key=f"net_{st.session_state.nav}", on_select="rerun", selection_mode="points",
-                             config={"displayModeBar": False, "scrollZoom": True})
+                             config=ui.net_config(fname))
         clicked = ui.clicked_key(ev)
     else:
-        st.plotly_chart(fig, **ui.WIDE, config={"displayModeBar": False, "scrollZoom": True})
+        st.plotly_chart(fig, **ui.WIDE, config=ui.net_config(fname))
     st.markdown('<div class="dc-note">Arrows point the way the money moved; thicker lines and larger nodes mean more dollars '
                 f'({first} to {last}). Hover a line or a node for the figures; click a node to act on it. Drag to move, scroll to zoom.'
                 + ("".join(" " + ui.esc(n) for n in G.notes)) + "</div>", unsafe_allow_html=True)
+    x = st.columns([1.5, 5])
+    title = f"{', '.join(f.label for f in focus[:4])}{' and others' if len(focus) > 4 else ''} · payments {first} to {last}"
+    try:
+        x[0].download_button("Download as HTML (interactive)", ui.export_html(fig, title), fname + ".html", "text/html", key="dl_html")
+    except Exception as e:  # noqa: BLE001
+        ui.fail("the HTML export", e)
+    x[1].markdown('<div class="dc-note" style="padding-top:0.55rem">For a PNG, use the camera button at the top right of the picture '
+                  '(it saves what is on screen, at twice the resolution).</div>', unsafe_allow_html=True)
     slot = st.container()
 
     V = neighbour_table(G, len(focus))
@@ -438,7 +509,7 @@ def render_network() -> None:
         with slot:
             node_panel(target, G, focus, cal)
     if wb:
-        W = workbook_rows(focus, wb, ego)
+        W = workbook_rows(focus, wb, ego, A["f_tabs"])
         if len(W):
             n_yes = int((W["payments seen in the period"] == "yes").sum())
             with st.expander(f"What the workbook says about the selection ({len(W):,} rows, payments seen for {n_yes:,})"):
@@ -453,7 +524,8 @@ if qp_get("cpty"):
     pages.render_cpty(qp_get("cpty"), go_to, get_calendar, ask)
 elif qp_get("cust") or qp_get("fam") or qp_get("sel"):
     kind = "cust" if qp_get("cust") else "fam" if qp_get("fam") else "sel"
-    sel = next((f for f in current_focus(st.session_state.get("wb")) if f.key == qp_get("sel")), None) if kind == "sel" else None
+    sel = next((f for f in current_focus(st.session_state.get("wb"), st.session_state.applied or snapshot()) if f.key == qp_get("sel")), None) \
+        if kind == "sel" else None
     pages.render_customer(kind, qp_get(kind), sel, go_to, get_calendar, ask)
 else:
     render_network()

@@ -1,4 +1,4 @@
-# Data Center Network Explorer (draft 1)
+# Data Center Network Explorer (draft 2)
 
 Upload the data center workbook, pick data centers or second-order parties (or find any PNC customer), and see the
 payment network around them: who pays whom, which flows are regular and whether they are on schedule, what the
@@ -20,6 +20,21 @@ Reads Impala through `dbi`; it never writes to Impala. Needs `streamlit` >= 1.35
 | `app.py` | Network page (upload, selection, options, network, tables) and the page router |
 | `dc_pages.py` | Customer page and counterparty page |
 | `.streamlit/config.toml` | Light theme, 50 MB upload limit |
+
+## Using the network page
+
+- **Nothing is read from the database until you press *Update the network*.** Choose tabs, data centers, parties and
+  options freely; a note says when the picture no longer matches the controls. "Show its network" on a node redraws
+  at once, because it is itself a request to draw.
+- **One entry per company name:** a company listed under several workbook ids (a Power ID in one tab, a made-up id in
+  another) appears once in the pickers and becomes one node.
+- **Export:** *Download as HTML* saves the interactive picture as one self-contained file. For a PNG, use the camera
+  button at the top right of the picture (twice the screen resolution).
+
+## Chart conventions
+
+- Money in and out over time: bars above zero in green (in) and below zero in red (out).
+- Deposits: bars for the month-end balance, lines for the other measures.
 
 ## How to read the network
 

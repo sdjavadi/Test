@@ -156,17 +156,14 @@ def render_customer(kind: str, ident: str, sel, go_to, get_calendar, ask) -> Non
         if F.empty:
             st.info("No payment history for this customer.")
         else:
-            ui.show(ui.line_chart(F, "month", [("amt_all_in", "money in", ui.C_IN), ("amt_all_out", "money out", ui.C_OUT)],
-                                  title="All payments per month"))
+            ui.show(ui.flow_bars(F, "month", "amt_all_in", "amt_all_out", title="All payments per month"))
             g = st.columns(2)
             if "amt_ext_in" in F or "amt_ext_out" in F:
                 with g[0]:
-                    ui.show(ui.line_chart(F, "month", [("amt_ext_in", "money in", ui.C_IN), ("amt_ext_out", "money out", ui.C_OUT)],
-                                          title="With outside counterparties", height=250))
+                    ui.show(ui.flow_bars(F, "month", "amt_ext_in", "amt_ext_out", title="With outside counterparties", height=260))
             if "amt_int_in" in F or "amt_int_out" in F:
                 with g[1]:
-                    ui.show(ui.line_chart(F, "month", [("amt_int_in", "money in", ui.C_IN), ("amt_int_out", "money out", ui.C_OUT)],
-                                          title="With other PNC customers", height=250))
+                    ui.show(ui.flow_bars(F, "month", "amt_int_in", "amt_int_out", title="With other PNC customers", height=260))
             with st.expander("The numbers"):
                 ui.table(F.rename(columns={"amt_all_in": "money in", "amt_all_out": "money out", "amt_ext_in": "in, outside", "amt_ext_out": "out, outside",
                                            "amt_int_in": "in, PNC customers", "amt_int_out": "out, PNC customers", "ntxn_all_in": "payments in",
@@ -245,9 +242,10 @@ def render_customer(kind: str, ident: str, sel, go_to, get_calendar, ask) -> Non
 
     if "Deposits" in tabs:
         with tabs["Deposits"]:
-            ser = [(c, lab, col) for (c, lab), col in zip([("dep_bal_eom", "month end"), ("dep_bal_mean", "daily average"), ("dep_bal_min", "lowest day")], BLUES)
-                   if c in DP and (c != "dep_bal_min" or not many)]
-            ui.show(ui.line_chart(DP, "month", ser, title="Deposit balances" + (" (summed over the Power IDs)" if len(pwr) > 1 else "")))
+            lines = [(c, lab, col) for c, lab, col in [("dep_bal_mean", "daily average", BLUES[0]), ("dep_bal_min", "lowest day", ui.ORANGE)]
+                     if c in DP and (c != "dep_bal_min" or len(pwr) == 1)]
+            ui.show(ui.deposit_chart(DP, "month", ("dep_bal_eom", "month end"), lines,
+                                     title="Deposit balances" + (" (summed over the Power IDs)" if len(pwr) > 1 else "")))
             with st.expander("The numbers"):
                 ui.table(DP.rename(columns={"dep_bal_eom": "month end", "dep_bal_mean": "daily average", "dep_bal_min": "lowest day",
                                             "dep_bal_max": "highest day"}), money=["month end", "daily average", "lowest day", "highest day"])
@@ -375,7 +373,10 @@ def render_cpty(eid: str, go_to, get_calendar, ask) -> None:
             g = st.columns(2)
             for j, (title, unit, ser, why) in enumerate(panels):
                 with g[j % 2]:
-                    ui.show(ui.line_chart(TR, "month", [(c, l, col) for (c, l), col in zip(ser, [ui.C_IN, ui.C_OUT])], unit=unit, title=title, height=250))
+                    if unit == "flow":
+                        ui.show(ui.flow_bars(TR, "month", "amt_in", "amt_out", title=title, height=250, lab_in="received", lab_out="paid"))
+                    else:
+                        ui.show(ui.line_chart(TR, "month", [(c, l, col) for (c, l), col in zip(ser, [ui.C_IN, ui.C_OUT])], unit=unit, title=title, height=250))
                     st.caption(why)
 
     with tabs["Regular payments"]:
