@@ -1,0 +1,3 @@
+cd ~/repos/pkg/net_work
+for w in w=*; do [ -f "$w/_GPU_DONE" ] && rm -rf "$w/int_edges" "$w/obs_edges" "$w/com_edges"; done
+du -sh .
